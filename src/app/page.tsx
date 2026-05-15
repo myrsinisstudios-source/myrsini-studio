@@ -1,10 +1,12 @@
 import HeroSection from '@/components/sections/HeroSection'
 import BookingBar from '@/components/booking/BookingBar'
+import WeatherWidget from '@/components/home/WeatherWidget'
 import ApartmentsSection from '@/components/sections/ApartmentsSection'
 import ActivitiesCarousel from '@/components/sections/ActivitiesCarousel'
 import HistoryMasonry from '@/components/sections/HistoryMasonry'
 import HikingMode from '@/components/sections/HikingMode'
 import EmergencyGrid from '@/components/sections/EmergencyGrid'
+import HeritageSlider from '@/components/home/HeritageSlider'
 
 async function getApartments() {
   try {
@@ -26,28 +28,34 @@ export default async function Home() {
 
   return (
     <main>
-      {/* Hero — full screen */}
+      {/* 1. Hero — full screen */}
       <HeroSection />
 
-      {/* Floating booking bar — pulled up into hero with negative margin */}
+      {/* 2. Floating booking bar — pulled up into hero */}
       <div className="relative z-20 max-w-5xl mx-auto px-4 sm:px-6 -mt-32">
         <BookingBar />
       </div>
 
-      {/* Apartments — padding compensates for booking bar overlap */}
+      {/* 3. Weather strip */}
+      <WeatherWidget />
+
+      {/* 4. Apartments with Room Features Grid */}
       <ApartmentsSection apartments={apartments} />
 
-      {/* Activities */}
+      {/* 5. Activities Carousel */}
       <ActivitiesCarousel />
 
-      {/* History */}
+      {/* 6. History Masonry */}
       <HistoryMasonry />
 
-      {/* Hiking */}
+      {/* 7. Hiking Mode */}
       <HikingMode />
 
-      {/* Emergency */}
+      {/* 8. Emergency Info */}
       <EmergencyGrid />
+
+      {/* 9. Heritage photo strip */}
+      <HeritageSlider />
     </main>
   )
 }
