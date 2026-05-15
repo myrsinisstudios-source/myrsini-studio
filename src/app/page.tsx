@@ -1,5 +1,7 @@
 ﻿import BookingWidget from '@/components/booking/BookingWidget'
 import { createClient } from '@/lib/supabase/server'
+import WeatherWidget from '@/components/home/WeatherWidget'
+<WeatherWidget />
 
 export default async function Home() {
   const supabase = await createClient()
