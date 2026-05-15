@@ -16,14 +16,15 @@ type Trail = {
   icon: string
 }
 
-const EMPTY = { name: '', distance: '', duration: '', elevation: '', difficulty: 'Εύκολη', description: '', start_point: '', tags: '', icon: '🥾' }
+type TrailForm = { name: string; distance: string; duration: string; elevation: string; difficulty: string; description: string; start_point: string; tags: string | string[]; icon: string }
+const EMPTY: TrailForm = { name: '', distance: '', duration: '', elevation: '', difficulty: 'Εύκολη', description: '', start_point: '', tags: '', icon: '🥾' }
 const DIFFICULTIES = ['Εύκολη', 'Μέτρια', 'Δύσκολη']
 const DIFF_COLOR: Record<string, string> = { 'Εύκολη': 'bg-green-100 text-green-700', 'Μέτρια': 'bg-amber-100 text-amber-700', 'Δύσκολη': 'bg-red-100 text-red-700' }
 
 export default function AdminHikingPage() {
   const supabase = createClient()
   const [trails, setTrails] = useState<Trail[]>([])
-  const [form, setForm] = useState(EMPTY)
+  const [form, setForm] = useState<TrailForm>(EMPTY)
   const [editId, setEditId] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
   const [deleting, setDeleting] = useState<string | null>(null)
