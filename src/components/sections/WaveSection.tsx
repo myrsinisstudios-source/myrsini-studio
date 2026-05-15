@@ -1,14 +1,21 @@
-import Image from 'next/image'
-
 export default function WaveSection() {
   return (
     <div className="relative w-full overflow-hidden" style={{ height: 400 }}>
-      <Image
-        src="https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=1600&q=80"
-        alt="Ήρεμη παραλία με κύμα"
-        fill
-        className="object-cover object-center"
-        sizes="100vw"
+      <video
+        src="https://videos.pexels.com/video-files/1409899/1409899-uhd_2560_1440_25fps.mp4"
+        autoPlay
+        muted
+        loop
+        playsInline
+        style={{
+          position: 'absolute',
+          inset: 0,
+          width: '100%',
+          height: '100%',
+          objectFit: 'cover',
+          objectPosition: 'center',
+          display: 'block',
+        }}
       />
     </div>
   )
