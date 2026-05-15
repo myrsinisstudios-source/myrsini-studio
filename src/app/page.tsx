@@ -2,7 +2,7 @@ import HeroSection from '@/components/sections/HeroSection'
 import BookingBar from '@/components/booking/BookingBar'
 import WeatherWidget from '@/components/home/WeatherWidget'
 import ApartmentsSection from '@/components/sections/ApartmentsSection'
-import ActivitiesCarousel from '@/components/sections/ActivitiesCarousel'
+import CircularCarousel from '@/components/sections/CircularCarousel'
 import HistoryMasonry from '@/components/sections/HistoryMasonry'
 import HikingMode from '@/components/sections/HikingMode'
 import EmergencyGrid from '@/components/sections/EmergencyGrid'
@@ -33,7 +33,7 @@ export default async function Home() {
       </div>
       <WeatherWidget />
       <ApartmentsSection apartments={apartments} />
-      <ActivitiesCarousel activities={activities} />
+      <CircularCarousel activities={activities} />
       <HistoryMasonry />
       <HikingMode />
       <EmergencyGrid />

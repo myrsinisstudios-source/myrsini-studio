@@ -1,7 +1,8 @@
 import type { Metadata } from 'next'
 import { Playfair_Display, Lato } from 'next/font/google'
 import './globals.css'
-import { ConditionalNavbar, ConditionalFooter } from '@/components/layout/ConditionalNav'
+import { ConditionalNavbar, ConditionalFooter, ConditionalBookingModal } from '@/components/layout/ConditionalNav'
+import { LanguageProvider } from '@/lib/i18n/LanguageContext'
 
 const playfair = Playfair_Display({
   subsets: ['latin', 'latin-ext'],
@@ -52,11 +53,7 @@ const jsonLd = {
     postalCode: '37010',
     addressCountry: 'GR',
   },
-  geo: {
-    '@type': 'GeoCoordinates',
-    latitude: 39.1511,
-    longitude: 23.2678,
-  },
+  geo: { '@type': 'GeoCoordinates', latitude: 39.1511, longitude: 23.2678 },
   priceRange: '€€',
   checkinTime: '14:00',
   checkoutTime: '11:00',
@@ -74,21 +71,17 @@ const jsonLd = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html
-      lang="el"
-      data-scroll-behavior="smooth"
-      className={`${playfair.variable} ${lato.variable}`}
-    >
+    <html lang="el" data-scroll-behavior="smooth" className={`${playfair.variable} ${lato.variable}`}>
       <head>
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
-        />
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
       </head>
       <body className="font-sans antialiased bg-cream">
-        <ConditionalNavbar />
-        {children}
-        <ConditionalFooter />
+        <LanguageProvider>
+          <ConditionalNavbar />
+          {children}
+          <ConditionalFooter />
+          <ConditionalBookingModal />
+        </LanguageProvider>
       </body>
     </html>
   )

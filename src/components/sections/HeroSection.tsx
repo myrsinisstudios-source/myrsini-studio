@@ -1,6 +1,11 @@
+'use client'
+
 import Image from 'next/image'
+import { useLanguage } from '@/lib/i18n/LanguageContext'
 
 export default function HeroSection() {
+  const { t } = useLanguage()
+
   return (
     <div className="relative min-h-screen overflow-hidden">
       {/* Background photo */}
@@ -26,33 +31,28 @@ export default function HeroSection() {
       {/* Content */}
       <div className="relative z-10 flex flex-col items-center justify-center min-h-screen px-4 text-center pb-48">
         <div className="animate-fade-in-up inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm border border-white/20 px-5 py-2 text-white/70 text-xs tracking-widest uppercase mb-10">
-          🌿 Χόρτο &nbsp;·&nbsp; Νότιο Πήλιο &nbsp;·&nbsp; Ελλάδα
+          {t.hero.badge}
         </div>
 
         <h1 className="animate-fade-in-up animation-delay-200 font-serif text-white leading-tight mb-6">
-          <span className="block text-5xl sm:text-7xl md:text-8xl font-normal tracking-tight">Myrsini</span>
-          <span className="block text-4xl sm:text-6xl md:text-7xl font-light italic text-white/80 mt-1">Studios</span>
+          <span className="block text-5xl sm:text-7xl md:text-8xl font-normal tracking-tight">{t.hero.title1}</span>
+          <span className="block text-4xl sm:text-6xl md:text-7xl font-light italic text-white/80 mt-1">{t.hero.title2}</span>
         </h1>
 
         <p className="animate-fade-in-up animation-delay-400 text-white/55 text-base sm:text-lg tracking-wider max-w-sm mb-6">
-          Παραδοσιακά καταλύματα &nbsp;·&nbsp; Άμεση κράτηση
+          {t.hero.tagline}
         </p>
 
         <div className="animate-fade-in-up animation-delay-600 flex items-center gap-3 text-sm">
           <span className="text-amber-400 tracking-widest">★★★★★</span>
           <span className="text-white/30">|</span>
-          <span className="text-white/40 text-xs tracking-widest uppercase">Best Price Guarantee</span>
+          <span className="text-white/40 text-xs tracking-widest uppercase">{t.hero.bestPrice}</span>
         </div>
       </div>
 
       {/* Wave divider */}
-      <svg
-        className="absolute bottom-0 left-0 right-0 w-full"
-        viewBox="0 0 1440 60"
-        fill="none"
-        xmlns="http://www.w3.org/2000/svg"
-        preserveAspectRatio="none"
-      >
+      <svg className="absolute bottom-0 left-0 right-0 w-full" viewBox="0 0 1440 60" fill="none"
+        xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none">
         <path d="M0 60H1440V30C1200 60 960 0 720 20C480 40 240 10 0 30V60Z" fill="#F9F7F2" />
       </svg>
     </div>
