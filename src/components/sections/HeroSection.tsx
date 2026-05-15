@@ -10,7 +10,7 @@ export default function HeroSection() {
     <div className="relative min-h-screen overflow-hidden">
       {/* Background photo */}
       <Image
-        src="https://res.cloudinary.com/dusy3drw7/image/upload/f_auto,q_auto/16054344931457576088_ofwda2"
+        src="https://res.cloudinary.com/dusy3drw7/image/upload/v1778882029/preview_hflebz.webp"
         alt="Χόρτο Πηλίου"
         fill
         priority
