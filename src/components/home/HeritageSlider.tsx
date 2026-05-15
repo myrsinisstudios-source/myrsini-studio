@@ -12,7 +12,13 @@ export default function HeritageSlider() {
       <p className="text-center text-white/40 text-xs tracking-widest uppercase mb-8">
         Παλιές Αναμνήσεις
       </p>
-      <div className="flex gap-6 animate-scroll">
+      <div
+        className="flex gap-6"
+        style={{
+          animation: 'scroll 20s linear infinite',
+          width: 'max-content',
+        }}
+      >
         {[...photos, ...photos].map((p, i) => (
           <div
             key={i}
@@ -22,14 +28,10 @@ export default function HeritageSlider() {
           </div>
         ))}
       </div>
-      <style jsx>{`
+      <style>{`
         @keyframes scroll {
           0% { transform: translateX(0); }
           100% { transform: translateX(-50%); }
-        }
-        .animate-scroll {
-          animation: scroll 20s linear infinite;
-          width: max-content;
         }
       `}</style>
     </section>
