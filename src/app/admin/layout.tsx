@@ -1,31 +1,65 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { usePathname } from 'next/navigation'
+import Link from 'next/link'
+
+const IcoDashboard = () => (
+  <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+    <rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/>
+    <rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/>
+  </svg>
+)
+const IcoBookings = () => (
+  <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+    <rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/>
+    <path d="M8 14h.01M12 14h.01M16 14h.01M8 18h.01M12 18h.01"/>
+  </svg>
+)
+const IcoFinance = () => (
+  <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"/>
+    <path d="M14.5 8.5C14.5 7.12 13.38 6 12 6s-2.5 1.12-2.5 2.5c0 2.5 5 3 5 6 0 1.66-1.34 3-3 3s-3-1.34-3-3M12 6V4M12 18v2"/>
+  </svg>
+)
+const IcoActivities = () => (
+  <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M12 20h9M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/>
+  </svg>
+)
+const IcoMaintenance = () => (
+  <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M14.7 6.3a1 1 0 000 1.4l1.6 1.6a1 1 0 001.4 0l3.77-3.77a6 6 0 01-7.94 7.94l-6.91 6.91a2.12 2.12 0 01-3-3l6.91-6.91a6 6 0 017.94-7.94l-3.76 3.76z"/>
+  </svg>
+)
+const IcoSettings = () => (
+  <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+    <circle cx="12" cy="12" r="3"/>
+    <path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/>
+  </svg>
+)
 
 const NAV = [
-  { href: '/admin', label: 'Dashboard' },
-  { href: '/admin/bookings', label: 'Κρατήσεις' },
-  { href: '/admin/finances', label: 'Οικονομικά' },
-  { href: '/admin/cms', label: 'CMS' },
-  { href: '/admin/emergency', label: 'Έκτακτη Ανάγκη' },
-  { href: '/admin/hiking', label: 'Μονοπάτια' },
-  { href: '/admin/activities', label: 'Δραστηριότητες' },
-  { href: '/admin/history', label: 'Ιστορία' },
-  { href: '/admin/slider', label: 'Slider' },
+  { href: '/admin',            Icon: IcoDashboard,    label: 'Dashboard',       sub: 'Active', exact: true },
+  { href: '/admin/bookings',   Icon: IcoBookings,     label: 'Κρατήσεις',       sub: 'Bookings' },
+  { href: '/admin/finances',   Icon: IcoFinance,      label: 'Οικονομικά',      sub: 'Finance' },
+  { href: '/admin/activities', Icon: IcoActivities,   label: 'Δραστηριότητες',  sub: 'Activities CMS, managing the rotating wheel' },
+  { href: '/admin/cms',        Icon: IcoMaintenance,  label: 'Συντήρηση',       sub: 'Maintenance Log' },
+  { href: '/admin/settings',   Icon: IcoSettings,     label: 'Ρυθμίσεις',       sub: 'Settings' },
 ]
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const [auth, setAuth] = useState(false)
   const [password, setPassword] = useState('')
   const [error, setError] = useState(false)
+  const pathname = usePathname()
 
   useEffect(() => {
     if (localStorage.getItem('admin') === 'true') setAuth(true)
   }, [])
 
   const handleLogin = () => {
-    const stored = typeof window !== 'undefined' ? localStorage.getItem('admin') === 'true' : false
-    if (stored || password === 'myrsini2026') {
+    if (localStorage.getItem('admin') === 'true' || password === 'myrsini2026') {
       setAuth(true)
       localStorage.setItem('admin', 'true')
     } else {
@@ -35,12 +69,12 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
   if (!auth) {
     return (
-      <div className="min-h-screen bg-deep-wood flex items-center justify-center px-4">
-        <div className="bg-white p-8 w-full max-w-sm shadow-2xl">
+      <div className="min-h-screen flex items-center justify-center px-4" style={{ background: '#F5F0E8' }}>
+        <div className="bg-white p-8 w-full max-w-xs shadow-xl" style={{ border: '1px solid #E8E0D0' }}>
           <div className="text-center mb-8">
-            <div className="text-4xl mb-3">🌿</div>
-            <h1 className="font-serif text-2xl text-deep-wood">Admin Panel</h1>
-            <p className="text-xs text-deep-wood/40 mt-1 tracking-wider">Myrsini Studios</p>
+            <div className="w-12 h-12 rounded-full mx-auto mb-4 flex items-center justify-center text-white font-serif text-xl" style={{ background: '#C9A96E' }}>M</div>
+            <h1 className="font-serif text-xl" style={{ color: '#3A2A1A' }}>Myrsini Studios</h1>
+            <p className="text-xs mt-1 tracking-wider uppercase" style={{ color: '#8B7355' }}>Admin Panel</p>
           </div>
           <input
             type="password"
@@ -48,12 +82,14 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             value={password}
             onChange={e => { setPassword(e.target.value); setError(false) }}
             onKeyDown={e => e.key === 'Enter' && handleLogin()}
-            className="w-full border-2 border-gray-200 px-4 py-3 text-gray-900 text-sm mb-3 focus:outline-none focus:border-olive"
+            className="w-full px-4 py-3 text-sm mb-3 focus:outline-none"
+            style={{ border: '1px solid #D5CCBB', background: '#FAFAF8', color: '#3A2A1A' }}
           />
-          {error && <p className="text-red-500 text-xs mb-3">Λάθος κωδικός</p>}
+          {error && <p className="text-red-500 text-xs mb-3 text-center">Λάθος κωδικός</p>}
           <button
             onClick={handleLogin}
-            className="w-full bg-deep-wood text-white py-3 text-sm tracking-widest uppercase hover:bg-olive transition-colors"
+            className="w-full py-3 text-xs tracking-widest uppercase text-white transition-opacity hover:opacity-90"
+            style={{ background: '#C9A96E' }}
           >
             Είσοδος
           </button>
@@ -63,24 +99,80 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <nav className="bg-deep-wood text-white px-6 py-4">
-        <div className="max-w-7xl mx-auto flex items-center justify-between">
-          <span className="font-serif text-lg">Myrsini Admin</span>
-          <div className="flex gap-1">
-            {NAV.map(n => (
-              <a
-                key={n.href}
-                href={n.href}
-                className="text-white/60 hover:text-white hover:bg-white/10 px-3 py-1.5 text-sm rounded-sm transition-colors"
-              >
-                {n.label}
-              </a>
-            ))}
-          </div>
+    <div className="min-h-screen flex" style={{ background: '#F0EDE6' }}>
+      {/* ─── Sidebar ─── */}
+      <aside className="w-52 shrink-0 flex flex-col" style={{ background: '#F5F0E8', borderRight: '1px solid #E3DBD0' }}>
+        {/* Logo */}
+        <div className="px-5 py-5" style={{ borderBottom: '1px solid #E3DBD0' }}>
+          <p className="text-[10px] tracking-widest uppercase mb-2" style={{ color: '#A08060' }}>Διαχειριστής</p>
+          <p className="font-serif text-base leading-snug" style={{ color: '#2C1B0E' }}>Myrsini Studios</p>
         </div>
-      </nav>
-      <main className="max-w-7xl mx-auto px-4 py-8">{children}</main>
+
+        {/* Nav items */}
+        <nav className="flex-1 px-2.5 py-3 space-y-0.5 overflow-y-auto">
+          {NAV.map(({ href, Icon, label, sub, exact }) => {
+            const active = exact ? pathname === href : (pathname === href || pathname?.startsWith(href + '/'))
+            return (
+              <Link
+                key={href}
+                href={href}
+                className="flex items-start gap-3 px-3 py-2.5 rounded-xl transition-all duration-150 group"
+                style={active
+                  ? { background: '#E5DDD0', boxShadow: '0 1px 3px rgba(0,0,0,0.08)' }
+                  : { background: 'transparent' }
+                }
+              >
+                <span className="mt-0.5 shrink-0 transition-colors duration-150"
+                  style={{ color: active ? '#8B6914' : '#B0A090' }}>
+                  <Icon />
+                </span>
+                <div className="min-w-0">
+                  <p className="text-sm font-medium leading-tight" style={{ color: active ? '#3A2200' : '#5A4A35' }}>
+                    {label}
+                  </p>
+                  <p className="text-[10px] mt-0.5 leading-snug line-clamp-2"
+                    style={{ color: active ? '#8B6914' : '#A09080', fontStyle: active && href === '/admin' ? 'italic' : 'normal' }}>
+                    {active && href === '/admin' ? 'Active' : sub}
+                  </p>
+                </div>
+              </Link>
+            )
+          })}
+        </nav>
+
+        {/* Logout */}
+        <div className="px-3 py-3" style={{ borderTop: '1px solid #E3DBD0' }}>
+          <button
+            onClick={() => { localStorage.removeItem('admin'); setAuth(false) }}
+            className="w-full text-left text-xs px-2 py-2 rounded-lg transition-colors hover:bg-[#EDE7DA]"
+            style={{ color: '#A09080' }}
+          >
+            ← Έξοδος
+          </button>
+        </div>
+      </aside>
+
+      {/* ─── Main ─── */}
+      <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
+        {/* Top bar */}
+        <header className="h-12 flex items-center justify-end px-6 shrink-0" style={{ background: '#FFFFFF', borderBottom: '1px solid #E8E0D0' }}>
+          <div className="flex items-center gap-2.5">
+            <div className="text-right leading-none">
+              <p className="text-[10px]" style={{ color: '#A09080' }}>Myrsini</p>
+              <p className="text-sm font-medium" style={{ color: '#2C1B0E' }}>Studios</p>
+            </div>
+            <div className="w-8 h-8 rounded-full flex items-center justify-center text-white text-sm font-serif"
+              style={{ background: 'linear-gradient(135deg, #C9A96E, #a8793f)' }}>
+              M
+            </div>
+          </div>
+        </header>
+
+        {/* Page content */}
+        <main className="flex-1 p-5 overflow-auto">
+          {children}
+        </main>
+      </div>
     </div>
   )
 }
