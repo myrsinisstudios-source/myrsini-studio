@@ -1,8 +1,7 @@
 import type { Metadata } from 'next'
 import { Playfair_Display, Lato } from 'next/font/google'
 import './globals.css'
-import Navbar from '@/components/layout/Navbar'
-import Footer from '@/components/layout/Footer'
+import { ConditionalNavbar, ConditionalFooter } from '@/components/layout/ConditionalNav'
 
 const playfair = Playfair_Display({
   subsets: ['latin', 'latin-ext'],
@@ -87,9 +86,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         />
       </head>
       <body className="font-sans antialiased bg-cream">
-        <Navbar />
+        <ConditionalNavbar />
         {children}
-        <Footer />
+        <ConditionalFooter />
       </body>
     </html>
   )
