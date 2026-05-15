@@ -1,7 +1,6 @@
-﻿import BookingWidget from '@/components/booking/BookingWidget'
+import BookingWidget from '@/components/booking/BookingWidget'
 import { createClient } from '@/lib/supabase/server'
 import WeatherWidget from '@/components/home/WeatherWidget'
-<WeatherWidget />
 
 export default async function Home() {
   const supabase = await createClient()
@@ -23,19 +22,21 @@ export default async function Home() {
           </a>
         </div>
       </section>
+      <WeatherWidget />
       <section id="apartments" className="max-w-6xl mx-auto px-4 py-24">
         <h2 className="text-3xl font-light text-[#2C1B0E] mb-12 text-center">Τα Καταλύματα</h2>
         <div className="grid md:grid-cols-2 gap-8">
           {apartments?.map((apt) => (
             <div key={apt.id} className="bg-white shadow-sm p-6">
               <h3 className="text-xl font-light text-[#2C1B0E] mb-2">{apt.name_el}</h3>
-              <p className="text-sm text-gray-700 mb-4">{apt.description_el}</p>
+              <p className="text-sm text-gray-600 mb-4">{apt.description_el}</p>
               <p className="text-[#4a5d45] font-medium">€{apt.price_per_night} / νύχτα</p>
             </div>
           ))}
         </div>
       </section>
+      <BookingWidget />
     </main>
-    
   )
 }
+
