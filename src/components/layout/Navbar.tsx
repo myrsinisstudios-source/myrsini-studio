@@ -69,6 +69,14 @@ export default function Navbar() {
           >
             Κράτηση
           </a>
+          <a
+            href="/admin"
+            className={`text-xs tracking-widest uppercase transition-colors duration-300 ${
+              scrolled ? 'text-deep-wood/30 hover:text-deep-wood/60' : 'text-white/30 hover:text-white/60'
+            }`}
+          >
+            Admin
+          </a>
         </div>
 
         {/* Mobile burger */}

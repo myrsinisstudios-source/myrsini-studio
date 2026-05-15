@@ -7,6 +7,11 @@ const NAV = [
   { href: '/admin/bookings', label: 'Κρατήσεις' },
   { href: '/admin/finances', label: 'Οικονομικά' },
   { href: '/admin/cms', label: 'CMS' },
+  { href: '/admin/emergency', label: 'Έκτακτη Ανάγκη' },
+  { href: '/admin/hiking', label: 'Μονοπάτια' },
+  { href: '/admin/activities', label: 'Δραστηριότητες' },
+  { href: '/admin/history', label: 'Ιστορία' },
+  { href: '/admin/slider', label: 'Slider' },
 ]
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
