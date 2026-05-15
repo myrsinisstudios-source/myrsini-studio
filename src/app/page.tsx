@@ -2,6 +2,7 @@ import BookingWidget from '@/components/booking/BookingWidget'
 import { createClient } from '@/lib/supabase/server'
 import WeatherWidget from '@/components/home/WeatherWidget'
 import HeritageSlider from '@/components/home/HeritageSlider'
+import ActivityWheel from '@/components/home/ActivityWheel'
 
 export default async function Home() {
   const supabase = await createClient()
@@ -37,9 +38,11 @@ export default async function Home() {
         </div>
       </section>
       <BookingWidget />
+      <ActivityWheel />
       <HeritageSlider />
     </main>
   )
 }
+
 
 
