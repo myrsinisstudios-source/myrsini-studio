@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 
 const NAV = [
   { href: '/admin', label: 'Dashboard' },
@@ -14,11 +14,15 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const [password, setPassword] = useState('')
   const [error, setError] = useState(false)
 
+  useEffect(() => {
+    if (localStorage.getItem('admin') === 'true') setAuth(true)
+  }, [])
+
   const handleLogin = () => {
-    const stored = typeof window !== 'undefined' ? sessionStorage.getItem('admin') === 'true' : false
+    const stored = typeof window !== 'undefined' ? localStorage.getItem('admin') === 'true' : false
     if (stored || password === 'myrsini2026') {
       setAuth(true)
-      sessionStorage.setItem('admin', 'true')
+      localStorage.setItem('admin', 'true')
     } else {
       setError(true)
     }
