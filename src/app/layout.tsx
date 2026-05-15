@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 import { Playfair_Display, Lato } from 'next/font/google'
 import './globals.css'
-import { ConditionalNavbar, ConditionalFooter, ConditionalBookingModal } from '@/components/layout/ConditionalNav'
+import { ConditionalNavbar, ConditionalFooter, ConditionalBookingModal, ConditionalWave } from '@/components/layout/ConditionalNav'
 import { LanguageProvider } from '@/lib/i18n/LanguageContext'
 
 const playfair = Playfair_Display({
@@ -79,6 +79,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <LanguageProvider>
           <ConditionalNavbar />
           {children}
+          <ConditionalWave />
           <ConditionalFooter />
           <ConditionalBookingModal />
         </LanguageProvider>
