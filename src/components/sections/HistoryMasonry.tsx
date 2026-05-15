@@ -1,4 +1,7 @@
-import { createClient } from '@/lib/supabase/server'
+'use client'
+
+import { useState, useEffect } from 'react'
+import { useLanguage } from '@/lib/i18n/LanguageContext'
 
 type HistoryPhoto = { id: string; image_url: string; caption: string; sort_order: number; tall?: boolean }
 
@@ -26,34 +29,31 @@ const FALLBACK_GRADIENTS = [
   'from-[#1c3d1e] via-[#3a6e2a] to-[#1c3d1e]',
 ]
 
-export default async function HistoryMasonry() {
-  let photos = FALLBACK
+export default function HistoryMasonry() {
+  const { t } = useLanguage()
+  const h = t.history
+  const [photos, setPhotos] = useState<HistoryPhoto[]>(FALLBACK)
 
-  try {
-    const supabase = await createClient()
-    const { data } = await supabase
-      .from('history_photos')
-      .select('*')
-      .order('sort_order')
-    if (data && data.length > 0) photos = data as HistoryPhoto[]
-  } catch {}
+  useEffect(() => {
+    import('@/lib/supabase/client').then(({ createClient }) => {
+      createClient()
+        .from('history_photos')
+        .select('*')
+        .order('sort_order')
+        .then(({ data }) => {
+          if (data && data.length > 0) setPhotos(data as HistoryPhoto[])
+        })
+    })
+  }, [])
 
   return (
     <section id="history" className="py-24 bg-cream">
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
         <div className="max-w-2xl mb-16">
-          <p className="text-xs tracking-widest uppercase text-olive mb-3">Ιστορία & Ταυτότητα</p>
-          <h2 className="font-serif text-4xl sm:text-5xl text-deep-wood mb-6">Η Ψυχή του Πηλίου</h2>
-          <p className="text-deep-wood/60 text-base leading-relaxed mb-4">
-            Τα Myrsini Studios γεννήθηκαν μέσα από την αγάπη για τη φύση και την παράδοση του Πηλίου.
-            Ένα παλαιό αρχοντικό του 19ου αιώνα και ένα studio με θέα τη θάλασσα, σχολαστικά
-            ανακαινισμένα για να προσφέρουν σύγχρονη άνεση χωρίς να χάσουν την αυθεντικότητά τους.
-          </p>
-          <p className="text-deep-wood/60 text-base leading-relaxed">
-            Η μυρτιά — το φυτό που έδωσε το όνομα — αναπτύσσεται παντού στους ελαιώνες γύρω από τα
-            καταλύματα. Είναι σύμβολο φιλοξενίας, φύσης και της Πηλιορείτικης ζωής όπως ήταν πάντα:
-            ήρεμης, αυθεντικής, φιλόξενης.
-          </p>
+          <p className="text-xs tracking-widest uppercase text-olive mb-3">{h.eyebrow}</p>
+          <h2 className="font-serif text-4xl sm:text-5xl text-deep-wood mb-6">{h.title}</h2>
+          <p className="text-deep-wood/60 text-base leading-relaxed mb-4">{h.para1}</p>
+          <p className="text-deep-wood/60 text-base leading-relaxed">{h.para2}</p>
         </div>
 
         <div className="masonry-grid">

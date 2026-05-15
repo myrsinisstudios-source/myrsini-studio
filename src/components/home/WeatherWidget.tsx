@@ -1,4 +1,7 @@
+'use client'
+
 import Image from 'next/image'
+import { useLanguage } from '@/lib/i18n/LanguageContext'
 
 const travelCards = [
   {
@@ -22,6 +25,9 @@ const travelCards = [
 ]
 
 export default function WeatherWidget() {
+  const { t } = useLanguage()
+  const w = t.weather
+
   return (
     <>
       {/* Olive weather strip */}
@@ -30,18 +36,18 @@ export default function WeatherWidget() {
           <div className="flex flex-wrap justify-center gap-10 text-white text-center">
             <div>
               <p className="text-4xl font-light mb-1">24°C</p>
-              <p className="text-white/70 text-sm">Θερμοκρασία</p>
+              <p className="text-white/70 text-sm">{w.temp}</p>
             </div>
             <div>
               <p className="text-4xl font-light mb-1">22°C</p>
-              <p className="text-white/70 text-sm">Θάλασσα</p>
+              <p className="text-white/70 text-sm">{w.sea}</p>
             </div>
             <div>
               <p className="text-4xl font-light mb-1">12 km/h</p>
-              <p className="text-white/70 text-sm">Άνεμος</p>
+              <p className="text-white/70 text-sm">{w.wind}</p>
             </div>
           </div>
-          <p className="text-center text-white/40 text-xs mt-5">Χόρτο Πηλίου · Σήμερα</p>
+          <p className="text-center text-white/40 text-xs mt-5">{w.today}</p>
         </div>
       </section>
 
@@ -49,57 +55,32 @@ export default function WeatherWidget() {
       <section className="bg-[#2C1B0E] py-16">
         <div className="max-w-5xl mx-auto px-4">
           <p className="text-center text-white/40 text-xs tracking-widest uppercase mb-12">
-            Πώς να φτάσετε
+            {w.howToArrive}
           </p>
           <div className="grid md:grid-cols-2 gap-8">
             {travelCards.map((card) => (
-              <div
-                key={card.id}
-                className="border border-white/10 overflow-hidden group"
-              >
+              <div key={card.id} className="border border-white/10 overflow-hidden group">
                 {/* Image row */}
                 <div className="flex items-center h-36">
-                  {/* Origin image */}
                   <div className="relative flex-1 h-full overflow-hidden">
-                    <Image
-                      src={card.originImage}
-                      alt={card.origin}
-                      fill
+                    <Image src={card.originImage} alt={card.origin} fill
                       className="object-cover brightness-75 group-hover:scale-105 transition-transform duration-700"
-                      sizes="200px"
-                    />
+                      sizes="200px" />
                   </div>
-
-                  {/* Animated arrows */}
                   <div className="flex-shrink-0 px-3 flex items-center justify-center bg-[#2C1B0E] h-full">
                     <span className="arrows text-[#c9a96e] text-xl tracking-widest select-none">›</span>
                   </div>
-
-                  {/* Road image */}
                   <div className="relative flex-1 h-full overflow-hidden">
-                    <Image
-                      src={card.roadImage}
-                      alt="Δρόμος"
-                      fill
+                    <Image src={card.roadImage} alt="Road" fill
                       className="object-cover brightness-75 group-hover:scale-105 transition-transform duration-700"
-                      sizes="200px"
-                    />
+                      sizes="200px" />
                   </div>
-
-                  {/* Animated arrows */}
                   <div className="flex-shrink-0 px-3 flex items-center justify-center bg-[#2C1B0E] h-full">
                     <span className="arrows text-[#c9a96e] text-xl tracking-widest select-none" style={{ animationDelay: '0.3s' }}>›</span>
                   </div>
-
-                  {/* Logo destination */}
                   <div className="relative flex-1 h-full overflow-hidden bg-[#1a0f06] flex items-center justify-center">
-                    <Image
-                      src="/logo.png"
-                      alt="Myrsini Studios"
-                      width={80}
-                      height={80}
-                      className="object-contain opacity-90"
-                    />
+                    <Image src="/logo.png" alt="Myrsini Studios" width={80} height={80}
+                      className="object-contain opacity-90" />
                   </div>
                 </div>
 
@@ -125,10 +106,7 @@ export default function WeatherWidget() {
           0%, 100% { opacity: 0.4; transform: translateX(0); }
           50% { opacity: 1; transform: translateX(4px); }
         }
-        .arrows {
-          animation: pulse-arrow 1.2s ease-in-out infinite;
-          display: inline-block;
-        }
+        .arrows { animation: pulse-arrow 1.2s ease-in-out infinite; display: inline-block; }
       `}</style>
     </>
   )

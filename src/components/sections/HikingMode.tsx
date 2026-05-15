@@ -1,22 +1,20 @@
-import { createClient } from '@/lib/supabase/server'
+'use client'
+
+import { useState, useEffect } from 'react'
+import { useLanguage } from '@/lib/i18n/LanguageContext'
 
 type Trail = {
-  id: string
-  name: string
-  difficulty: string
-  distance: string
-  duration: string
-  elevation: string
-  start_point: string
-  description: string
-  tags: string[]
-  icon?: string
+  id: string; name: string; difficulty: string; distance: string; duration: string
+  elevation: string; start_point: string; description: string; tags: string[]; icon?: string
 }
 
 const DIFFICULTY_STYLE: Record<string, string> = {
   'Εύκολη':  'text-green-700 bg-green-50 border-green-200',
   'Μέτρια':  'text-amber-600 bg-amber-50 border-amber-200',
   'Δύσκολη': 'text-red-700 bg-red-50 border-red-200',
+  'Easy':    'text-green-700 bg-green-50 border-green-200',
+  'Moderate':'text-amber-600 bg-amber-50 border-amber-200',
+  'Hard':    'text-red-700 bg-red-50 border-red-200',
 }
 
 const FALLBACK: Trail[] = [
@@ -42,27 +40,30 @@ const FALLBACK: Trail[] = [
 
 const STAT = 'flex flex-col items-center p-3 bg-cream/70 border border-deep-wood/8 rounded-sm'
 
-export default async function HikingMode() {
-  let trails = FALLBACK
+export default function HikingMode() {
+  const { t } = useLanguage()
+  const h = t.hiking
+  const [trails, setTrails] = useState<Trail[]>(FALLBACK)
 
-  try {
-    const supabase = await createClient()
-    const { data } = await supabase
-      .from('hiking_trails')
-      .select('*')
-      .order('id')
-    if (data && data.length > 0) trails = data as Trail[]
-  } catch {}
+  useEffect(() => {
+    import('@/lib/supabase/client').then(({ createClient }) => {
+      createClient()
+        .from('hiking_trails')
+        .select('*')
+        .order('id')
+        .then(({ data }) => {
+          if (data && data.length > 0) setTrails(data as Trail[])
+        })
+    })
+  }, [])
 
   return (
     <section id="hiking" className="py-24 bg-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
         <div className="text-center mb-16">
-          <p className="text-xs tracking-widest uppercase text-olive mb-3">Πεζοπορία</p>
-          <h2 className="font-serif text-4xl sm:text-5xl text-deep-wood mb-4">Μονοπάτια Νότιου Πηλίου</h2>
-          <p className="text-deep-wood/50 text-sm max-w-lg mx-auto">
-            Εξερευνήστε τα ιστορικά μονοπάτια της χερσονήσου, από παράκτιες διαδρομές έως κορυφογραμμές με θέα δύο θαλασσών
-          </p>
+          <p className="text-xs tracking-widest uppercase text-olive mb-3">{h.eyebrow}</p>
+          <h2 className="font-serif text-4xl sm:text-5xl text-deep-wood mb-4">{h.title}</h2>
+          <p className="text-deep-wood/50 text-sm max-w-lg mx-auto">{h.desc}</p>
         </div>
 
         <div className="space-y-6">
@@ -87,17 +88,18 @@ export default async function HikingMode() {
 
                     {trail.tags?.length > 0 && (
                       <div className="flex flex-wrap gap-2 mb-5">
-                        {(Array.isArray(trail.tags) ? trail.tags : (trail.tags as unknown as string).split(',')).map((t: string) => (
-                          <span key={t} className="text-xs text-olive border border-olive/30 px-2.5 py-1 rounded-sm">{t.trim()}</span>
-                        ))}
+                        {(Array.isArray(trail.tags) ? trail.tags : (trail.tags as unknown as string).split(','))
+                          .map((tag: string) => (
+                            <span key={tag} className="text-xs text-olive border border-olive/30 px-2.5 py-1 rounded-sm">{tag.trim()}</span>
+                          ))}
                       </div>
                     )}
 
                     <div className="grid grid-cols-4 gap-2">
-                      <div className={STAT}><span className="text-lg mb-1">📏</span><span className="text-sm font-semibold text-deep-wood">{trail.distance}</span><span className="text-xs text-deep-wood/40 mt-0.5">Απόσταση</span></div>
-                      <div className={STAT}><span className="text-lg mb-1">⏱</span><span className="text-sm font-semibold text-deep-wood">{trail.duration}</span><span className="text-xs text-deep-wood/40 mt-0.5">Χρόνος</span></div>
-                      <div className={STAT}><span className="text-lg mb-1">🔺</span><span className="text-sm font-semibold text-deep-wood">{trail.elevation}</span><span className="text-xs text-deep-wood/40 mt-0.5">Υψόμ.</span></div>
-                      <div className={STAT}><span className="text-lg mb-1">📍</span><span className="text-xs font-semibold text-deep-wood text-center leading-tight">{trail.start_point}</span><span className="text-xs text-deep-wood/40 mt-0.5">Εκκίνηση</span></div>
+                      <div className={STAT}><span className="text-lg mb-1">📏</span><span className="text-sm font-semibold text-deep-wood">{trail.distance}</span><span className="text-xs text-deep-wood/40 mt-0.5">{h.distance}</span></div>
+                      <div className={STAT}><span className="text-lg mb-1">⏱</span><span className="text-sm font-semibold text-deep-wood">{trail.duration}</span><span className="text-xs text-deep-wood/40 mt-0.5">{h.time}</span></div>
+                      <div className={STAT}><span className="text-lg mb-1">🔺</span><span className="text-sm font-semibold text-deep-wood">{trail.elevation}</span><span className="text-xs text-deep-wood/40 mt-0.5">{h.elevation}</span></div>
+                      <div className={STAT}><span className="text-lg mb-1">📍</span><span className="text-xs font-semibold text-deep-wood text-center leading-tight">{trail.start_point}</span><span className="text-xs text-deep-wood/40 mt-0.5">{h.start}</span></div>
                     </div>
                   </div>
                 </div>
@@ -106,9 +108,7 @@ export default async function HikingMode() {
           ))}
         </div>
 
-        <p className="text-center text-xs text-deep-wood/30 mt-8">
-          Πάντα ρωτήστε στην υποδοχή για τελευταία ενημέρωση σχετικά με τις συνθήκες των μονοπατιών
-        </p>
+        <p className="text-center text-xs text-deep-wood/30 mt-8">{h.footer}</p>
       </div>
     </section>
   )

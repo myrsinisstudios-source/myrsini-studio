@@ -1,21 +1,21 @@
-import { createClient } from '@/lib/supabase/server'
+'use client'
+
+import { useState, useEffect } from 'react'
+import { useLanguage } from '@/lib/i18n/LanguageContext'
 
 type Contact = {
-  id: string
-  icon: string
-  label: string
-  number: string
-  description: string
-  category: string
-  sort_order: number
+  id: string; icon: string; label: string; number: string
+  description: string; category: string; sort_order: number
 }
 
-const FALLBACK: { category: string; items: { icon: string; label: string; number: string; note: string }[] }[] = [
+type Group = { category: string; items: { icon: string; label: string; number: string; note: string }[] }
+
+const FALLBACK: Group[] = [
   { category: 'Εθνική Ανάγκη', items: [
-    { icon: '🚔', label: 'Αστυνομία',   number: '100',            note: 'Πανελλαδικά' },
-    { icon: '🚒', label: 'Πυροσβεστική',number: '199',            note: 'Πανελλαδικά' },
-    { icon: '🚑', label: 'ΕΚΑΒ',        number: '166',            note: 'Ασθενοφόρο' },
-    { icon: '⚓', label: 'Ακτοφυλακή',  number: '108',            note: 'Θαλάσσιο SOS' },
+    { icon: '🚔', label: 'Αστυνομία',    number: '100',                note: 'Πανελλαδικά' },
+    { icon: '🚒', label: 'Πυροσβεστική', number: '199',                note: 'Πανελλαδικά' },
+    { icon: '🚑', label: 'ΕΚΑΒ',         number: '166',                note: 'Ασθενοφόρο' },
+    { icon: '⚓', label: 'Ακτοφυλακή',   number: '108',                note: 'Θαλάσσιο SOS' },
   ]},
   { category: 'Τοπικά', items: [
     { icon: '🏥', label: 'Νοσοκομείο Βόλου',   number: '+30 24210 94200', note: 'Γενικό Νοσοκομείο' },
@@ -31,36 +31,42 @@ const FALLBACK: { category: string; items: { icon: string; label: string; number
   ]},
 ]
 
-export default async function EmergencyGrid() {
-  let groups = FALLBACK
+export default function EmergencyGrid() {
+  const { t } = useLanguage()
+  const e = t.emergency
+  const [groups, setGroups] = useState<Group[]>(FALLBACK)
 
-  try {
-    const supabase = await createClient()
-    const { data } = await supabase
-      .from('emergency_contacts')
-      .select('*')
-      .order('sort_order')
-
-    if (data && data.length > 0) {
-      const byCategory: Record<string, Contact[]> = {}
-      ;(data as Contact[]).forEach(c => {
-        if (!byCategory[c.category]) byCategory[c.category] = []
-        byCategory[c.category].push(c)
-      })
-      groups = Object.entries(byCategory).map(([category, items]) => ({
-        category,
-        items: items.map(c => ({ icon: c.icon, label: c.label, number: c.number, note: c.description })),
-      }))
-    }
-  } catch {}
+  useEffect(() => {
+    import('@/lib/supabase/client').then(({ createClient }) => {
+      createClient()
+        .from('emergency_contacts')
+        .select('*')
+        .order('sort_order')
+        .then(({ data }) => {
+          if (data && data.length > 0) {
+            const byCategory: Record<string, Contact[]> = {}
+            ;(data as Contact[]).forEach(c => {
+              if (!byCategory[c.category]) byCategory[c.category] = []
+              byCategory[c.category].push(c)
+            })
+            setGroups(
+              Object.entries(byCategory).map(([category, items]) => ({
+                category,
+                items: items.map(c => ({ icon: c.icon, label: c.label, number: c.number, note: c.description })),
+              }))
+            )
+          }
+        })
+    })
+  }, [])
 
   return (
     <section className="py-24 bg-deep-wood">
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
         <div className="text-center mb-14">
-          <p className="text-xs tracking-widest uppercase text-olive mb-3">Χρήσιμες Πληροφορίες</p>
-          <h2 className="font-serif text-4xl sm:text-5xl text-white mb-3">Αριθμοί Έκτακτης Ανάγκης</h2>
-          <p className="text-white/40 text-sm">Κρατήστε αυτούς τους αριθμούς εύκολα προσβάσιμους κατά τη διαμονή σας</p>
+          <p className="text-xs tracking-widest uppercase text-olive mb-3">{e.eyebrow}</p>
+          <h2 className="font-serif text-4xl sm:text-5xl text-white mb-3">{e.title}</h2>
+          <p className="text-white/40 text-sm">{e.desc}</p>
         </div>
 
         <div className="grid md:grid-cols-3 gap-8">
@@ -78,14 +84,10 @@ export default async function EmergencyGrid() {
                   >
                     <span className="text-2xl shrink-0">{item.icon}</span>
                     <div className="flex-1 min-w-0">
-                      <div className="text-white/80 text-sm font-medium group-hover:text-white transition-colors truncate">
-                        {item.label}
-                      </div>
+                      <div className="text-white/80 text-sm font-medium group-hover:text-white transition-colors truncate">{item.label}</div>
                       <div className="text-white/40 text-xs mt-0.5">{item.note}</div>
                     </div>
-                    <span className="text-olive font-mono text-sm shrink-0 group-hover:text-white transition-colors">
-                      {item.number}
-                    </span>
+                    <span className="text-olive font-mono text-sm shrink-0 group-hover:text-white transition-colors">{item.number}</span>
                   </a>
                 ))}
               </div>
@@ -96,9 +98,11 @@ export default async function EmergencyGrid() {
         <div className="mt-10 p-5 border border-red-500/30 bg-red-950/20 flex flex-col sm:flex-row items-center gap-4 text-center sm:text-left">
           <span className="text-4xl">🆘</span>
           <div>
-            <p className="text-white font-medium mb-1">Ευρωπαϊκός Αριθμός Έκτακτης Ανάγκης</p>
+            <p className="text-white font-medium mb-1">{e.sosTitle}</p>
             <p className="text-white/50 text-sm">
-              Καλέστε <strong className="text-red-400 font-mono text-lg">112</strong> από οποιοδήποτε τηλέφωνο, ακόμα και χωρίς κάρτα SIM
+              {e.sosCall}{' '}
+              <strong className="text-red-400 font-mono text-lg">112</strong>{' '}
+              {e.sosDesc}
             </p>
           </div>
         </div>
