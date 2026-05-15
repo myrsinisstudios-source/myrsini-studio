@@ -1,48 +1,53 @@
-import BookingWidget from '@/components/booking/BookingWidget'
-import { createClient } from '@/lib/supabase/server'
-import WeatherWidget from '@/components/home/WeatherWidget'
-import HeritageSlider from '@/components/home/HeritageSlider'
-import ActivityWheel from '@/components/home/ActivityWheel'
+import HeroSection from '@/components/sections/HeroSection'
+import BookingBar from '@/components/booking/BookingBar'
+import ApartmentsSection from '@/components/sections/ApartmentsSection'
+import ActivitiesCarousel from '@/components/sections/ActivitiesCarousel'
+import HistoryMasonry from '@/components/sections/HistoryMasonry'
+import HikingMode from '@/components/sections/HikingMode'
+import EmergencyGrid from '@/components/sections/EmergencyGrid'
+
+async function getApartments() {
+  try {
+    const { createClient } = await import('@/lib/supabase/server')
+    const supabase = await createClient()
+    const { data } = await supabase
+      .from('apartments')
+      .select('*')
+      .eq('is_active', true)
+      .order('sort_order')
+    return data || []
+  } catch {
+    return []
+  }
+}
 
 export default async function Home() {
-  const supabase = await createClient()
-  const { data: apartments } = await supabase
-    .from('apartments')
-    .select('*')
-    .eq('is_active', true)
+  const apartments = await getApartments()
 
   return (
-    <main className="min-h-screen bg-[#F9F7F2]">
-      <section className="relative h-screen flex items-center justify-center bg-[#2C1B0E]">
-        <div className="text-center text-white px-4">
-          <h1 className="text-5xl font-light tracking-tight mb-4">
-            Myrsini Studios
-          </h1>
-          <p className="text-xl text-white/70 mb-2">Χόρτο Πηλίου</p>
-          <a href="#apartments" className="inline-block bg-[#4a5d45] text-white px-8 py-4 text-sm uppercase tracking-widest mt-6">
-            Δείτε τα Καταλύματα
-          </a>
-        </div>
-      </section>
-      <WeatherWidget />
-      <section id="apartments" className="max-w-6xl mx-auto px-4 py-24">
-        <h2 className="text-3xl font-light text-[#2C1B0E] mb-12 text-center">Τα Καταλύματα</h2>
-        <div className="grid md:grid-cols-2 gap-8">
-          {apartments?.map((apt) => (
-            <div key={apt.id} className="bg-white shadow-sm p-6">
-              <h3 className="text-xl font-light text-[#2C1B0E] mb-2">{apt.name_el}</h3>
-              <p className="text-sm text-gray-600 mb-4">{apt.description_el}</p>
-              <p className="text-[#4a5d45] font-medium">€{apt.price_per_night} / νύχτα</p>
-            </div>
-          ))}
-        </div>
-      </section>
-      <BookingWidget />
-      <ActivityWheel />
-      <HeritageSlider />
+    <main>
+      {/* Hero — full screen */}
+      <HeroSection />
+
+      {/* Floating booking bar — pulled up into hero with negative margin */}
+      <div className="relative z-20 max-w-5xl mx-auto px-4 sm:px-6 -mt-32">
+        <BookingBar />
+      </div>
+
+      {/* Apartments — padding compensates for booking bar overlap */}
+      <ApartmentsSection apartments={apartments} />
+
+      {/* Activities */}
+      <ActivitiesCarousel />
+
+      {/* History */}
+      <HistoryMasonry />
+
+      {/* Hiking */}
+      <HikingMode />
+
+      {/* Emergency */}
+      <EmergencyGrid />
     </main>
   )
 }
-
-
-

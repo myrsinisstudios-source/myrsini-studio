@@ -1,28 +1,92 @@
 import type { Metadata } from 'next'
-import { Inter } from 'next/font/google'
+import { Playfair_Display, Lato } from 'next/font/google'
 import './globals.css'
 import Navbar from '@/components/layout/Navbar'
 import Footer from '@/components/layout/Footer'
 
-const inter = Inter({
-  subsets: ['latin', 'greek'],
-  variable: '--font-inter',
+const playfair = Playfair_Display({
+  subsets: ['latin', 'latin-ext'],
+  variable: '--font-playfair',
+  display: 'swap',
+})
+
+const lato = Lato({
+  subsets: ['latin', 'latin-ext'],
+  weight: ['300', '400', '700'],
+  variable: '--font-lato',
+  display: 'swap',
 })
 
 export const metadata: Metadata = {
   title: "Myrsini's Studios | Χόρτο Πηλίου",
-  description: 'Παραδοσιακά καταλύματα στο Χόρτο Πηλίου. Κλείστε απευθείας και εξοικονομήστε.',
-  keywords: 'Χόρτο Πηλίου, καταλύματα, studios, Myrsini, Pelion, accommodation',
+  description: 'Παραδοσιακά καταλύματα στο Χόρτο Πηλίου. Κλείστε απευθείας και εξοικονομήστε έως 15% vs Booking.com.',
+  keywords: 'Χόρτο Πηλίου, καταλύματα, studios, Myrsini, Pelion, accommodation, vacation rental, Ελλάδα',
+  metadataBase: new URL('https://myrsini-studios.gr'),
+  openGraph: {
+    type: 'website',
+    locale: 'el_GR',
+    url: 'https://myrsini-studios.gr',
+    title: "Myrsini's Studios | Χόρτο Πηλίου",
+    description: 'Παραδοσιακά καταλύματα στο Χόρτο Πηλίου. Best Price Guarantee.',
+    siteName: "Myrsini's Studios",
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: "Myrsini's Studios",
+    description: 'Παραδοσιακά καταλύματα στο Χόρτο Πηλίου',
+  },
 }
 
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode
-}) {
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'LodgingBusiness',
+  name: "Myrsini's Studios",
+  description: 'Παραδοσιακά καταλύματα στο Χόρτο Πηλίου, Νότιο Πήλιο, Ελλάδα',
+  url: 'https://myrsini-studios.gr',
+  telephone: '+306944571280',
+  email: 'myrsinisstudios@gmail.com',
+  address: {
+    '@type': 'PostalAddress',
+    streetAddress: 'Χόρτο',
+    addressLocality: 'Χόρτο',
+    addressRegion: 'Πήλιο',
+    postalCode: '37010',
+    addressCountry: 'GR',
+  },
+  geo: {
+    '@type': 'GeoCoordinates',
+    latitude: 39.1511,
+    longitude: 23.2678,
+  },
+  priceRange: '€€',
+  checkinTime: '14:00',
+  checkoutTime: '11:00',
+  currenciesAccepted: 'EUR',
+  paymentAccepted: 'Cash, Credit Card',
+  amenityFeature: [
+    { '@type': 'LocationFeatureSpecification', name: 'WiFi', value: true },
+    { '@type': 'LocationFeatureSpecification', name: 'Free Parking', value: true },
+    { '@type': 'LocationFeatureSpecification', name: 'Air Conditioning', value: true },
+    { '@type': 'LocationFeatureSpecification', name: 'Kitchen', value: true },
+    { '@type': 'LocationFeatureSpecification', name: 'Sea View', value: true },
+  ],
+  starRating: { '@type': 'Rating', ratingValue: '4', bestRating: '5' },
+}
+
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="el">
-      <body className={`${inter.variable} font-sans antialiased`}>
+    <html
+      lang="el"
+      data-scroll-behavior="smooth"
+      className={`${playfair.variable} ${lato.variable}`}
+    >
+      <head>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        />
+      </head>
+      <body className="font-sans antialiased bg-cream">
         <Navbar />
         {children}
         <Footer />
