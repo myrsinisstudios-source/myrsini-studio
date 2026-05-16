@@ -54,10 +54,11 @@ type AptRow = {
 }
 
 // ── Single image uploader ──────────────────────────────────────────────────
-function ImageUploader({ value, onChange, folder }: {
+function ImageUploader({ value, onChange, folder, autoSave }: {
   value: string
   onChange: (url: string) => void
   folder: string
+  autoSave?: (url: string) => Promise<void>
 }) {
   const [uploading, setUploading] = useState(false)
   const [uploadError, setUploadError] = useState('')
@@ -68,7 +69,11 @@ function ImageUploader({ value, onChange, folder }: {
   const handleFile = async (file: File) => {
     if (!file.type.startsWith('image/')) { setUploadError('Μόνο αρχεία εικόνας'); return }
     setUploadError(''); setUploading(true)
-    try { onChange(await uploadToCloudinary(file, folder)) }
+    try {
+      const url = await uploadToCloudinary(file, folder)
+      onChange(url)
+      await autoSave?.(url)
+    }
     catch (e: unknown) { setUploadError(e instanceof Error ? e.message : 'Upload failed') }
     finally { setUploading(false) }
   }
@@ -134,10 +139,11 @@ function ImageUploader({ value, onChange, folder }: {
 }
 
 // ── Gallery multi-upload with drag-to-reorder ──────────────────────────────
-function GalleryUploader({ gallery, onChange, folder }: {
+function GalleryUploader({ gallery, onChange, folder, autoSave }: {
   gallery: string[]
   onChange: (g: string[]) => void
   folder: string
+  autoSave?: (g: string[]) => Promise<void>
 }) {
   const [uploading, setUploading] = useState(false)
   const [uploadError, setUploadError] = useState('')
@@ -152,7 +158,9 @@ function GalleryUploader({ gallery, onChange, folder }: {
     setUploadError(''); setUploading(true)
     try {
       const urls = await Promise.all(imgs.map(f => uploadToCloudinary(f, folder)))
-      onChange([...gallery, ...urls])
+      const newGallery = [...gallery, ...urls]
+      onChange(newGallery)
+      await autoSave?.(newGallery)
     } catch (e: unknown) {
       setUploadError(e instanceof Error ? e.message : 'Upload failed')
     } finally { setUploading(false) }
@@ -429,12 +437,20 @@ export default function CmsPage() {
                     value={apt.image_url ?? ''}
                     onChange={url => updateField(apt.id, 'image_url', url)}
                     folder={folder}
+                    autoSave={async url => {
+                      const { error: err } = await supabase.from('apartments').update({ image_url: url }).eq('id', apt.id)
+                      console.log('[AUTO-SAVE] image_url:', err?.message ?? url.slice(0, 60))
+                    }}
                   />
 
                   <GalleryUploader
                     gallery={apt.gallery ?? []}
                     onChange={g => updateField(apt.id, 'gallery', g)}
                     folder={folder}
+                    autoSave={async g => {
+                      const { error: err } = await supabase.from('apartments').update({ gallery: g, images: g }).eq('id', apt.id)
+                      console.log('[AUTO-SAVE] gallery:', err?.message ?? `${g.length} images saved`)
+                    }}
                   />
                 </div>
 
