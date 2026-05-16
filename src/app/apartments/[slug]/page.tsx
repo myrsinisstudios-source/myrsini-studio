@@ -19,6 +19,7 @@ export type ApartmentData = {
   bathrooms?: number | null
   amenities?: string[] | null
   image_url?: string | null
+  images?: string[] | null
   gallery?: string[] | null
 }
 
@@ -50,7 +51,7 @@ export default async function ApartmentPage({ params }: { params: Promise<{ slug
     const supabase = await createClient()
     const { data } = await supabase
       .from('apartments')
-      .select('id, slug, name_el, name_en, description_el, description_en, price_per_night, max_guests, sqm, bedrooms, bathrooms, amenities, is_active, image_url, gallery')
+      .select('id, slug, name_el, name_en, description_el, description_en, price_per_night, max_guests, sqm, area_sqm, bedrooms, bathrooms, amenities, is_active, image_url, images, gallery')
       .eq('slug', slug)
       .single()
     if (data) apartment = data as ApartmentData

@@ -20,6 +20,7 @@ interface Apartment {
   amenities?: string[]
   is_active?: boolean
   image_url?: string | null
+  images?: string[] | null
   gallery?: string[] | null
 }
 
@@ -79,7 +80,7 @@ export default function ApartmentsSection({ apartments: initialApts }: { apartme
     import('@/lib/supabase/client').then(({ createClient }) => {
       createClient()
         .from('apartments')
-        .select('id, slug, name_el, name_en, description_el, description_en, price_per_night, max_guests, sqm, area_sqm, bedrooms, bathrooms, amenities, is_active, image_url, gallery')
+        .select('id, slug, name_el, name_en, description_el, description_en, price_per_night, max_guests, sqm, area_sqm, bedrooms, bathrooms, amenities, is_active, image_url, images, gallery')
         .eq('is_active', true)
         .order('created_at')
         .then(({ data }) => {
@@ -114,6 +115,7 @@ export default function ApartmentsSection({ apartments: initialApts }: { apartme
             const desc = (!isEl && apt.description_en) ? apt.description_en : apt.description_el
             const bookingPrice = Math.round(apt.price_per_night * 1.151)
             const sqm = apt.sqm ?? apt.area_sqm ?? 45
+            const mainImage = apt.image_url || apt.images?.[0] || apt.gallery?.[0]
             const gallery = (apt.gallery ?? []).filter(Boolean) as string[]
             const hasGallery = gallery.length > 0
             const features = [
@@ -126,10 +128,10 @@ export default function ApartmentsSection({ apartments: initialApts }: { apartme
             return (
               <div key={apt.id} className="bg-white shadow-sm hover:shadow-lg transition-shadow duration-300 group">
                 {/* Cover image */}
-                <div className={`${hasGallery ? 'h-44' : 'h-56'} relative overflow-hidden${!apt.image_url ? ` bg-gradient-to-br ${GRADIENT_BG[i % GRADIENT_BG.length]}` : ''}`}>
-                  {apt.image_url && (
+                <div className={`${hasGallery ? 'h-44' : 'h-56'} relative overflow-hidden${!mainImage ? ` bg-gradient-to-br ${GRADIENT_BG[i % GRADIENT_BG.length]}` : ''}`}>
+                  {mainImage && (
                     <Image
-                      src={apt.image_url}
+                      src={mainImage}
                       alt={name}
                       fill
                       className="object-cover group-hover:scale-105 transition-transform duration-700"

@@ -36,9 +36,10 @@ export default function ApartmentContent({ apartment: apt }: { apartment: Apartm
   const name = (!isEl && apt.name_en) ? apt.name_en : apt.name_el
   const desc = (!isEl && apt.description_en) ? apt.description_en : apt.description_el
   const bookingPrice = Math.round(apt.price_per_night * 1.151)
-  const sqm     = apt.sqm ?? apt.area_sqm ?? 45
-  const gallery = (apt.gallery ?? []).filter(Boolean) as string[]
-  const allImages = [apt.image_url, ...gallery].filter(Boolean) as string[]
+  const sqm       = apt.sqm ?? apt.area_sqm ?? 45
+  const mainImage = apt.image_url || apt.images?.[0] || apt.gallery?.[0]
+  const gallery   = [...new Set([...(apt.gallery ?? []), ...(apt.images ?? [])])].filter(Boolean) as string[]
+  const allImages = [...new Set([mainImage, ...gallery])].filter(Boolean) as string[]
 
   const features = [
     { icon: '👥', label: a.guests,   value: `${apt.max_guests ?? 2}` },
@@ -62,10 +63,10 @@ export default function ApartmentContent({ apartment: apt }: { apartment: Apartm
     <div className="min-h-screen bg-cream">
       {/* Hero */}
       <div className="relative h-64 sm:h-[420px] overflow-hidden">
-        {apt.image_url ? (
+        {mainImage ? (
           <div
             className="absolute inset-0 bg-cover bg-center"
-            style={{ backgroundImage: `url('${apt.image_url}')` }}
+            style={{ backgroundImage: `url('${mainImage}')` }}
           />
         ) : (
           <div className="absolute inset-0 bg-gradient-to-br from-deep-wood via-[#4a5d45] to-deep-wood" />

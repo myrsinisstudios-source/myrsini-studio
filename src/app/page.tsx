@@ -15,7 +15,7 @@ async function getData() {
     const { createClient } = await import('@/lib/supabase/server')
     const supabase = await createClient()
     const [aptsRes, actsRes] = await Promise.all([
-      supabase.from('apartments').select('id, slug, name_el, name_en, description_el, description_en, price_per_night, max_guests, sqm, area_sqm, bedrooms, bathrooms, amenities, is_active, image_url, gallery').eq('is_active', true).order('created_at'),
+      supabase.from('apartments').select('id, slug, name_el, name_en, description_el, description_en, price_per_night, max_guests, sqm, area_sqm, bedrooms, bathrooms, amenities, is_active, image_url, images, gallery').eq('is_active', true).order('created_at'),
       supabase.from('activities').select('*').order('sort_order'),
     ])
     return { apartments: aptsRes.data || [], activities: actsRes.data || [] }
