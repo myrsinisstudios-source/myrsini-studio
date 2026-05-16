@@ -18,8 +18,8 @@ type Trail = {
   icon: string
 }
 
-type TrailForm = { name: string; name_en: string; distance: string; duration: string; elevation: string; difficulty: string; description: string; description_en: string; start_point: string; tags: string | string[]; icon: string }
-const EMPTY: TrailForm = { name: '', name_en: '', distance: '', duration: '', elevation: '', difficulty: 'Εύκολη', description: '', description_en: '', start_point: '', tags: '', icon: '🥾' }
+type TrailForm = { name: string; name_en: string; distance: string; duration: string; elevation: string; difficulty: string; description: string; description_en: string; start_point: string; start_point_en: string; tags: string | string[]; icon: string }
+const EMPTY: TrailForm = { name: '', name_en: '', distance: '', duration: '', elevation: '', difficulty: 'Εύκολη', description: '', description_en: '', start_point: '', start_point_en: '', tags: '', icon: '🥾' }
 const DIFFICULTIES = ['Εύκολη', 'Μέτρια', 'Δύσκολη']
 const DIFF_COLOR: Record<string, string> = { 'Εύκολη': 'bg-green-100 text-green-700', 'Μέτρια': 'bg-amber-100 text-amber-700', 'Δύσκολη': 'bg-red-100 text-red-700' }
 
@@ -62,6 +62,7 @@ export default function AdminHikingPage() {
       name: t.name, name_en: t.name_en ?? '', distance: t.distance, duration: t.duration,
       elevation: t.elevation, difficulty: t.difficulty, description: t.description,
       description_en: t.description_en ?? '', start_point: t.start_point,
+      start_point_en: (t as Trail & { start_point_en?: string }).start_point_en ?? '',
       tags: Array.isArray(t.tags) ? t.tags.join(', ') : t.tags ?? '',
       icon: t.icon ?? '🥾',
     })
@@ -86,10 +87,11 @@ export default function AdminHikingPage() {
           <h2 className="font-medium text-deep-wood mb-6">{editId ? 'Επεξεργασία' : 'Νέο Μονοπάτι'}</h2>
           <div className="space-y-4">
             {[
-              { key: 'name', label: 'Όνομα (EL)', placeholder: 'π.χ. Χόρτο – Λαμπινού' },
-              { key: 'name_en', label: 'Name (EN)', placeholder: 'e.g. Horto – Lampinou' },
-              { key: 'start_point', label: 'Σημείο Εκκίνησης', placeholder: 'π.χ. Χόρτο, παραλία' },
-              { key: 'icon', label: 'Εικονίδιο', placeholder: '🥾' },
+              { key: 'name',           label: 'Όνομα (EL)',          placeholder: 'π.χ. Χόρτο – Λαμπινού' },
+              { key: 'name_en',        label: 'Name (EN)',            placeholder: 'e.g. Horto – Lampinou' },
+              { key: 'start_point',    label: 'Σημείο Εκκίνησης (EL)', placeholder: 'π.χ. Χόρτο, παραλία' },
+              { key: 'start_point_en', label: 'Start Point (EN)',     placeholder: 'e.g. Horto, beach' },
+              { key: 'icon',           label: 'Εικονίδιο',            placeholder: '🥾' },
             ].map(f => (
               <div key={f.key}>
                 <label className="block text-xs text-gray-500 uppercase tracking-wider mb-2">{f.label}</label>

@@ -6,7 +6,7 @@ import { useLanguage } from '@/lib/i18n/LanguageContext'
 
 interface Apartment {
   id: string
-  slug?: string
+  slug?: string | null
   name_el: string
   name_en?: string | null
   description_el?: string
@@ -20,19 +20,19 @@ interface Apartment {
   amenities?: string[]
   is_active?: boolean
   image_url?: string | null
-  gallery?: string[]
+  gallery?: string[] | null
 }
 
 const FALLBACK: Apartment[] = [
   {
-    id: 'archontiko', name_el: 'Το Αρχοντικό', name_en: 'The Archontiko',
+    id: 'archontiko', slug: 'archontiko', name_el: 'Το Αρχοντικό', name_en: 'The Archontiko',
     description_el: 'Παραδοσιακό πέτρινο κτίριο του 19ου αιώνα. Εκθαμβωτική θέα στον κόλπο, αυλή με ελαιώνα και πλήρως εξοπλισμένη κουζίνα.',
     description_en: 'Traditional 19th-century stone building. Stunning bay views, olive grove courtyard and a fully equipped kitchen.',
     price_per_night: 85, max_guests: 4, sqm: 65, bedrooms: 2, bathrooms: 1,
     amenities: ['AC', 'WiFi', 'Κουζίνα', 'Parking', 'Βεράντα', 'Θέα θάλασσα', 'BBQ', 'Πλυντήριο'],
   },
   {
-    id: 'thalassino', name_el: 'Το Θαλασσινό', name_en: 'The Thalassino',
+    id: 'thalassino', slug: 'thalassino', name_el: 'Το Θαλασσινό', name_en: 'The Thalassino',
     description_el: 'Σύγχρονο studio με άμεση πρόσβαση στη θάλασσα. Μεγάλα παράθυρα, θέα ορίζοντα και private βεράντα πάνω στο κύμα.',
     description_en: 'Modern studio with direct sea access. Large windows, horizon views and a private veranda above the waves.',
     price_per_night: 65, max_guests: 2, sqm: 45, bedrooms: 1, bathrooms: 1,
@@ -63,6 +63,8 @@ const GRADIENT_BG = [
   'from-[#1a3040] via-[#2a5060] to-[#1a3040]',
 ]
 
+type Lightbox = { images: string[]; idx: number }
+
 export default function ApartmentsSection({ apartments: initialApts }: { apartments?: Apartment[] }) {
   const { t, lang } = useLanguage()
   const am = t.amenities
@@ -71,6 +73,7 @@ export default function ApartmentsSection({ apartments: initialApts }: { apartme
   const [apartments, setApartments] = useState<Apartment[]>(
     initialApts && initialApts.length > 0 ? initialApts : FALLBACK
   )
+  const [lightbox, setLightbox] = useState<Lightbox | null>(null)
 
   useEffect(() => {
     import('@/lib/supabase/client').then(({ createClient }) => {
@@ -84,6 +87,17 @@ export default function ApartmentsSection({ apartments: initialApts }: { apartme
         })
     })
   }, [])
+
+  useEffect(() => {
+    if (!lightbox) return
+    const handle = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setLightbox(null)
+      if (e.key === 'ArrowLeft')  setLightbox(l => l && l.idx > 0                     ? { ...l, idx: l.idx - 1 } : l)
+      if (e.key === 'ArrowRight') setLightbox(l => l && l.idx < l.images.length - 1   ? { ...l, idx: l.idx + 1 } : l)
+    }
+    window.addEventListener('keydown', handle)
+    return () => window.removeEventListener('keydown', handle)
+  }, [lightbox])
 
   return (
     <section id="apartments" className="py-24 bg-cream">
@@ -100,6 +114,8 @@ export default function ApartmentsSection({ apartments: initialApts }: { apartme
             const desc = (!isEl && apt.description_en) ? apt.description_en : apt.description_el
             const bookingPrice = Math.round(apt.price_per_night * 1.151)
             const sqm = apt.sqm ?? apt.area_sqm ?? 45
+            const gallery = (apt.gallery ?? []).filter(Boolean) as string[]
+            const hasGallery = gallery.length > 0
             const features = [
               { icon: '👥', label: t.apts.guests,   value: `${apt.max_guests ?? 2}` },
               { icon: '📐', label: t.apts.sqm,       value: `${sqm}m²` },
@@ -109,8 +125,8 @@ export default function ApartmentsSection({ apartments: initialApts }: { apartme
 
             return (
               <div key={apt.id} className="bg-white shadow-sm hover:shadow-lg transition-shadow duration-300 group">
-                {/* Card header — image or gradient */}
-                <div className={`h-56 relative overflow-hidden${!apt.image_url ? ` bg-gradient-to-br ${GRADIENT_BG[i % GRADIENT_BG.length]}` : ''}`}>
+                {/* Cover image */}
+                <div className={`${hasGallery ? 'h-44' : 'h-56'} relative overflow-hidden${!apt.image_url ? ` bg-gradient-to-br ${GRADIENT_BG[i % GRADIENT_BG.length]}` : ''}`}>
                   {apt.image_url && (
                     <Image
                       src={apt.image_url}
@@ -120,12 +136,17 @@ export default function ApartmentsSection({ apartments: initialApts }: { apartme
                       sizes="(max-width: 768px) 100vw, 50vw"
                     />
                   )}
-                  {/* Dark overlay so text is always readable */}
                   <div className="absolute inset-0 bg-black/30" />
                   <div className="absolute inset-0 flex items-end p-6">
                     <div>
                       <p className="text-white/60 text-xs tracking-widest uppercase mb-1">Myrsini Studios</p>
-                      <h3 className="font-serif text-white text-2xl drop-shadow">{name}</h3>
+                      {apt.slug ? (
+                        <a href={`/apartments/${apt.slug}`} className="font-serif text-white text-2xl drop-shadow hover:text-white/80 transition-colors">
+                          {name}
+                        </a>
+                      ) : (
+                        <h3 className="font-serif text-white text-2xl drop-shadow">{name}</h3>
+                      )}
                     </div>
                   </div>
                   <div className="absolute top-4 right-4 bg-white/95 px-3 py-2 text-right shadow-sm">
@@ -133,6 +154,22 @@ export default function ApartmentsSection({ apartments: initialApts }: { apartme
                     <div className="text-gray-400 text-xs line-through">€{bookingPrice} {t.apts.bookingLabel}</div>
                   </div>
                 </div>
+
+                {/* Gallery thumbnail strip */}
+                {hasGallery && (
+                  <div className="flex gap-1 px-2 py-2 bg-deep-wood/5 border-b border-deep-wood/8 overflow-x-auto">
+                    {gallery.map((url, gi) => (
+                      <button
+                        key={gi}
+                        type="button"
+                        onClick={() => setLightbox({ images: gallery, idx: gi })}
+                        className="shrink-0 w-16 h-11 overflow-hidden opacity-75 hover:opacity-100 transition-opacity border border-deep-wood/10 hover:border-olive/40"
+                      >
+                        <img src={url} alt="" className="w-full h-full object-cover" loading="lazy" />
+                      </button>
+                    ))}
+                  </div>
+                )}
 
                 <div className="p-6">
                   {desc && (
@@ -160,16 +197,64 @@ export default function ApartmentsSection({ apartments: initialApts }: { apartme
                     </div>
                   )}
 
-                  <a href="/#booking"
-                    className="block w-full text-center bg-deep-wood text-white py-3 text-xs tracking-widest uppercase hover:bg-olive transition-colors">
-                    {t.apts.book} — €{apt.price_per_night}{t.apts.perNight}
-                  </a>
+                  <div className="flex gap-3">
+                    {apt.slug && (
+                      <a href={`/apartments/${apt.slug}`}
+                        className="flex-1 text-center border border-deep-wood text-deep-wood py-3 text-xs tracking-widest uppercase hover:bg-deep-wood hover:text-white transition-colors">
+                        Details →
+                      </a>
+                    )}
+                    <a href="/#booking"
+                      className={`${apt.slug ? 'flex-1' : 'w-full block'} text-center bg-deep-wood text-white py-3 text-xs tracking-widest uppercase hover:bg-olive transition-colors`}>
+                      {t.apts.book} — €{apt.price_per_night}{t.apts.perNight}
+                    </a>
+                  </div>
                 </div>
               </div>
             )
           })}
         </div>
       </div>
+
+      {/* Lightbox */}
+      {lightbox && (
+        <div
+          className="fixed inset-0 z-[9999] bg-black/95 flex items-center justify-center"
+          onClick={() => setLightbox(null)}
+        >
+          <button
+            className="absolute top-4 right-5 text-white/70 hover:text-white text-4xl leading-none z-10"
+            onClick={() => setLightbox(null)}
+          >×</button>
+
+          {lightbox.idx > 0 && (
+            <button
+              className="absolute left-3 sm:left-6 text-white/70 hover:text-white text-5xl leading-none px-2 py-8 z-10"
+              onClick={e => { e.stopPropagation(); setLightbox(l => l ? { ...l, idx: l.idx - 1 } : null) }}
+            >‹</button>
+          )}
+
+          <img
+            src={lightbox.images[lightbox.idx]}
+            alt=""
+            className="max-h-[85vh] max-w-[85vw] object-contain shadow-2xl"
+            onClick={e => e.stopPropagation()}
+          />
+
+          {lightbox.idx < lightbox.images.length - 1 && (
+            <button
+              className="absolute right-3 sm:right-6 text-white/70 hover:text-white text-5xl leading-none px-2 py-8 z-10"
+              onClick={e => { e.stopPropagation(); setLightbox(l => l ? { ...l, idx: l.idx + 1 } : null) }}
+            >›</button>
+          )}
+
+          {lightbox.images.length > 1 && (
+            <p className="absolute bottom-4 left-1/2 -translate-x-1/2 text-white/40 text-sm tabular-nums">
+              {lightbox.idx + 1} / {lightbox.images.length}
+            </p>
+          )}
+        </div>
+      )}
     </section>
   )
 }
