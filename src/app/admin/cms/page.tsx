@@ -261,8 +261,15 @@ export default function CmsPage() {
       .from('apartments')
       .select('*')
       .then(({ data, error: err }) => {
-        if (err) setError('Δεν ήταν δυνατή η φόρτωση. Ελέγξτε τα Supabase credentials.')
-        else setApartments((data ?? []) as AptRow[])
+        if (err) {
+          setError('Δεν ήταν δυνατή η φόρτωση. Ελέγξτε τα Supabase credentials.')
+        } else {
+          setApartments((data ?? []).map(row => ({
+            ...row,
+            amenities: Array.isArray(row.amenities) ? row.amenities : [],
+            gallery:   Array.isArray(row.gallery)   ? row.gallery   : [],
+          })) as AptRow[])
+        }
         setLoading(false)
       })
   }, [])
@@ -279,25 +286,30 @@ export default function CmsPage() {
 
   const handleSave = async (apt: AptRow) => {
     setSaving(apt.id)
+
+    // Build payload defensively: never overwrite array columns with null/undefined
+    const payload: Record<string, unknown> = {
+      name_el:         apt.name_el,
+      name_en:         apt.name_en,
+      description_el:  apt.description_el,
+      description_en:  apt.description_en,
+      price_per_night: apt.price_per_night,
+      max_guests:      apt.max_guests,
+      sqm:             apt.area_sqm,
+      area_sqm:        apt.area_sqm,
+      bedrooms:        apt.bedrooms,
+      bathrooms:       apt.bathrooms,
+      is_active:       apt.is_active,
+      image_url:       apt.image_url ?? null,
+    }
+    if (apt.amenities != null) payload.amenities = apt.amenities
+    if (apt.gallery   != null) { payload.gallery = apt.gallery; payload.images = apt.gallery }
+
+    console.log('[SAVE] payload:', payload)
+
     const { error: err } = await supabase
       .from('apartments')
-      .update({
-        name_el:         apt.name_el,
-        name_en:         apt.name_en,
-        description_el:  apt.description_el,
-        description_en:  apt.description_en,
-        price_per_night: apt.price_per_night,
-        max_guests:      apt.max_guests,
-        sqm:             apt.area_sqm,
-        area_sqm:        apt.area_sqm,
-        bedrooms:        apt.bedrooms,
-        bathrooms:       apt.bathrooms,
-        amenities:       apt.amenities,
-        is_active:       apt.is_active,
-        image_url:       apt.image_url,
-        gallery:         apt.gallery ?? [],
-        images:          apt.gallery ?? [],
-      })
+      .update(payload)
       .eq('id', apt.id)
     setSaving(null)
     if (err) {
