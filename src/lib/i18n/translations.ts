@@ -35,6 +35,11 @@ export interface Translations {
     eyebrow: string; title: string; desc: string; sosTitle: string; sosCall: string; sosDesc: string
   }
   difficulty: { easy: string; medium: string; hard: string }
+  hikingTags: {
+    Ελαιώνες: string; 'Ιστορικά Μονοπάτια': string; Θέα: string
+    Παραλίες: string; 'Κατάλληλο για παιδιά': string; Ορεινή: string
+    'Πανοραμική Θέα': string; Έμπειροι: string; [key: string]: string
+  }
   acts_page: {
     back: string; location: string; locationName: string; locationSub: string
     category: string; duration: string; distance: string; mapBtn: string
@@ -119,6 +124,11 @@ export const translations: Record<Lang, Translations> = {
       checkin: 'Check-in: 14:00 · Check-out: 11:00',
     },
     difficulty: { easy: 'Εύκολη', medium: 'Μέτρια', hard: 'Δύσκολη' },
+    hikingTags: {
+      'Ελαιώνες': 'Ελαιώνες', 'Ιστορικά Μονοπάτια': 'Ιστορικά Μονοπάτια', 'Θέα': 'Θέα',
+      'Παραλίες': 'Παραλίες', 'Κατάλληλο για παιδιά': 'Κατάλληλο για παιδιά',
+      'Ορεινή': 'Ορεινή', 'Πανοραμική Θέα': 'Πανοραμική Θέα', 'Έμπειροι': 'Έμπειροι',
+    },
     acts_page: {
       back: '← Πίσω στις Δραστηριότητες', location: 'Τοποθεσία',
       locationName: 'Χόρτο, Πήλιο', locationSub: 'Νότιο Πήλιο · Μαγνησία · Ελλάδα',
@@ -198,6 +208,11 @@ export const translations: Record<Lang, Translations> = {
       checkin: 'Check-in: 14:00 · Check-out: 11:00',
     },
     difficulty: { easy: 'Easy', medium: 'Moderate', hard: 'Hard' },
+    hikingTags: {
+      'Ελαιώνες': 'Olive Groves', 'Ιστορικά Μονοπάτια': 'Historic Paths', 'Θέα': 'View',
+      'Παραλίες': 'Beaches', 'Κατάλληλο για παιδιά': 'Family Friendly',
+      'Ορεινή': 'Mountain', 'Πανοραμική Θέα': 'Panoramic View', 'Έμπειροι': 'Experienced',
+    },
     acts_page: {
       back: '← Back to Activities', location: 'Location',
       locationName: 'Horto, Pelion', locationSub: 'South Pelion · Magnesia · Greece',
@@ -277,6 +292,11 @@ export const translations: Record<Lang, Translations> = {
       checkin: 'Check-in: 14:00 · Check-out: 11:00',
     },
     difficulty: { easy: 'Leicht', medium: 'Mittel', hard: 'Schwer' },
+    hikingTags: {
+      'Ελαιώνες': 'Olivenhaine', 'Ιστορικά Μονοπάτια': 'Historische Pfade', 'Θέα': 'Aussicht',
+      'Παραλίες': 'Strände', 'Κατάλληλο για παιδιά': 'Familienfreundlich',
+      'Ορεινή': 'Berg', 'Πανοραμική Θέα': 'Panoramablick', 'Έμπειροι': 'Erfahrene',
+    },
     acts_page: {
       back: '← Zurück zu Aktivitäten', location: 'Lage',
       locationName: 'Horto, Pelion', locationSub: 'Süd-Pelion · Magnesia · Griechenland',
@@ -356,6 +376,11 @@ export const translations: Record<Lang, Translations> = {
       checkin: 'Arrivée: 14h00 · Départ: 11h00',
     },
     difficulty: { easy: 'Facile', medium: 'Modéré', hard: 'Difficile' },
+    hikingTags: {
+      'Ελαιώνες': 'Oliveraies', 'Ιστορικά Μονοπάτια': 'Chemins Historiques', 'Θέα': 'Vue',
+      'Παραλίες': 'Plages', 'Κατάλληλο για παιδιά': 'Pour familles',
+      'Ορεινή': 'Montagne', 'Πανοραμική Θέα': 'Vue Panoramique', 'Έμπειροι': 'Expérimentés',
+    },
     acts_page: {
       back: '← Retour aux Activités', location: 'Localisation',
       locationName: 'Horto, Pélion', locationSub: 'Pélion Sud · Magnésie · Grèce',

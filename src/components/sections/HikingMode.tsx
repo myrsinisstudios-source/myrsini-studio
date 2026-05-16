@@ -98,17 +98,28 @@ export default function HikingMode() {
                       <div className="flex flex-wrap gap-2 mb-5">
                         {(Array.isArray(trail.tags) ? trail.tags : (trail.tags as unknown as string).split(','))
                           .map((tag: string) => (
-                            <span key={tag} className="text-xs text-olive border border-olive/30 px-2.5 py-1 rounded-sm">{tag.trim()}</span>
+                            <span key={tag} className="text-xs text-olive border border-olive/30 px-2.5 py-1 rounded-sm">
+                              {t.hikingTags[tag.trim()] ?? tag.trim()}
+                            </span>
                           ))}
                       </div>
                     )}
 
-                    <div className="grid grid-cols-4 gap-2">
+                    <div className="grid grid-cols-4 gap-2 mb-4">
                       <div className={STAT}><span className="text-lg mb-1">📏</span><span className="text-sm font-semibold text-deep-wood">{trail.distance}</span><span className="text-xs text-deep-wood/40 mt-0.5">{h.distance}</span></div>
                       <div className={STAT}><span className="text-lg mb-1">⏱</span><span className="text-sm font-semibold text-deep-wood">{trail.duration}</span><span className="text-xs text-deep-wood/40 mt-0.5">{h.time}</span></div>
                       <div className={STAT}><span className="text-lg mb-1">🔺</span><span className="text-sm font-semibold text-deep-wood">{trail.elevation}</span><span className="text-xs text-deep-wood/40 mt-0.5">{h.elevation}</span></div>
                       <div className={STAT}><span className="text-lg mb-1">📍</span><span className="text-xs font-semibold text-deep-wood text-center leading-tight">{trail.start_point}</span><span className="text-xs text-deep-wood/40 mt-0.5">{h.start}</span></div>
                     </div>
+                    <a
+                      href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(trail.start_point + ', Πήλιο, Ελλάδα')}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-2 text-xs text-olive border border-olive/40 px-4 py-2 hover:bg-olive hover:text-white transition-colors"
+                    >
+                      <span>📍</span>
+                      <span>{h.start} — Google Maps</span>
+                    </a>
                   </div>
                 </div>
               </div>

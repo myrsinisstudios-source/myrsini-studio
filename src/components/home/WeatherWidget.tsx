@@ -1,20 +1,27 @@
 'use client'
 
 import Image from 'next/image'
+import { useState, useEffect } from 'react'
 import { useLanguage } from '@/lib/i18n/LanguageContext'
+
+type Distances = {
+  airport: { duration: string; distance: string }
+  port:    { duration: string; distance: string }
+}
+
+const STATIC: Distances = {
+  airport: { duration: '58 λεπτά', distance: '54 χλμ' },
+  port:    { duration: '42 λεπτά', distance: '37 χλμ' },
+}
 
 const TRAVEL_BASE = [
   {
     id: 'airport',
-    time: '58 λεπτά',
-    distance: '54 χλμ',
     originImage: 'https://images.unsplash.com/photo-1436491865332-7a61a109cc05?w=400&q=80',
     roadImage: 'https://images.unsplash.com/photo-1504707748692-419802cf939d?w=400&q=80',
   },
   {
     id: 'port',
-    time: '42 λεπτά',
-    distance: '37 χλμ',
     originImage: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&q=80',
     roadImage: 'https://images.unsplash.com/photo-1449965408869-eaa3f722e40d?w=400&q=80',
   },
@@ -23,10 +30,18 @@ const TRAVEL_BASE = [
 export default function WeatherWidget() {
   const { t } = useLanguage()
   const w = t.weather
+  const [distances, setDistances] = useState<Distances>(STATIC)
+
+  useEffect(() => {
+    fetch('/api/distances')
+      .then(r => r.json())
+      .then((d: Distances) => setDistances(d))
+      .catch(() => {})
+  }, [])
 
   const travelCards = [
-    { ...TRAVEL_BASE[0], origin: w.airport, destination: 'Myrsini Studios' },
-    { ...TRAVEL_BASE[1], origin: w.port, destination: 'Myrsini Studios' },
+    { ...TRAVEL_BASE[0], origin: w.airport, destination: 'Myrsini Studios', time: distances.airport.duration, distance: distances.airport.distance },
+    { ...TRAVEL_BASE[1], origin: w.port,    destination: 'Myrsini Studios', time: distances.port.duration,    distance: distances.port.distance },
   ]
 
   return (

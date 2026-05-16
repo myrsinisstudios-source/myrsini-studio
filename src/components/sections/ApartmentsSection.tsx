@@ -5,7 +5,9 @@ import { useLanguage } from '@/lib/i18n/LanguageContext'
 interface Apartment {
   id: string
   name_el: string
+  name_en?: string | null
   description_el?: string
+  description_en?: string | null
   price_per_night: number
   max_guests?: number
   area_sqm?: number
@@ -16,14 +18,16 @@ interface Apartment {
 
 const FALLBACK: Apartment[] = [
   {
-    id: 'archontiko', name_el: 'Το Αρχοντικό',
+    id: 'archontiko', name_el: 'Το Αρχοντικό', name_en: 'The Archontiko',
     description_el: 'Παραδοσιακό πέτρινο κτίριο του 19ου αιώνα. Εκθαμβωτική θέα στον κόλπο, αυλή με ελαιώνα και πλήρως εξοπλισμένη κουζίνα.',
+    description_en: 'Traditional 19th-century stone building. Stunning bay views, olive grove courtyard and a fully equipped kitchen.',
     price_per_night: 85, max_guests: 4, area_sqm: 65, bedrooms: 2, bathrooms: 1,
     amenities: ['AC', 'WiFi', 'Κουζίνα', 'Parking', 'Βεράντα', 'Θέα θάλασσα', 'BBQ', 'Πλυντήριο'],
   },
   {
-    id: 'thalassino', name_el: 'Το Θαλασσινό',
+    id: 'thalassino', name_el: 'Το Θαλασσινό', name_en: 'The Thalassino',
     description_el: 'Σύγχρονο studio με άμεση πρόσβαση στη θάλασσα. Μεγάλα παράθυρα, θέα ορίζοντα και private βεράντα πάνω στο κύμα.',
+    description_en: 'Modern studio with direct sea access. Large windows, horizon views and a private veranda above the waves.',
     price_per_night: 65, max_guests: 2, area_sqm: 45, bedrooms: 1, bathrooms: 1,
     amenities: ['AC', 'WiFi', 'Kitchenette', 'Βεράντα', 'Θέα θάλασσα', 'Τηλεόραση', 'Πετσέτες'],
   },
@@ -51,8 +55,9 @@ const GRADIENT_BG = ['from-[#2C1B0E] via-[#4a5d45] to-[#2C1B0E]', 'from-[#1a3040
 
 export default function ApartmentsSection({ apartments }: { apartments?: Apartment[] }) {
   const data = apartments && apartments.length > 0 ? apartments : FALLBACK
-  const { t } = useLanguage()
+  const { t, lang } = useLanguage()
   const am = t.amenities
+  const isEl = lang === 'el'
 
   return (
     <section id="apartments" className="py-24 bg-cream">
@@ -65,6 +70,8 @@ export default function ApartmentsSection({ apartments }: { apartments?: Apartme
 
         <div className="grid md:grid-cols-2 gap-8">
           {data.map((apt, i) => {
+            const name = (!isEl && apt.name_en) ? apt.name_en : apt.name_el
+            const desc = (!isEl && apt.description_en) ? apt.description_en : apt.description_el
             const bookingPrice = Math.round(apt.price_per_night * 1.151)
             const features = [
               { icon: '👥', label: t.apts.guests,   value: `${apt.max_guests ?? 2}` },
@@ -79,7 +86,7 @@ export default function ApartmentsSection({ apartments }: { apartments?: Apartme
                   <div className="absolute inset-0 flex items-end p-6">
                     <div>
                       <p className="text-white/50 text-xs tracking-widest uppercase mb-1">Myrsini Studios</p>
-                      <h3 className="font-serif text-white text-2xl">{apt.name_el}</h3>
+                      <h3 className="font-serif text-white text-2xl">{name}</h3>
                     </div>
                   </div>
                   <div className="absolute top-4 right-4 bg-white/95 px-3 py-2 text-right shadow-sm">
@@ -89,8 +96,8 @@ export default function ApartmentsSection({ apartments }: { apartments?: Apartme
                 </div>
 
                 <div className="p-6">
-                  {apt.description_el && (
-                    <p className="text-deep-wood/60 text-sm leading-relaxed mb-5">{apt.description_el}</p>
+                  {desc && (
+                    <p className="text-deep-wood/60 text-sm leading-relaxed mb-5">{desc}</p>
                   )}
 
                   <div className="grid grid-cols-4 gap-2 mb-5 p-3 bg-cream/70 border border-deep-wood/5">
@@ -114,7 +121,7 @@ export default function ApartmentsSection({ apartments }: { apartments?: Apartme
                     </div>
                   )}
 
-                  <a href="#booking"
+                  <a href="/#booking"
                     className="block w-full text-center bg-deep-wood text-white py-3 text-xs tracking-widest uppercase hover:bg-olive transition-colors">
                     {t.apts.book} — €{apt.price_per_night}{t.apts.perNight}
                   </a>
