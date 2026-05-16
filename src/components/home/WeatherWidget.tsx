@@ -9,9 +9,30 @@ type Distances = {
   port:    { duration: string; distance: string }
 }
 
-const STATIC: Distances = {
+type DayForecast = {
+  date: string
+  temp_min: number
+  temp_max: number
+  description: string
+  icon: string
+}
+
+type WeatherData = {
+  temp: number
+  humidity: number
+  wind: number
+  description: string
+  icon: string
+  forecast: DayForecast[]
+}
+
+const STATIC_DISTANCES: Distances = {
   airport: { duration: '58 λεπτά', distance: '54 χλμ' },
   port:    { duration: '42 λεπτά', distance: '37 χλμ' },
+}
+
+const STATIC_WEATHER: WeatherData = {
+  temp: 24, humidity: 65, wind: 12, description: 'Αίθριος', icon: '01d', forecast: [],
 }
 
 const TRAVEL_BASE = [
@@ -27,16 +48,49 @@ const TRAVEL_BASE = [
   },
 ]
 
+const WEATHER_ICONS: Record<string, string> = {
+  '01d': '☀️', '01n': '🌙',
+  '02d': '🌤️', '02n': '🌤️',
+  '03d': '⛅', '03n': '⛅',
+  '04d': '☁️', '04n': '☁️',
+  '09d': '🌧️', '09n': '🌧️',
+  '10d': '🌦️', '10n': '🌦️',
+  '11d': '⛈️', '11n': '⛈️',
+  '13d': '❄️', '13n': '❄️',
+  '50d': '🌫️', '50n': '🌫️',
+}
+
+function weatherEmoji(icon: string) {
+  return WEATHER_ICONS[icon] ?? '🌡️'
+}
+
+function shortDay(dateStr: string, lang: string): string {
+  const d = new Date(dateStr + 'T12:00:00')
+  return d.toLocaleDateString(lang === 'el' ? 'el-GR' : lang === 'de' ? 'de-DE' : lang === 'fr' ? 'fr-FR' : 'en-GB', { weekday: 'short' })
+}
+
 export default function WeatherWidget() {
-  const { t } = useLanguage()
+  const { t, lang } = useLanguage()
   const w = t.weather
-  const [distances, setDistances] = useState<Distances>(STATIC)
+  const [distances, setDistances] = useState<Distances>(STATIC_DISTANCES)
+  const [weather, setWeather] = useState<WeatherData>(STATIC_WEATHER)
 
   useEffect(() => {
-    fetch('/api/distances')
-      .then(r => r.json())
-      .then((d: Distances) => setDistances(d))
-      .catch(() => {})
+    const fetchAll = () => {
+      fetch('/api/distances')
+        .then(r => r.json())
+        .then((d: Distances) => setDistances(d))
+        .catch(() => {})
+
+      fetch('/api/weather')
+        .then(r => r.json())
+        .then((d: WeatherData) => setWeather(d))
+        .catch(() => {})
+    }
+
+    fetchAll()
+    const id = setInterval(fetchAll, 30 * 60 * 1000)
+    return () => clearInterval(id)
   }, [])
 
   const travelCards = [
@@ -46,12 +100,12 @@ export default function WeatherWidget() {
 
   return (
     <>
-      {/* Olive weather strip */}
+      {/* Weather strip */}
       <section className="bg-[#4a5d45] py-10">
         <div className="max-w-6xl mx-auto px-4">
           <div className="flex flex-wrap justify-center gap-10 text-white text-center">
             <div>
-              <p className="text-4xl font-light mb-1">24°C</p>
+              <p className="text-4xl font-light mb-1">{weather.temp}°C</p>
               <p className="text-white/70 text-sm">{w.temp}</p>
             </div>
             <div>
@@ -59,15 +113,33 @@ export default function WeatherWidget() {
               <p className="text-white/70 text-sm">{w.sea}</p>
             </div>
             <div>
-              <p className="text-4xl font-light mb-1">12 km/h</p>
+              <p className="text-4xl font-light mb-1">{weather.wind} km/h</p>
               <p className="text-white/70 text-sm">{w.wind}</p>
             </div>
           </div>
+
+          {/* description */}
+          <p className="text-center text-white/60 text-sm mt-3 capitalize">{weatherEmoji(weather.icon)} {weather.description}</p>
+
+          {/* 5-day forecast */}
+          {weather.forecast.length > 0 && (
+            <div className="flex justify-center gap-4 mt-6 flex-wrap">
+              {weather.forecast.map(day => (
+                <div key={day.date} className="text-center">
+                  <p className="text-white/50 text-xs uppercase tracking-wide mb-1">{shortDay(day.date, lang)}</p>
+                  <p className="text-xl mb-1">{weatherEmoji(day.icon)}</p>
+                  <p className="text-white text-xs font-medium">{day.temp_max}°</p>
+                  <p className="text-white/40 text-xs">{day.temp_min}°</p>
+                </div>
+              ))}
+            </div>
+          )}
+
           <p className="text-center text-white/40 text-xs mt-5">{w.today}</p>
         </div>
       </section>
 
-      {/* Premium travel cards */}
+      {/* Travel cards */}
       <section className="bg-[#2C1B0E] py-16">
         <div className="max-w-5xl mx-auto px-4">
           <p className="text-center text-white/40 text-xs tracking-widest uppercase mb-12">
@@ -76,7 +148,6 @@ export default function WeatherWidget() {
           <div className="grid md:grid-cols-2 gap-8">
             {travelCards.map((card) => (
               <div key={card.id} className="border border-white/10 overflow-hidden group">
-                {/* Image row */}
                 <div className="flex items-center h-36">
                   <div className="relative flex-1 h-full overflow-hidden">
                     <Image src={card.originImage} alt={card.origin} fill
@@ -100,7 +171,6 @@ export default function WeatherWidget() {
                   </div>
                 </div>
 
-                {/* Text row */}
                 <div className="px-5 py-4 flex items-center justify-between">
                   <div>
                     <p className="text-white/90 text-sm font-medium">{card.origin}</p>
