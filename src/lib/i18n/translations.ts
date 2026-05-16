@@ -57,7 +57,7 @@ export interface Translations {
   }
   weather: {
     temp: string; sea: string; wind: string; today: string; howToArrive: string
-    airport: string; port: string
+    airport: string; port: string; quote: string
   }
   footer: {
     tagline: string; contact: string; booking: string
@@ -126,6 +126,7 @@ export const translations: Record<Lang, Translations> = {
       temp: 'Θερμοκρασία', sea: 'Θάλασσα', wind: 'Άνεμος',
       today: 'Χόρτο Πηλίου · Σήμερα', howToArrive: 'Πώς να φτάσετε',
       airport: 'Αεροδρόμιο Νέας Αγχιάλου', port: 'Λιμάνι Βόλου',
+      quote: '«Είμαστε 35 λεπτά από τον Βόλο, αλλά αιώνες μακριά από τη βιασύνη του.»',
     },
     footer: {
       tagline: 'Παραδοσιακά καταλύματα στο Χόρτο Πηλίου. Πέτρα, ελαιώνες και κρυστάλλινα νερά του Αιγαίου σε αδιάσπαστη αρμονία.',
@@ -220,6 +221,7 @@ export const translations: Record<Lang, Translations> = {
       temp: 'Temperature', sea: 'Sea', wind: 'Wind',
       today: 'Horto Pelion · Today', howToArrive: 'How to get here',
       airport: 'Nea Anchialos Airport', port: 'Volos Port',
+      quote: '«35 minutes from Volos, but centuries away from its rush.»',
     },
     footer: {
       tagline: 'Traditional accommodation in Horto, Pelion. Stone, olive groves and crystal waters of the Aegean in perfect harmony.',
@@ -314,6 +316,7 @@ export const translations: Record<Lang, Translations> = {
       temp: 'Temperatur', sea: 'Meer', wind: 'Wind',
       today: 'Horto Pelion · Heute', howToArrive: 'Anreise',
       airport: 'Flughafen Nea Anchialos', port: 'Hafen Volos',
+      quote: '«35 Minuten von Volos entfernt, aber Jahrhunderte weit weg von seiner Hektik.»',
     },
     footer: {
       tagline: 'Traditionelle Unterkunft in Horto, Pelion. Stein, Olivenhaine und kristallklares Ägäisches Meer in harmonischer Einheit.',
@@ -408,6 +411,7 @@ export const translations: Record<Lang, Translations> = {
       temp: 'Température', sea: 'Mer', wind: 'Vent',
       today: "Horto Pélion · Aujourd'hui", howToArrive: 'Comment venir',
       airport: 'Aéroport Nea Anchialos', port: 'Port de Volos',
+      quote: '«À 35 minutes de Volos, mais à des siècles de son agitation.»',
     },
     footer: {
       tagline: "Hébergement traditionnel à Horto, Pélion. Pierre, oliveraies et eaux cristallines de la mer Égée en parfaite harmonie.",

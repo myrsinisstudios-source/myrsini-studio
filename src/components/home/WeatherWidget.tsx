@@ -103,6 +103,9 @@ export default function WeatherWidget() {
       {/* Weather strip */}
       <section className="bg-[#4a5d45] py-10">
         <div className="max-w-6xl mx-auto px-4">
+          <p className="text-center font-serif italic text-white/90 mb-8" style={{ fontSize: '1.5rem' }}>
+            {w.quote}
+          </p>
           <div className="flex flex-wrap justify-center gap-10 text-white text-center">
             <div>
               <p className="text-4xl font-light mb-1">{weather.temp}°C</p>
