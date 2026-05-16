@@ -5,7 +5,7 @@ import { useLanguage } from '@/lib/i18n/LanguageContext'
 
 type Trail = {
   id: string; name: string; name_en?: string; difficulty: string; distance: string; duration: string
-  elevation: string; start_point: string; description: string; description_en?: string; tags: string[]; icon?: string
+  elevation: string; start_point: string; start_point_en?: string; description: string; description_en?: string; tags: string[]; icon?: string
 }
 
 const DIFFICULTY_STYLE: Record<string, string> = {
@@ -23,21 +23,27 @@ function getDifficultyLabel(raw: string, d: { easy: string; medium: string; hard
 
 const FALLBACK: Trail[] = [
   {
-    id: '1', name: 'Χόρτο – Λαμπινού', difficulty: 'Μέτρια',
-    distance: '8.2 km', duration: '3ω 30λ', elevation: '+420 m', start_point: 'Χόρτο, παραλία',
+    id: '1', name: 'Χόρτο – Λαμπινού', name_en: 'Horto – Lambinou', difficulty: 'Μέτρια',
+    distance: '8.2 km', duration: '3ω 30λ', elevation: '+420 m',
+    start_point: 'Χόρτο, παραλία', start_point_en: 'Horto, beach',
     description: 'Κλασικό πηλιορείτικο μονοπάτι που ανεβαίνει μέσα από ελαιώνες και δάση πουρναριών. Περνά από ερημικές εκκλησίτσες και αρχαία καλντερίμια προς τον ορεινό οικισμό Λαμπινού. Πανοραμική θέα προς Αιγαίο και Παγασητικό.',
+    description_en: 'A classic Pelion trail climbing through olive groves and kermes oak forests, passing deserted chapels and ancient cobblestone paths towards the mountain village of Lambinou. Panoramic views over the Aegean and Pagasitikos Gulf.',
     tags: ['Ελαιώνες', 'Ιστορικά Μονοπάτια', 'Θέα'], icon: '⛰️',
   },
   {
-    id: '2', name: 'Χόρτο – Παραλία Μηλίνας', difficulty: 'Εύκολη',
-    distance: '4.8 km', duration: '2ω 00λ', elevation: '+180 m', start_point: 'Χόρτο, λιμάνι',
+    id: '2', name: 'Χόρτο – Παραλία Μηλίνας', name_en: 'Horto – Milina Beach', difficulty: 'Εύκολη',
+    distance: '4.8 km', duration: '2ω 00λ', elevation: '+180 m',
+    start_point: 'Χόρτο, λιμάνι', start_point_en: 'Horto, harbour',
     description: 'Εύκολη παράκτια διαδρομή κατάλληλη για όλες τις ηλικίες. Ακολουθεί την ακτογραμμή, περνά από μικρές κρυφές παραλίες και καταλήγει στο γραφικό λιμανάκι της Μηλίνας.',
+    description_en: 'An easy coastal walk suitable for all ages. It follows the shoreline past hidden coves and small secluded beaches, ending at the charming little harbour of Milina.',
     tags: ['Παραλίες', 'Εύκολη', 'Κατάλληλο για παιδιά'], icon: '🌊',
   },
   {
-    id: '3', name: 'Κορυφογραμμή Νότιου Πηλίου', difficulty: 'Δύσκολη',
-    distance: '14.5 km', duration: '6ω 00λ', elevation: '+850 m', start_point: 'Αργαλαστή, πλατεία',
+    id: '3', name: 'Κορυφογραμμή Νότιου Πηλίου', name_en: 'South Pelion Ridge', difficulty: 'Δύσκολη',
+    distance: '14.5 km', duration: '6ω 00λ', elevation: '+850 m',
+    start_point: 'Αργαλαστή, πλατεία', start_point_en: 'Argalasti, main square',
     description: 'Απαιτητική ορεινή πεζοπορία για έμπειρους πεζοπόρους. Η κορυφογραμμή προσφέρει εκπληκτική θέα και στις δύο πλευρές — Παγασητικός και Αιγαίο — με φόντο τη Σκιάθο και τη Σκόπελο.',
+    description_en: 'A demanding mountain hike for experienced walkers. The ridge offers breathtaking views on both sides — the Pagasitikos Gulf and the Aegean — with Skiathos and Skopelos on the horizon.',
     tags: ['Ορεινή', 'Πανοραμική Θέα', 'Έμπειροι'], icon: '🏔️',
   },
 ]
@@ -109,7 +115,7 @@ export default function HikingMode() {
                       <div className={STAT}><span className="text-lg mb-1">📏</span><span className="text-sm font-semibold text-deep-wood">{trail.distance}</span><span className="text-xs text-deep-wood/40 mt-0.5">{h.distance}</span></div>
                       <div className={STAT}><span className="text-lg mb-1">⏱</span><span className="text-sm font-semibold text-deep-wood">{trail.duration}</span><span className="text-xs text-deep-wood/40 mt-0.5">{h.time}</span></div>
                       <div className={STAT}><span className="text-lg mb-1">🔺</span><span className="text-sm font-semibold text-deep-wood">{trail.elevation}</span><span className="text-xs text-deep-wood/40 mt-0.5">{h.elevation}</span></div>
-                      <div className={STAT}><span className="text-lg mb-1">📍</span><span className="text-xs font-semibold text-deep-wood text-center leading-tight">{trail.start_point}</span><span className="text-xs text-deep-wood/40 mt-0.5">{h.start}</span></div>
+                      <div className={STAT}><span className="text-lg mb-1">📍</span><span className="text-xs font-semibold text-deep-wood text-center leading-tight">{(!isEl && trail.start_point_en) ? trail.start_point_en : trail.start_point}</span><span className="text-xs text-deep-wood/40 mt-0.5">{h.start}</span></div>
                     </div>
                     <a
                       href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(trail.start_point + ', Πήλιο, Ελλάδα')}`}

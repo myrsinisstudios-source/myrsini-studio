@@ -34,6 +34,16 @@ export interface Translations {
   emergency: {
     eyebrow: string; title: string; desc: string; sosTitle: string; sosCall: string; sosDesc: string
   }
+  emergencyLabels: {
+    national: string; local: string; useful: string
+    police: string; fire: string; ambulance: string; coastguard: string
+    hospital: string; localPolice: string; clinic: string; power: string
+    studios: string; taxi: string; petrol: string; bank: string
+    nationwide: string; ambulanceNote: string; seaSOS: string
+    generalHospital: string; localStation: string; ruralClinic: string
+    powerFaults: string; whatsappCall: string; localTaxi: string
+    argalasti: string; nearest: string
+  }
   difficulty: { easy: string; medium: string; hard: string }
   hikingTags: {
     Ελαιώνες: string; 'Ιστορικά Μονοπάτια': string; Θέα: string
@@ -123,6 +133,16 @@ export const translations: Record<Lang, Translations> = {
       apartments: 'Τα Καταλύματα', hiking: 'Πεζοπορία', activities: 'Δραστηριότητες',
       checkin: 'Check-in: 14:00 · Check-out: 11:00',
     },
+    emergencyLabels: {
+      national: 'Εθνική Ανάγκη', local: 'Τοπικά', useful: 'Χρήσιμα',
+      police: 'Αστυνομία', fire: 'Πυροσβεστική', ambulance: 'ΕΚΑΒ', coastguard: 'Ακτοφυλακή',
+      hospital: 'Νοσοκομείο Βόλου', localPolice: 'Αστυνομία Αλμυρού', clinic: 'Ιατρείο Αργαλαστής', power: 'ΔΕΔΔΗΕ (ΔΕΗ)',
+      studios: 'Myrsini Studios', taxi: 'Ταξί Χόρτου', petrol: 'Βενζινάδικο', bank: 'Τράπεζα Αλμυρού',
+      nationwide: 'Πανελλαδικά', ambulanceNote: 'Ασθενοφόρο', seaSOS: 'Θαλάσσιο SOS',
+      generalHospital: 'Γενικό Νοσοκομείο', localStation: 'Τοπικό Τμήμα', ruralClinic: 'Αγροτικό Ιατρείο',
+      powerFaults: 'Βλάβες ρεύματος', whatsappCall: 'WhatsApp & Κλήση', localTaxi: 'Τοπικό Ταξί',
+      argalasti: 'Αργαλαστή', nearest: 'Πλησιέστερη',
+    },
     difficulty: { easy: 'Εύκολη', medium: 'Μέτρια', hard: 'Δύσκολη' },
     hikingTags: {
       'Ελαιώνες': 'Ελαιώνες', 'Ιστορικά Μονοπάτια': 'Ιστορικά Μονοπάτια', 'Θέα': 'Θέα',
@@ -206,6 +226,16 @@ export const translations: Record<Lang, Translations> = {
       contact: 'Contact', booking: 'Booking', direct: 'Direct Booking',
       apartments: 'Our Rooms', hiking: 'Hiking', activities: 'Activities',
       checkin: 'Check-in: 14:00 · Check-out: 11:00',
+    },
+    emergencyLabels: {
+      national: 'National Emergency', local: 'Local', useful: 'Useful',
+      police: 'Police', fire: 'Fire Brigade', ambulance: 'Ambulance (EKAB)', coastguard: 'Coast Guard',
+      hospital: 'Volos Hospital', localPolice: 'Almyros Police', clinic: 'Argalasti Clinic', power: 'Power Company (DEDDIE)',
+      studios: 'Myrsini Studios', taxi: 'Horto Taxi', petrol: 'Petrol Station', bank: 'Almyros Bank',
+      nationwide: 'Nationwide', ambulanceNote: 'Ambulance', seaSOS: 'Maritime SOS',
+      generalHospital: 'General Hospital', localStation: 'Local Station', ruralClinic: 'Rural Clinic',
+      powerFaults: 'Power Faults', whatsappCall: 'WhatsApp & Call', localTaxi: 'Local Taxi',
+      argalasti: 'Argalasti', nearest: 'Nearest',
     },
     difficulty: { easy: 'Easy', medium: 'Moderate', hard: 'Hard' },
     hikingTags: {
@@ -291,6 +321,16 @@ export const translations: Record<Lang, Translations> = {
       apartments: 'Zimmer', hiking: 'Wandern', activities: 'Aktivitäten',
       checkin: 'Check-in: 14:00 · Check-out: 11:00',
     },
+    emergencyLabels: {
+      national: 'Nationale Notfälle', local: 'Lokal', useful: 'Nützlich',
+      police: 'Polizei', fire: 'Feuerwehr', ambulance: 'Rettungsdienst', coastguard: 'Küstenwache',
+      hospital: 'Krankenhaus Volos', localPolice: 'Polizei Almyros', clinic: 'Klinik Argalasti', power: 'Stromunternehmen',
+      studios: 'Myrsini Studios', taxi: 'Taxi Horto', petrol: 'Tankstelle', bank: 'Bank Almyros',
+      nationwide: 'Bundesweit', ambulanceNote: 'Krankenwagen', seaSOS: 'Meeres-SOS',
+      generalHospital: 'Allgemeines Krankenhaus', localStation: 'Lokale Dienststelle', ruralClinic: 'Landambulanz',
+      powerFaults: 'Stromausfälle', whatsappCall: 'WhatsApp & Anruf', localTaxi: 'Lokales Taxi',
+      argalasti: 'Argalasti', nearest: 'Nächste',
+    },
     difficulty: { easy: 'Leicht', medium: 'Mittel', hard: 'Schwer' },
     hikingTags: {
       'Ελαιώνες': 'Olivenhaine', 'Ιστορικά Μονοπάτια': 'Historische Pfade', 'Θέα': 'Aussicht',
@@ -374,6 +414,16 @@ export const translations: Record<Lang, Translations> = {
       contact: 'Contact', booking: 'Réservation', direct: 'Réservation directe',
       apartments: 'Logements', hiking: 'Randonnée', activities: 'Activités',
       checkin: 'Arrivée: 14h00 · Départ: 11h00',
+    },
+    emergencyLabels: {
+      national: 'Urgence Nationale', local: 'Local', useful: 'Utile',
+      police: 'Police', fire: 'Pompiers', ambulance: 'Ambulance (EKAB)', coastguard: 'Garde Côtière',
+      hospital: 'Hôpital de Volos', localPolice: "Police d'Almyros", clinic: "Clinique d'Argalasti", power: 'Compagnie Électrique',
+      studios: 'Myrsini Studios', taxi: 'Taxi Horto', petrol: 'Station-service', bank: 'Banque Almyros',
+      nationwide: 'National', ambulanceNote: 'Ambulance', seaSOS: 'SOS Maritime',
+      generalHospital: 'Hôpital Général', localStation: 'Commissariat Local', ruralClinic: 'Clinique Rurale',
+      powerFaults: 'Pannes électriques', whatsappCall: 'WhatsApp & Appel', localTaxi: 'Taxi Local',
+      argalasti: 'Argalasti', nearest: 'Le plus proche',
     },
     difficulty: { easy: 'Facile', medium: 'Modéré', hard: 'Difficile' },
     hikingTags: {

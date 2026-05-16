@@ -21,7 +21,9 @@ const ALL_AMENITIES = [
 type AptRow = {
   id: string
   name_el: string
+  name_en?: string
   description_el: string
+  description_en?: string
   price_per_night: number
   max_guests: number
   area_sqm: number
@@ -127,7 +129,9 @@ export default function CmsPage() {
       .from('apartments')
       .update({
         name_el: apt.name_el,
+        name_en: apt.name_en,
         description_el: apt.description_el,
+        description_en: apt.description_en,
         price_per_night: apt.price_per_night,
         max_guests: apt.max_guests,
         area_sqm: apt.area_sqm,
@@ -212,22 +216,43 @@ export default function CmsPage() {
             <div className="p-4 sm:p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
               {/* Left column */}
               <div className="space-y-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-xs uppercase tracking-wider text-gray-400 mb-1.5">Όνομα (ΕΛ)</label>
+                    <input
+                      type="text"
+                      value={apt.name_el}
+                      onChange={e => updateField(apt.id, 'name_el', e.target.value)}
+                      className="w-full border border-gray-200 px-4 py-2.5 text-sm focus:outline-none focus:border-olive"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs uppercase tracking-wider text-gray-400 mb-1.5">Name (EN)</label>
+                    <input
+                      type="text"
+                      value={apt.name_en ?? ''}
+                      onChange={e => updateField(apt.id, 'name_en', e.target.value)}
+                      className="w-full border border-gray-200 px-4 py-2.5 text-sm focus:outline-none focus:border-olive"
+                    />
+                  </div>
+                </div>
+
                 <div>
-                  <label className="block text-xs uppercase tracking-wider text-gray-400 mb-1.5">Όνομα</label>
-                  <input
-                    type="text"
-                    value={apt.name_el}
-                    onChange={e => updateField(apt.id, 'name_el', e.target.value)}
-                    className="w-full border border-gray-200 px-4 py-2.5 text-sm focus:outline-none focus:border-olive"
+                  <label className="block text-xs uppercase tracking-wider text-gray-400 mb-1.5">Περιγραφή (ΕΛ)</label>
+                  <textarea
+                    value={apt.description_el ?? ''}
+                    onChange={e => updateField(apt.id, 'description_el', e.target.value)}
+                    rows={3}
+                    className="w-full border border-gray-200 px-4 py-2.5 text-sm focus:outline-none focus:border-olive resize-none"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs uppercase tracking-wider text-gray-400 mb-1.5">Περιγραφή</label>
+                  <label className="block text-xs uppercase tracking-wider text-gray-400 mb-1.5">Description (EN)</label>
                   <textarea
-                    value={apt.description_el ?? ''}
-                    onChange={e => updateField(apt.id, 'description_el', e.target.value)}
-                    rows={4}
+                    value={apt.description_en ?? ''}
+                    onChange={e => updateField(apt.id, 'description_en', e.target.value)}
+                    rows={3}
                     className="w-full border border-gray-200 px-4 py-2.5 text-sm focus:outline-none focus:border-olive resize-none"
                   />
                 </div>

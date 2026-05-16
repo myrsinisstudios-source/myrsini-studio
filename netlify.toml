@@ -4,6 +4,7 @@
 
 [build.environment]
   NODE_VERSION = "20"
+  NEXT_PUBLIC_WA_NUMBER = "306944571280"
 
 [[plugins]]
   package = "@netlify/plugin-nextjs"
