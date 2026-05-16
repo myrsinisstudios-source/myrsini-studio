@@ -150,6 +150,7 @@ export default function CmsPage() {
     } else {
       setSaved(apt.id)
       setTimeout(() => setSaved(null), 2000)
+      fetch('/api/revalidate', { method: 'POST' }).catch(() => {})
     }
   }
 

@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic'
+
 import HeroSection from '@/components/sections/HeroSection'
 import BookingBar from '@/components/booking/BookingBar'
 import WeatherWidget from '@/components/home/WeatherWidget'
