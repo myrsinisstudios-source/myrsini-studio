@@ -135,16 +135,13 @@ function ImageUploader({ value, onChange, folder, autoSave }: {
 
       {uploadError && <p className="text-xs text-red-500 mt-1">{uploadError}</p>}
 
-      {saveStatus === 'saving' && <p className="text-xs text-gray-400 mt-1 animate-pulse">Αποθήκευση στη βάση...</p>}
-      {saveStatus === 'saved'  && <p className="text-xs text-green-600 mt-1 font-medium">✓ Αποθηκεύτηκε στη βάση</p>}
-      {saveStatus === 'error'  && (
-        <div className="flex items-center gap-2 mt-1">
-          <span className="text-xs text-red-500">✗ Αποτυχία αποθήκευσης</span>
-          <button
-            type="button"
-            onClick={() => runAutoSave(lastUrl.current)}
-            className="text-xs text-red-500 underline hover:text-red-700"
-          >retry</button>
+      {saveStatus === 'saving'          && <p className="text-xs text-gray-400 mt-1 animate-pulse">Αποθήκευση στη βάση...</p>}
+      {saveStatus === 'saved'           && <p className="text-xs text-green-600 mt-1 font-medium">✓ Αποθηκεύτηκε στη βάση</p>}
+      {saveStatus === 'error'           && (
+        <div className="mt-1 p-2 bg-red-50 border border-red-200 text-xs text-red-600">
+          ✗ DB save failed — RLS policy missing? Πήγαινε Supabase → SQL Editor και τρέξε:<br/>
+          <code className="font-mono select-all">CREATE POLICY &quot;anon_update&quot; ON apartments FOR UPDATE TO anon USING (true) WITH CHECK (true);</code>
+          <button type="button" onClick={() => runAutoSave(lastUrl.current)} className="ml-2 underline font-medium">retry</button>
         </div>
       )}
 
@@ -294,16 +291,13 @@ function GalleryUploader({ gallery, onChange, folder, autoSave }: {
 
       {uploadError && <p className="text-xs text-red-500 mt-1">{uploadError}</p>}
 
-      {saveStatus === 'saving' && <p className="text-xs text-gray-400 mt-1 animate-pulse">Αποθήκευση στη βάση...</p>}
-      {saveStatus === 'saved'  && <p className="text-xs text-green-600 mt-1 font-medium">✓ Αποθηκεύτηκε στη βάση ({gallery.length} εικόνες)</p>}
-      {saveStatus === 'error'  && (
-        <div className="flex items-center gap-2 mt-1">
-          <span className="text-xs text-red-500">✗ Αποτυχία αποθήκευσης</span>
-          <button
-            type="button"
-            onClick={() => runAutoSave(lastGallery.current)}
-            className="text-xs text-red-500 underline hover:text-red-700"
-          >retry</button>
+      {saveStatus === 'saving'          && <p className="text-xs text-gray-400 mt-1 animate-pulse">Αποθήκευση στη βάση...</p>}
+      {saveStatus === 'saved'           && <p className="text-xs text-green-600 mt-1 font-medium">✓ Αποθηκεύτηκε στη βάση ({gallery.length} εικόνες)</p>}
+      {saveStatus === 'error'           && (
+        <div className="mt-1 p-2 bg-red-50 border border-red-200 text-xs text-red-600">
+          ✗ DB save failed — RLS policy missing? Πήγαινε Supabase → SQL Editor και τρέξε:<br/>
+          <code className="font-mono select-all">CREATE POLICY &quot;anon_update&quot; ON apartments FOR UPDATE TO anon USING (true) WITH CHECK (true);</code>
+          <button type="button" onClick={() => runAutoSave(lastGallery.current)} className="ml-2 underline font-medium">retry</button>
         </div>
       )}
 
@@ -498,7 +492,7 @@ export default function CmsPage() {
                     folder={folder}
                     autoSave={async url => {
                       const { error: err } = await supabase.from('apartments').update({ image_url: url }).eq('id', apt.id)
-                      console.log('[AUTO-SAVE] image_url:', err?.message ?? url.slice(0, 60))
+                      if (err) throw new Error(err.message)
                     }}
                   />
 
@@ -508,7 +502,7 @@ export default function CmsPage() {
                     folder={folder}
                     autoSave={async g => {
                       const { error: err } = await supabase.from('apartments').update({ gallery: g, images: g }).eq('id', apt.id)
-                      console.log('[AUTO-SAVE] gallery:', err?.message ?? `${g.length} images saved`)
+                      if (err) throw new Error(err.message)
                     }}
                   />
                 </div>
