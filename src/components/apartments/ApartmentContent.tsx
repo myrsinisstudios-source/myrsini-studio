@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { useLanguage } from '@/lib/i18n/LanguageContext'
 import type { ApartmentData } from '@/app/apartments/[slug]/page'
+import WaveSection from '@/components/sections/WaveSection'
 
 const AMENITY_ICONS: Record<string, string> = {
   AC: '❄️', WiFi: '📶', Κουζίνα: '🍳', Kitchenette: '☕',
@@ -97,25 +98,6 @@ export default function ApartmentContent({ apartment: apt }: { apartment: Apartm
               <p className="text-deep-wood/80 text-lg leading-relaxed font-light">{desc}</p>
             )}
 
-            {/* Full gallery */}
-            {allImages.length > 1 && (
-              <div>
-                <p className="text-xs uppercase tracking-widest text-deep-wood/40 mb-4 pb-2 border-b border-deep-wood/10">Gallery</p>
-                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-                  {allImages.map((url, i) => (
-                    <button
-                      key={i}
-                      type="button"
-                      onClick={() => setLightbox({ images: allImages, idx: i })}
-                      className="relative h-36 overflow-hidden bg-deep-wood/10 hover:opacity-90 transition-opacity"
-                    >
-                      <img src={url} alt="" className="w-full h-full object-cover" loading="lazy" />
-                    </button>
-                  ))}
-                </div>
-              </div>
-            )}
-
             {/* Amenities */}
             {apt.amenities && apt.amenities.length > 0 && (
               <div>
@@ -167,6 +149,28 @@ export default function ApartmentContent({ apartment: apt }: { apartment: Apartm
           </div>
         </div>
       </div>
+
+      {/* Gallery thumbnail strip + lightbox trigger */}
+      {allImages.length > 0 && (
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 pb-12">
+          <p className="text-xs uppercase tracking-widest text-deep-wood/40 mb-3 pb-2 border-b border-deep-wood/10">Gallery</p>
+          <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
+            {allImages.map((url, i) => (
+              <button
+                key={i}
+                type="button"
+                onClick={() => setLightbox({ images: allImages, idx: i })}
+                className="shrink-0 w-28 h-20 sm:w-36 sm:h-24 overflow-hidden border border-deep-wood/10 hover:border-olive/50 hover:opacity-90 transition-all"
+              >
+                <img src={url} alt="" className="w-full h-full object-cover" loading="lazy" />
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Decorative video */}
+      <WaveSection />
 
       {/* Lightbox */}
       {lightbox && (
