@@ -407,6 +407,17 @@ export default function ActivitiesManager() {
                     👁
                   </button>
 
+                  {/* Live link */}
+                  <a
+                    href={`/activities/${a.slug}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-[10px] px-2.5 py-1.5 rounded-lg transition-colors shrink-0"
+                    style={{ background: '#F0FFF4', color: '#4a7c59', border: '1px solid #BBF7D0' }}
+                  >
+                    🔗 Live
+                  </a>
+
                   {/* Actions */}
                   <button
                     onClick={() => handleEdit(a)}

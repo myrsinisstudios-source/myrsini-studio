@@ -45,10 +45,10 @@ export default function Footer() {
           <div>
             <h4 className="text-white/50 text-xs tracking-widest uppercase mb-5">{t.footer.booking}</h4>
             <div className="space-y-3 text-sm text-white/60">
-              <a href="#booking"     className="block hover:text-white transition-colors">{t.footer.direct}</a>
-              <a href="#apartments"  className="block hover:text-white transition-colors">{t.footer.apartments}</a>
-              <a href="#hiking"      className="block hover:text-white transition-colors">{t.footer.hiking}</a>
-              <a href="#activities"  className="block hover:text-white transition-colors">{t.footer.activities}</a>
+              <a href="#booking"     className="hover:text-white transition-colors">{t.footer.direct}</a>
+              <a href="#apartments"  className="hover:text-white transition-colors">{t.footer.apartments}</a>
+              <a href="#hiking"      className="hover:text-white transition-colors">{t.footer.hiking}</a>
+              <a href="#activities"  className="hover:text-white transition-colors">{t.footer.activities}</a>
             </div>
           </div>
         </div>

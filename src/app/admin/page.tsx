@@ -113,15 +113,15 @@ export default async function AdminDashboard() {
       </div>
 
       {/* ── Main grid: 3 columns ─────────────────────────────────────────────── */}
-      <div className="grid grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
 
         {/* ── Left (col 1-2) ──────────────────────────────────────────────────── */}
-        <div className="col-span-2 space-y-4">
+        <div className="md:col-span-2 space-y-4">
 
           {/* KPI Cards */}
           <div>
             <p className="text-xs font-semibold mb-3 uppercase tracking-wider" style={{ color: '#8B7355' }}>KPI Cards</p>
-            <div className="grid grid-cols-3 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
               {[
                 { label: 'Κρατήσεις (Ιούλιος)', value: String(kpiBookings), sub: 'ενεργές κρατήσεις' },
                 { label: 'Καθαρό Κέρδος (Έτος)', value: `€${kpiProfit.toLocaleString()}`, sub: 'net profit YTD' },

@@ -40,18 +40,76 @@ const IcoSettings = () => (
 )
 
 const NAV = [
-  { href: '/admin',            Icon: IcoDashboard,    label: 'Dashboard',       sub: 'Active', exact: true },
-  { href: '/admin/bookings',   Icon: IcoBookings,     label: 'Κρατήσεις',       sub: 'Bookings' },
-  { href: '/admin/finances',   Icon: IcoFinance,      label: 'Οικονομικά',      sub: 'Finance' },
-  { href: '/admin/activities', Icon: IcoActivities,   label: 'Δραστηριότητες',  sub: 'Activities CMS, managing the rotating wheel' },
-  { href: '/admin/cms',        Icon: IcoMaintenance,  label: 'Συντήρηση',       sub: 'Maintenance Log' },
-  { href: '/admin/settings',   Icon: IcoSettings,     label: 'Ρυθμίσεις',       sub: 'Settings' },
+  { href: '/admin',            Icon: IcoDashboard,   label: 'Dashboard',      sub: 'Active',                               exact: true },
+  { href: '/admin/bookings',   Icon: IcoBookings,    label: 'Κρατήσεις',      sub: 'Bookings' },
+  { href: '/admin/finances',   Icon: IcoFinance,     label: 'Οικονομικά',     sub: 'Finance' },
+  { href: '/admin/activities', Icon: IcoActivities,  label: 'Δραστηριότητες', sub: 'Activities CMS' },
+  { href: '/admin/cms',        Icon: IcoMaintenance, label: 'Συντήρηση',      sub: 'Maintenance Log' },
+  { href: '/admin/settings',   Icon: IcoSettings,    label: 'Ρυθμίσεις',      sub: 'Settings' },
 ]
+
+function SidebarContent({ pathname, onClose }: { pathname: string | null; onClose?: () => void }) {
+  return (
+    <>
+      {/* Logo */}
+      <div className="px-5 py-5 flex items-center justify-between" style={{ borderBottom: '1px solid #E3DBD0' }}>
+        <div>
+          <p className="text-[10px] tracking-widest uppercase mb-1" style={{ color: '#A08060' }}>Διαχειριστής</p>
+          <p className="font-serif text-base leading-snug" style={{ color: '#2C1B0E' }}>Myrsini Studios</p>
+        </div>
+        {onClose && (
+          <button onClick={onClose} className="text-xl leading-none" style={{ color: '#A09080' }}>×</button>
+        )}
+      </div>
+
+      {/* Nav items */}
+      <nav className="flex-1 px-2.5 py-3 space-y-0.5 overflow-y-auto">
+        {NAV.map(({ href, Icon, label, sub, exact }) => {
+          const active = exact ? pathname === href : (pathname === href || pathname?.startsWith(href + '/'))
+          return (
+            <Link
+              key={href}
+              href={href}
+              onClick={onClose}
+              className="flex items-start gap-3 px-3 py-2.5 rounded-xl transition-all duration-150 group"
+              style={active ? { background: '#E5DDD0', boxShadow: '0 1px 3px rgba(0,0,0,0.08)' } : { background: 'transparent' }}
+            >
+              <span className="mt-0.5 shrink-0" style={{ color: active ? '#8B6914' : '#B0A090' }}>
+                <Icon />
+              </span>
+              <div className="min-w-0">
+                <p className="text-sm font-medium leading-tight" style={{ color: active ? '#3A2200' : '#5A4A35' }}>
+                  {label}
+                </p>
+                <p className="text-[10px] mt-0.5 leading-snug line-clamp-2"
+                  style={{ color: active ? '#8B6914' : '#A09080', fontStyle: active && href === '/admin' ? 'italic' : 'normal' }}>
+                  {active && href === '/admin' ? 'Active' : sub}
+                </p>
+              </div>
+            </Link>
+          )
+        })}
+      </nav>
+
+      {/* Logout */}
+      <div className="px-3 py-3" style={{ borderTop: '1px solid #E3DBD0' }}>
+        <button
+          onClick={() => { localStorage.removeItem('admin'); window.location.reload() }}
+          className="w-full text-left text-xs px-2 py-2 rounded-lg transition-colors hover:bg-[#EDE7DA]"
+          style={{ color: '#A09080' }}
+        >
+          ← Έξοδος
+        </button>
+      </div>
+    </>
+  )
+}
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const [auth, setAuth] = useState(false)
   const [password, setPassword] = useState('')
   const [error, setError] = useState(false)
+  const [sidebarOpen, setSidebarOpen] = useState(false)
   const pathname = usePathname()
 
   useEffect(() => {
@@ -100,62 +158,42 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
   return (
     <div className="min-h-screen flex" style={{ background: '#F0EDE6' }}>
+
+      {/* Mobile backdrop */}
+      {sidebarOpen && (
+        <div
+          className="fixed inset-0 z-30 bg-black/40 md:hidden"
+          onClick={() => setSidebarOpen(false)}
+        />
+      )}
+
       {/* ─── Sidebar ─── */}
-      <aside className="w-52 shrink-0 flex flex-col" style={{ background: '#F5F0E8', borderRight: '1px solid #E3DBD0' }}>
-        {/* Logo */}
-        <div className="px-5 py-5" style={{ borderBottom: '1px solid #E3DBD0' }}>
-          <p className="text-[10px] tracking-widest uppercase mb-2" style={{ color: '#A08060' }}>Διαχειριστής</p>
-          <p className="font-serif text-base leading-snug" style={{ color: '#2C1B0E' }}>Myrsini Studios</p>
-        </div>
-
-        {/* Nav items */}
-        <nav className="flex-1 px-2.5 py-3 space-y-0.5 overflow-y-auto">
-          {NAV.map(({ href, Icon, label, sub, exact }) => {
-            const active = exact ? pathname === href : (pathname === href || pathname?.startsWith(href + '/'))
-            return (
-              <Link
-                key={href}
-                href={href}
-                className="flex items-start gap-3 px-3 py-2.5 rounded-xl transition-all duration-150 group"
-                style={active
-                  ? { background: '#E5DDD0', boxShadow: '0 1px 3px rgba(0,0,0,0.08)' }
-                  : { background: 'transparent' }
-                }
-              >
-                <span className="mt-0.5 shrink-0 transition-colors duration-150"
-                  style={{ color: active ? '#8B6914' : '#B0A090' }}>
-                  <Icon />
-                </span>
-                <div className="min-w-0">
-                  <p className="text-sm font-medium leading-tight" style={{ color: active ? '#3A2200' : '#5A4A35' }}>
-                    {label}
-                  </p>
-                  <p className="text-[10px] mt-0.5 leading-snug line-clamp-2"
-                    style={{ color: active ? '#8B6914' : '#A09080', fontStyle: active && href === '/admin' ? 'italic' : 'normal' }}>
-                    {active && href === '/admin' ? 'Active' : sub}
-                  </p>
-                </div>
-              </Link>
-            )
-          })}
-        </nav>
-
-        {/* Logout */}
-        <div className="px-3 py-3" style={{ borderTop: '1px solid #E3DBD0' }}>
-          <button
-            onClick={() => { localStorage.removeItem('admin'); setAuth(false) }}
-            className="w-full text-left text-xs px-2 py-2 rounded-lg transition-colors hover:bg-[#EDE7DA]"
-            style={{ color: '#A09080' }}
-          >
-            ← Έξοδος
-          </button>
-        </div>
+      <aside
+        className={`fixed md:relative z-40 md:z-auto h-full md:h-auto w-64 md:w-52 shrink-0 flex flex-col transition-transform duration-200 ease-in-out ${
+          sidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'
+        }`}
+        style={{ background: '#F5F0E8', borderRight: '1px solid #E3DBD0' }}
+      >
+        <SidebarContent pathname={pathname} onClose={() => setSidebarOpen(false)} />
       </aside>
 
       {/* ─── Main ─── */}
       <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
         {/* Top bar */}
-        <header className="h-12 flex items-center justify-end px-6 shrink-0" style={{ background: '#FFFFFF', borderBottom: '1px solid #E8E0D0' }}>
+        <header className="h-12 flex items-center justify-between px-4 sm:px-6 shrink-0" style={{ background: '#FFFFFF', borderBottom: '1px solid #E8E0D0' }}>
+          {/* Hamburger — mobile only */}
+          <button
+            className="md:hidden flex flex-col gap-1.5 p-1.5 rounded"
+            onClick={() => setSidebarOpen(s => !s)}
+            aria-label="Μενού"
+          >
+            <span className="block w-5 h-0.5 bg-[#5A4A35]" />
+            <span className="block w-5 h-0.5 bg-[#5A4A35]" />
+            <span className="block w-5 h-0.5 bg-[#5A4A35]" />
+          </button>
+
+          <div className="hidden md:block" /> {/* spacer on desktop */}
+
           <div className="flex items-center gap-2.5">
             <div className="text-right leading-none">
               <p className="text-[10px]" style={{ color: '#A09080' }}>Myrsini</p>
@@ -169,7 +207,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         </header>
 
         {/* Page content */}
-        <main className="flex-1 p-5 overflow-auto">
+        <main className="flex-1 p-4 sm:p-5 overflow-auto">
           {children}
         </main>
       </div>

@@ -28,6 +28,12 @@ export interface Translations {
   emergency: {
     eyebrow: string; title: string; desc: string; sosTitle: string; sosCall: string; sosDesc: string
   }
+  difficulty: { easy: string; medium: string; hard: string }
+  acts_page: {
+    back: string; location: string; locationName: string; locationSub: string
+    category: string; duration: string; distance: string; mapBtn: string
+    help: string; helpDesc: string; contact: string
+  }
   weather: {
     temp: string; sea: string; wind: string; today: string; howToArrive: string
   }
@@ -98,6 +104,15 @@ export const translations: Record<Lang, Translations> = {
       apartments: 'Τα Καταλύματα', hiking: 'Πεζοπορία', activities: 'Δραστηριότητες',
       checkin: 'Check-in: 14:00 · Check-out: 11:00',
     },
+    difficulty: { easy: 'Εύκολη', medium: 'Μέτρια', hard: 'Δύσκολη' },
+    acts_page: {
+      back: '← Πίσω στις Δραστηριότητες', location: 'Τοποθεσία',
+      locationName: 'Χόρτο, Πήλιο', locationSub: 'Νότιο Πήλιο · Μαγνησία · Ελλάδα',
+      category: 'Κατηγορία', duration: 'Διάρκεια', distance: 'Απόσταση',
+      mapBtn: 'Άνοιγμα στο Google Maps →',
+      help: 'Myrsini Studios', helpDesc: 'Χρειάζεστε βοήθεια για να οργανώσετε τη δραστηριότητα;',
+      contact: 'Επικοινωνήστε μαζί μας →',
+    },
     modal: {
       badge: 'ΕΓΓΥΗΣΗ ΚΑΛΥΤΕΡΗΣ ΤΙΜΗΣ', title: 'Ελέγξτε Τιμές',
       members: 'Members Club', direct: 'Απευθείας Κράτηση',
@@ -160,6 +175,15 @@ export const translations: Record<Lang, Translations> = {
       contact: 'Contact', booking: 'Booking', direct: 'Direct Booking',
       apartments: 'Our Rooms', hiking: 'Hiking', activities: 'Activities',
       checkin: 'Check-in: 14:00 · Check-out: 11:00',
+    },
+    difficulty: { easy: 'Easy', medium: 'Moderate', hard: 'Hard' },
+    acts_page: {
+      back: '← Back to Activities', location: 'Location',
+      locationName: 'Horto, Pelion', locationSub: 'South Pelion · Magnesia · Greece',
+      category: 'Category', duration: 'Duration', distance: 'Distance',
+      mapBtn: 'Open in Google Maps →',
+      help: 'Myrsini Studios', helpDesc: 'Need help organising the activity?',
+      contact: 'Contact us →',
     },
     modal: {
       badge: 'BEST PRICE GUARANTEE', title: 'Check Prices',
@@ -224,6 +248,15 @@ export const translations: Record<Lang, Translations> = {
       apartments: 'Zimmer', hiking: 'Wandern', activities: 'Aktivitäten',
       checkin: 'Check-in: 14:00 · Check-out: 11:00',
     },
+    difficulty: { easy: 'Leicht', medium: 'Mittel', hard: 'Schwer' },
+    acts_page: {
+      back: '← Zurück zu Aktivitäten', location: 'Lage',
+      locationName: 'Horto, Pelion', locationSub: 'Süd-Pelion · Magnesia · Griechenland',
+      category: 'Kategorie', duration: 'Dauer', distance: 'Distanz',
+      mapBtn: 'In Google Maps öffnen →',
+      help: 'Myrsini Studios', helpDesc: 'Benötigen Sie Hilfe bei der Organisation der Aktivität?',
+      contact: 'Kontaktieren Sie uns →',
+    },
     modal: {
       badge: 'BESTPREIS-GARANTIE', title: 'Preise prüfen',
       members: 'Members Club', direct: 'Direktbuchung',
@@ -286,6 +319,15 @@ export const translations: Record<Lang, Translations> = {
       contact: 'Contact', booking: 'Réservation', direct: 'Réservation directe',
       apartments: 'Logements', hiking: 'Randonnée', activities: 'Activités',
       checkin: 'Arrivée: 14h00 · Départ: 11h00',
+    },
+    difficulty: { easy: 'Facile', medium: 'Modéré', hard: 'Difficile' },
+    acts_page: {
+      back: '← Retour aux Activités', location: 'Localisation',
+      locationName: 'Horto, Pélion', locationSub: 'Pélion Sud · Magnésie · Grèce',
+      category: 'Catégorie', duration: 'Durée', distance: 'Distance',
+      mapBtn: 'Ouvrir dans Google Maps →',
+      help: 'Myrsini Studios', helpDesc: "Besoin d'aide pour organiser l'activité ?",
+      contact: 'Contactez-nous →',
     },
     modal: {
       badge: 'MEILLEUR PRIX GARANTI', title: 'Vérifier les prix',

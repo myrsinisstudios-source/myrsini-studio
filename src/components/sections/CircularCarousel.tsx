@@ -9,9 +9,11 @@ export type Activity = {
   id: string | number
   slug: string
   name_el: string
+  name_en?: string | null
   icon: string
   image_url?: string | null
   description_el: string
+  description_en?: string | null
   duration?: string | null
   distance?: string | null
   category?: string | null
@@ -51,7 +53,9 @@ export default function CircularCarousel({ activities }: { activities?: Activity
   const items = activities && activities.length > 0 ? activities : FALLBACK
   const N = items.length
   const [active, setActive] = useState(0)
-  const { t } = useLanguage()
+  const { t, lang } = useLanguage()
+  const getName = (item: Activity) => (lang !== 'el' && item.name_en) ? item.name_en : item.name_el
+  const getDesc = (item: Activity) => (lang !== 'el' && item.description_en) ? item.description_en : item.description_el
   const dragStart = useRef<number | null>(null)
   const isDragging = useRef(false)
 
@@ -134,7 +138,7 @@ export default function CircularCarousel({ activities }: { activities?: Activity
                         pos.isActive ? 'text-olive font-semibold' : 'text-deep-wood/40'
                       }`}
                     >
-                      {item.name_el}
+                      {getName(item)}
                     </p>
                   </button>
                 </motion.div>
@@ -153,8 +157,8 @@ export default function CircularCarousel({ activities }: { activities?: Activity
             transition={{ duration: 0.32, ease: 'easeOut' }}
             className="max-w-xl mx-auto text-center mt-10"
           >
-            <h3 className="font-serif text-2xl sm:text-3xl text-deep-wood mb-3">{current.name_el}</h3>
-            <p className="text-deep-wood/55 text-sm sm:text-base leading-relaxed mb-7">{current.description_el}</p>
+            <h3 className="font-serif text-2xl sm:text-3xl text-deep-wood mb-3">{getName(current)}</h3>
+            <p className="text-deep-wood/55 text-sm sm:text-base leading-relaxed mb-7">{getDesc(current)}</p>
             <Link
               href={`/activities/${current.slug}`}
               className="inline-block bg-deep-wood text-white text-xs tracking-widest uppercase px-8 py-3.5 hover:bg-olive transition-colors duration-200"

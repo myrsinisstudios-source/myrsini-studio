@@ -35,9 +35,9 @@ export default async function FinancesPage() {
 
       <FinancialDashboard bookings={bookings} expenses={expenses} />
 
-      <div className="mt-12 grid md:grid-cols-3 gap-8">
-        {/* Expense list */}
-        <div className="md:col-span-2">
+      <div className="mt-12 grid grid-cols-1 md:grid-cols-3 gap-8">
+        {/* Left: expense list + category manager */}
+        <div className="md:col-span-2 space-y-6">
           <div className="bg-white shadow-sm p-6">
             <h2 className="font-medium text-deep-wood mb-6">Έξοδα</h2>
             {expenses.length === 0 && (
@@ -70,12 +70,13 @@ export default async function FinancesPage() {
               })}
             </div>
           </div>
+
+          <CategoryManager categories={allCategories} />
         </div>
 
-        {/* Right column: add expense + category manager */}
-        <div className="space-y-6">
+        {/* Right: add expense form alone */}
+        <div>
           <ExpenseForm categories={activeCategories} />
-          <CategoryManager categories={allCategories} />
         </div>
       </div>
     </div>

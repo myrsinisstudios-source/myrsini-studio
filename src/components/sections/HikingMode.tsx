@@ -12,9 +12,13 @@ const DIFFICULTY_STYLE: Record<string, string> = {
   'Εύκολη':  'text-green-700 bg-green-50 border-green-200',
   'Μέτρια':  'text-amber-600 bg-amber-50 border-amber-200',
   'Δύσκολη': 'text-red-700 bg-red-50 border-red-200',
-  'Easy':    'text-green-700 bg-green-50 border-green-200',
-  'Moderate':'text-amber-600 bg-amber-50 border-amber-200',
-  'Hard':    'text-red-700 bg-red-50 border-red-200',
+}
+
+function getDifficultyLabel(raw: string, d: { easy: string; medium: string; hard: string }) {
+  if (raw === 'Εύκολη') return d.easy
+  if (raw === 'Μέτρια') return d.medium
+  if (raw === 'Δύσκολη') return d.hard
+  return raw
 }
 
 const FALLBACK: Trail[] = [
@@ -43,6 +47,7 @@ const STAT = 'flex flex-col items-center p-3 bg-cream/70 border border-deep-wood
 export default function HikingMode() {
   const { t } = useLanguage()
   const h = t.hiking
+  const d = t.difficulty
   const [trails, setTrails] = useState<Trail[]>(FALLBACK)
 
   useEffect(() => {
@@ -76,7 +81,7 @@ export default function HikingMode() {
                       {trail.icon || '🥾'}
                     </div>
                     <span className={`text-xs font-medium px-3 py-1 border rounded-full ${DIFFICULTY_STYLE[trail.difficulty] ?? 'text-gray-600 bg-gray-50 border-gray-200'}`}>
-                      {trail.difficulty}
+                      {getDifficultyLabel(trail.difficulty, d)}
                     </span>
                   </div>
 

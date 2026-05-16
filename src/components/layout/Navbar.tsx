@@ -20,10 +20,10 @@ export default function Navbar() {
   }, [])
 
   const NAV_LINKS = [
-    { href: '#apartments', label: t.nav.apartments },
-    { href: '#activities', label: t.nav.activities },
-    { href: '#history',    label: t.nav.history },
-    { href: '#hiking',     label: t.nav.hiking },
+    { href: '/#apartments', label: t.nav.apartments },
+    { href: '/#activities', label: t.nav.activities },
+    { href: '/#history',    label: t.nav.history },
+    { href: '/#hiking',     label: t.nav.hiking },
   ]
 
   return (
@@ -34,11 +34,8 @@ export default function Navbar() {
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 h-20 flex items-center justify-between">
         {/* Logo */}
-        <Link href="/" className="flex items-center gap-3 group">
-          <Image src="/logo.png" alt="Myrsini Studios" width={44} height={44} className="object-contain rounded-sm" />
-          <span className={`font-serif text-lg tracking-wide transition-colors duration-300 ${scrolled ? 'text-deep-wood' : 'text-white'}`}>
-            Myrsini Studios
-          </span>
+        <Link href="/" className="flex items-center group">
+          <Image src="/logo.png" alt="Myrsini Studios" width={60} height={60} className="object-contain rounded-sm" />
         </Link>
 
         {/* Desktop nav */}
@@ -50,7 +47,7 @@ export default function Navbar() {
             </a>
           ))}
 
-          <a href="#booking"
+          <a href="/#booking"
             className="bg-olive text-white px-5 py-2.5 text-xs tracking-widest uppercase hover:bg-olive-dark transition-colors duration-200">
             {t.nav.book}
           </a>
@@ -98,7 +95,7 @@ export default function Navbar() {
             </a>
           ))}
           <div className="pt-2">
-            <a href="#booking" onClick={() => setMenuOpen(false)}
+            <a href="/#booking" onClick={() => setMenuOpen(false)}
               className="block bg-olive text-white text-center px-4 py-3 text-xs tracking-widest uppercase">
               {t.nav.book}
             </a>
