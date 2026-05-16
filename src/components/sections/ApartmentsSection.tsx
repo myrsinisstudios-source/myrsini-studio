@@ -24,23 +24,6 @@ interface Apartment {
   gallery?: string[] | null
 }
 
-const FALLBACK: Apartment[] = [
-  {
-    id: 'archontiko', slug: 'archontiko', name_el: 'Το Αρχοντικό', name_en: 'The Archontiko',
-    description_el: 'Παραδοσιακό πέτρινο κτίριο του 19ου αιώνα. Εκθαμβωτική θέα στον κόλπο, αυλή με ελαιώνα και πλήρως εξοπλισμένη κουζίνα.',
-    description_en: 'Traditional 19th-century stone building. Stunning bay views, olive grove courtyard and a fully equipped kitchen.',
-    price_per_night: 85, max_guests: 4, sqm: 65, bedrooms: 2, bathrooms: 1,
-    amenities: ['AC', 'WiFi', 'Κουζίνα', 'Parking', 'Βεράντα', 'Θέα θάλασσα', 'BBQ', 'Πλυντήριο'],
-  },
-  {
-    id: 'thalassino', slug: 'thalassino', name_el: 'Το Θαλασσινό', name_en: 'The Thalassino',
-    description_el: 'Σύγχρονο studio με άμεση πρόσβαση στη θάλασσα. Μεγάλα παράθυρα, θέα ορίζοντα και private βεράντα πάνω στο κύμα.',
-    description_en: 'Modern studio with direct sea access. Large windows, horizon views and a private veranda above the waves.',
-    price_per_night: 65, max_guests: 2, sqm: 45, bedrooms: 1, bathrooms: 1,
-    amenities: ['AC', 'WiFi', 'Kitchenette', 'Βεράντα', 'Θέα θάλασσα', 'Τηλεόραση', 'Πετσέτες'],
-  },
-]
-
 const AMENITY_ICONS: Record<string, string> = {
   AC: '❄️', WiFi: '📶', Κουζίνα: '🍳', Kitchenette: '☕',
   Parking: '🅿️', Βεράντα: '🌿', 'Θέα θάλασσα': '🌊',
@@ -66,28 +49,12 @@ const GRADIENT_BG = [
 
 type Lightbox = { images: string[]; idx: number }
 
-export default function ApartmentsSection({ apartments: initialApts }: { apartments?: Apartment[] }) {
+export default function ApartmentsSection({ apartments }: { apartments: Apartment[] }) {
   const { t, lang } = useLanguage()
   const am = t.amenities
   const isEl = lang === 'el'
 
-  const [apartments, setApartments] = useState<Apartment[]>(
-    initialApts && initialApts.length > 0 ? initialApts : FALLBACK
-  )
   const [lightbox, setLightbox] = useState<Lightbox | null>(null)
-
-  useEffect(() => {
-    import('@/lib/supabase/client').then(({ createClient }) => {
-      createClient()
-        .from('apartments')
-        .select('id, slug, name_el, name_en, description_el, description_en, price_per_night, max_guests, sqm, area_sqm, bedrooms, bathrooms, amenities, is_active, image_url, images, gallery')
-        .eq('is_active', true)
-        .order('created_at')
-        .then(({ data }) => {
-          if (data && data.length > 0) setApartments(data as Apartment[])
-        })
-    })
-  }, [])
 
   useEffect(() => {
     if (!lightbox) return
@@ -108,6 +75,10 @@ export default function ApartmentsSection({ apartments: initialApts }: { apartme
           <h2 className="font-serif text-4xl sm:text-5xl text-deep-wood mb-4">{t.apts.title}</h2>
           <p className="text-deep-wood/50 text-sm max-w-md mx-auto">{t.apts.desc}</p>
         </div>
+
+        {apartments.length === 0 && (
+          <p className="text-center text-deep-wood/40 text-sm py-8">Καμία διαθεσιμότητα αυτή τη στιγμή.</p>
+        )}
 
         <div className="grid md:grid-cols-2 gap-8">
           {apartments.map((apt, i) => {
