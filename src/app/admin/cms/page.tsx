@@ -53,6 +53,8 @@ type AptRow = {
   gallery?: string[]
 }
 
+type SaveStatus = 'idle' | 'saving' | 'saved' | 'error'
+
 // ── Single image uploader ──────────────────────────────────────────────────
 function ImageUploader({ value, onChange, folder, autoSave }: {
   value: string
@@ -62,17 +64,32 @@ function ImageUploader({ value, onChange, folder, autoSave }: {
 }) {
   const [uploading, setUploading] = useState(false)
   const [uploadError, setUploadError] = useState('')
+  const [saveStatus, setSaveStatus] = useState<SaveStatus>('idle')
   const [showPaste, setShowPaste] = useState(false)
   const [over, setOver] = useState(false)
   const inputRef = useRef<HTMLInputElement>(null)
+  const lastUrl = useRef('')
+
+  const runAutoSave = async (url: string) => {
+    if (!autoSave) return
+    lastUrl.current = url
+    setSaveStatus('saving')
+    try {
+      await autoSave(url)
+      setSaveStatus('saved')
+      setTimeout(() => setSaveStatus('idle'), 2500)
+    } catch {
+      setSaveStatus('error')
+    }
+  }
 
   const handleFile = async (file: File) => {
     if (!file.type.startsWith('image/')) { setUploadError('Μόνο αρχεία εικόνας'); return }
-    setUploadError(''); setUploading(true)
+    setUploadError(''); setUploading(true); setSaveStatus('idle')
     try {
       const url = await uploadToCloudinary(file, folder)
       onChange(url)
-      await autoSave?.(url)
+      await runAutoSave(url)
     }
     catch (e: unknown) { setUploadError(e instanceof Error ? e.message : 'Upload failed') }
     finally { setUploading(false) }
@@ -118,6 +135,19 @@ function ImageUploader({ value, onChange, folder, autoSave }: {
 
       {uploadError && <p className="text-xs text-red-500 mt-1">{uploadError}</p>}
 
+      {saveStatus === 'saving' && <p className="text-xs text-gray-400 mt-1 animate-pulse">Αποθήκευση στη βάση...</p>}
+      {saveStatus === 'saved'  && <p className="text-xs text-green-600 mt-1 font-medium">✓ Αποθηκεύτηκε στη βάση</p>}
+      {saveStatus === 'error'  && (
+        <div className="flex items-center gap-2 mt-1">
+          <span className="text-xs text-red-500">✗ Αποτυχία αποθήκευσης</span>
+          <button
+            type="button"
+            onClick={() => runAutoSave(lastUrl.current)}
+            className="text-xs text-red-500 underline hover:text-red-700"
+          >retry</button>
+        </div>
+      )}
+
       <button
         type="button"
         onClick={() => setShowPaste(v => !v)}
@@ -147,20 +177,35 @@ function GalleryUploader({ gallery, onChange, folder, autoSave }: {
 }) {
   const [uploading, setUploading] = useState(false)
   const [uploadError, setUploadError] = useState('')
+  const [saveStatus, setSaveStatus] = useState<SaveStatus>('idle')
   const [over, setOver] = useState(false)
   const [dragIdx, setDragIdx] = useState<number | null>(null)
   const [overIdx, setOverIdx] = useState<number | null>(null)
   const inputRef = useRef<HTMLInputElement>(null)
+  const lastGallery = useRef<string[]>([])
+
+  const runAutoSave = async (g: string[]) => {
+    if (!autoSave) return
+    lastGallery.current = g
+    setSaveStatus('saving')
+    try {
+      await autoSave(g)
+      setSaveStatus('saved')
+      setTimeout(() => setSaveStatus('idle'), 2500)
+    } catch {
+      setSaveStatus('error')
+    }
+  }
 
   const handleFiles = async (files: FileList) => {
     const imgs = Array.from(files).filter(f => f.type.startsWith('image/'))
     if (!imgs.length) return
-    setUploadError(''); setUploading(true)
+    setUploadError(''); setUploading(true); setSaveStatus('idle')
     try {
       const urls = await Promise.all(imgs.map(f => uploadToCloudinary(f, folder)))
       const newGallery = [...gallery, ...urls]
       onChange(newGallery)
-      await autoSave?.(newGallery)
+      await runAutoSave(newGallery)
     } catch (e: unknown) {
       setUploadError(e instanceof Error ? e.message : 'Upload failed')
     } finally { setUploading(false) }
@@ -248,7 +293,21 @@ function GalleryUploader({ gallery, onChange, folder, autoSave }: {
       />
 
       {uploadError && <p className="text-xs text-red-500 mt-1">{uploadError}</p>}
-      {gallery.length > 1 && (
+
+      {saveStatus === 'saving' && <p className="text-xs text-gray-400 mt-1 animate-pulse">Αποθήκευση στη βάση...</p>}
+      {saveStatus === 'saved'  && <p className="text-xs text-green-600 mt-1 font-medium">✓ Αποθηκεύτηκε στη βάση ({gallery.length} εικόνες)</p>}
+      {saveStatus === 'error'  && (
+        <div className="flex items-center gap-2 mt-1">
+          <span className="text-xs text-red-500">✗ Αποτυχία αποθήκευσης</span>
+          <button
+            type="button"
+            onClick={() => runAutoSave(lastGallery.current)}
+            className="text-xs text-red-500 underline hover:text-red-700"
+          >retry</button>
+        </div>
+      )}
+
+      {gallery.length > 1 && saveStatus === 'idle' && (
         <p className="text-xs text-gray-300 mt-1">Drag τις εικόνες για αλλαγή σειράς</p>
       )}
     </div>
