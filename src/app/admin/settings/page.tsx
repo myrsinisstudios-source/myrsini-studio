@@ -111,14 +111,14 @@ export default function AdminSettingsPage() {
         <p className="text-xs mt-0.5" style={{ color: '#8B7355' }}>Διαχείριση γενικών παραμέτρων του συστήματος</p>
       </div>
 
-      <div className="grid grid-cols-4 gap-4">
-        {/* Sidebar nav */}
-        <div className="col-span-1 rounded-xl bg-white p-3 space-y-0.5 self-start" style={{ border: '1px solid #E8E0D0' }}>
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        {/* Sidebar nav — horizontal scroll on mobile */}
+        <div className="md:col-span-1 rounded-xl bg-white p-3 md:space-y-0.5 flex md:flex-col gap-1 overflow-x-auto md:overflow-x-visible self-start" style={{ border: '1px solid #E8E0D0' }}>
           {NAV.map(n => (
             <button
               key={n.key}
               onClick={() => setSection(n.key)}
-              className="w-full text-left px-3 py-2.5 rounded-lg transition-all"
+              className="shrink-0 md:w-full text-left px-3 py-2.5 rounded-lg transition-all whitespace-nowrap"
               style={section === n.key
                 ? { background: '#E5DDD0', boxShadow: '0 1px 3px rgba(0,0,0,0.08)' }
                 : { background: 'transparent' }}
@@ -130,12 +130,12 @@ export default function AdminSettingsPage() {
         </div>
 
         {/* Content */}
-        <div className="col-span-3 rounded-xl bg-white p-5" style={{ border: '1px solid #E8E0D0' }}>
+        <div className="md:col-span-3 rounded-xl bg-white p-4 sm:p-5" style={{ border: '1px solid #E8E0D0' }}>
 
           {section === 'general' && (
             <div className="space-y-4">
               <h2 className="text-sm font-semibold mb-4" style={{ color: '#2C1B0E' }}>Γενικές Πληροφορίες</h2>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <Field label="Όνομα Καταλύματος">
                   <Input value={propertyName} onChange={e => setPropertyName(e.target.value)} />
                 </Field>
@@ -179,7 +179,7 @@ export default function AdminSettingsPage() {
               ].map(apt => (
                 <div key={apt.label} className="rounded-lg p-4" style={{ background: '#F9F6F1' }}>
                   <p className="text-xs font-semibold mb-3" style={{ color: '#2C1B0E' }}>{apt.label}</p>
-                  <div className="grid grid-cols-3 gap-3">
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                     <Field label="Όνομα">
                       <Input value={apt.name} onChange={e => apt.setName(e.target.value)} />
                     </Field>
@@ -207,7 +207,7 @@ export default function AdminSettingsPage() {
 
               <div className="rounded-lg p-4 mt-2" style={{ background: '#F9F6F1' }}>
                 <p className="text-xs font-semibold mb-3" style={{ color: '#2C1B0E' }}>Προμήθειες (% επί κράτησης)</p>
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <Field label="Airbnb (%)">
                     <Input type="number" step="0.1" value={airbnbCommission} onChange={e => setAirbnbCommission(e.target.value)} />
                   </Field>

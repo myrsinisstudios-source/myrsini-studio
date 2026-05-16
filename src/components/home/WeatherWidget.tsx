@@ -3,11 +3,9 @@
 import Image from 'next/image'
 import { useLanguage } from '@/lib/i18n/LanguageContext'
 
-const travelCards = [
+const TRAVEL_BASE = [
   {
     id: 'airport',
-    origin: 'Αεροδρόμιο Νέας Αγχιάλου',
-    destination: 'Myrsini Studios',
     time: '58 λεπτά',
     distance: '54 χλμ',
     originImage: 'https://images.unsplash.com/photo-1436491865332-7a61a109cc05?w=400&q=80',
@@ -15,8 +13,6 @@ const travelCards = [
   },
   {
     id: 'port',
-    origin: 'Λιμάνι Βόλου',
-    destination: 'Myrsini Studios',
     time: '42 λεπτά',
     distance: '37 χλμ',
     originImage: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&q=80',
@@ -27,6 +23,11 @@ const travelCards = [
 export default function WeatherWidget() {
   const { t } = useLanguage()
   const w = t.weather
+
+  const travelCards = [
+    { ...TRAVEL_BASE[0], origin: w.airport, destination: 'Myrsini Studios' },
+    { ...TRAVEL_BASE[1], origin: w.port, destination: 'Myrsini Studios' },
+  ]
 
   return (
     <>

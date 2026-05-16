@@ -6,18 +6,20 @@ import { createClient } from '@/lib/supabase/client'
 type Trail = {
   id: string
   name: string
+  name_en?: string
   distance: string
   duration: string
   elevation: string
   difficulty: string
   description: string
+  description_en?: string
   start_point: string
   tags: string[] | string
   icon: string
 }
 
-type TrailForm = { name: string; distance: string; duration: string; elevation: string; difficulty: string; description: string; start_point: string; tags: string | string[]; icon: string }
-const EMPTY: TrailForm = { name: '', distance: '', duration: '', elevation: '', difficulty: 'Εύκολη', description: '', start_point: '', tags: '', icon: '🥾' }
+type TrailForm = { name: string; name_en: string; distance: string; duration: string; elevation: string; difficulty: string; description: string; description_en: string; start_point: string; tags: string | string[]; icon: string }
+const EMPTY: TrailForm = { name: '', name_en: '', distance: '', duration: '', elevation: '', difficulty: 'Εύκολη', description: '', description_en: '', start_point: '', tags: '', icon: '🥾' }
 const DIFFICULTIES = ['Εύκολη', 'Μέτρια', 'Δύσκολη']
 const DIFF_COLOR: Record<string, string> = { 'Εύκολη': 'bg-green-100 text-green-700', 'Μέτρια': 'bg-amber-100 text-amber-700', 'Δύσκολη': 'bg-red-100 text-red-700' }
 
@@ -57,8 +59,9 @@ export default function AdminHikingPage() {
   const handleEdit = (t: Trail) => {
     setEditId(t.id)
     setForm({
-      name: t.name, distance: t.distance, duration: t.duration, elevation: t.elevation,
-      difficulty: t.difficulty, description: t.description, start_point: t.start_point,
+      name: t.name, name_en: t.name_en ?? '', distance: t.distance, duration: t.duration,
+      elevation: t.elevation, difficulty: t.difficulty, description: t.description,
+      description_en: t.description_en ?? '', start_point: t.start_point,
       tags: Array.isArray(t.tags) ? t.tags.join(', ') : t.tags ?? '',
       icon: t.icon ?? '🥾',
     })
@@ -83,7 +86,8 @@ export default function AdminHikingPage() {
           <h2 className="font-medium text-deep-wood mb-6">{editId ? 'Επεξεργασία' : 'Νέο Μονοπάτι'}</h2>
           <div className="space-y-4">
             {[
-              { key: 'name', label: 'Όνομα', placeholder: 'π.χ. Χόρτο – Λαμπινού' },
+              { key: 'name', label: 'Όνομα (EL)', placeholder: 'π.χ. Χόρτο – Λαμπινού' },
+              { key: 'name_en', label: 'Name (EN)', placeholder: 'e.g. Horto – Lampinou' },
               { key: 'start_point', label: 'Σημείο Εκκίνησης', placeholder: 'π.χ. Χόρτο, παραλία' },
               { key: 'icon', label: 'Εικονίδιο', placeholder: '🥾' },
             ].map(f => (
@@ -129,9 +133,16 @@ export default function AdminHikingPage() {
             </div>
 
             <div>
-              <label className="block text-xs text-gray-500 uppercase tracking-wider mb-2">Περιγραφή</label>
+              <label className="block text-xs text-gray-500 uppercase tracking-wider mb-2">Περιγραφή (EL)</label>
               <textarea value={form.description} onChange={e => setForm(p => ({ ...p, description: e.target.value }))}
-                rows={4} placeholder="Λεπτομερής περιγραφή μονοπατιού..."
+                rows={3} placeholder="Λεπτομερής περιγραφή μονοπατιού..."
+                className="w-full border border-gray-300 px-3 py-2.5 text-sm placeholder-gray-400 focus:outline-none focus:border-olive resize-none" />
+            </div>
+
+            <div>
+              <label className="block text-xs text-gray-500 uppercase tracking-wider mb-2">Description (EN)</label>
+              <textarea value={form.description_en} onChange={e => setForm(p => ({ ...p, description_en: e.target.value }))}
+                rows={3} placeholder="Detailed trail description in English..."
                 className="w-full border border-gray-300 px-3 py-2.5 text-sm placeholder-gray-400 focus:outline-none focus:border-olive resize-none" />
             </div>
 

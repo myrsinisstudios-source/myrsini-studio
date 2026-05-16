@@ -32,7 +32,19 @@ const FALLBACK: Apartment[] = [
 const AMENITY_ICONS: Record<string, string> = {
   AC: '❄️', WiFi: '📶', Κουζίνα: '🍳', Kitchenette: '☕',
   Parking: '🅿️', Βεράντα: '🌿', 'Θέα θάλασσα': '🌊',
-  BBQ: '🔥', Πλυντήριο: '🫧', Τηλεόραση: '📺', Πετσέτες: '🛁',
+  BBQ: '🔥', Πλυντήριο: '🫧', Τηλεόραση: '📺', Πετσέτες: '🛁', 'Pet Friendly': '🐾',
+}
+
+type AmenityLabels = { AC: string; WiFi: string; kitchen: string; kitchenette: string; parking: string; veranda: string; seaview: string; BBQ: string; washer: string; TV: string; towels: string; petFriendly: string }
+
+function getAmenityLabel(key: string, am: AmenityLabels): string {
+  const map: Record<string, string> = {
+    'AC': am.AC, 'WiFi': am.WiFi, 'Κουζίνα': am.kitchen, 'Kitchenette': am.kitchenette,
+    'Parking': am.parking, 'Βεράντα': am.veranda, 'Θέα θάλασσα': am.seaview,
+    'BBQ': am.BBQ, 'Πλυντήριο': am.washer, 'Τηλεόραση': am.TV,
+    'Πετσέτες': am.towels, 'Pet Friendly': am.petFriendly,
+  }
+  return map[key] ?? key
 }
 
 const GRADIENT_BG = ['from-[#2C1B0E] via-[#4a5d45] to-[#2C1B0E]', 'from-[#1a3040] via-[#2a5060] to-[#1a3040]']
@@ -40,6 +52,7 @@ const GRADIENT_BG = ['from-[#2C1B0E] via-[#4a5d45] to-[#2C1B0E]', 'from-[#1a3040
 export default function ApartmentsSection({ apartments }: { apartments?: Apartment[] }) {
   const data = apartments && apartments.length > 0 ? apartments : FALLBACK
   const { t } = useLanguage()
+  const am = t.amenities
 
   return (
     <section id="apartments" className="py-24 bg-cream">
@@ -95,7 +108,7 @@ export default function ApartmentsSection({ apartments }: { apartments?: Apartme
                       {apt.amenities.map(a => (
                         <span key={a} className="inline-flex items-center gap-1 text-xs text-deep-wood/60 bg-cream border border-deep-wood/8 px-2.5 py-1 rounded-sm">
                           <span>{AMENITY_ICONS[a] ?? '✓'}</span>
-                          <span>{a}</span>
+                          <span>{getAmenityLabel(a, am)}</span>
                         </span>
                       ))}
                     </div>

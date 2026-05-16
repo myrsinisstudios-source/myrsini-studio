@@ -4,8 +4,8 @@ import { useState, useEffect } from 'react'
 import { useLanguage } from '@/lib/i18n/LanguageContext'
 
 type Trail = {
-  id: string; name: string; difficulty: string; distance: string; duration: string
-  elevation: string; start_point: string; description: string; tags: string[]; icon?: string
+  id: string; name: string; name_en?: string; difficulty: string; distance: string; duration: string
+  elevation: string; start_point: string; description: string; description_en?: string; tags: string[]; icon?: string
 }
 
 const DIFFICULTY_STYLE: Record<string, string> = {
@@ -45,9 +45,10 @@ const FALLBACK: Trail[] = [
 const STAT = 'flex flex-col items-center p-3 bg-cream/70 border border-deep-wood/8 rounded-sm'
 
 export default function HikingMode() {
-  const { t } = useLanguage()
+  const { t, lang } = useLanguage()
   const h = t.hiking
   const d = t.difficulty
+  const isEl = lang === 'el'
   const [trails, setTrails] = useState<Trail[]>(FALLBACK)
 
   useEffect(() => {
@@ -87,9 +88,11 @@ export default function HikingMode() {
 
                   <div className="flex-1">
                     <h3 className="font-serif text-2xl text-deep-wood mb-2 group-hover:text-olive transition-colors">
-                      {trail.name}
+                      {(!isEl && trail.name_en) ? trail.name_en : trail.name}
                     </h3>
-                    <p className="text-deep-wood/55 text-sm leading-relaxed mb-5">{trail.description}</p>
+                    <p className="text-deep-wood/55 text-sm leading-relaxed mb-5">
+                      {(!isEl && trail.description_en) ? trail.description_en : trail.description}
+                    </p>
 
                     {trail.tags?.length > 0 && (
                       <div className="flex flex-wrap gap-2 mb-5">

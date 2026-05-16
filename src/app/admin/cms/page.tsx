@@ -30,6 +30,61 @@ type AptRow = {
   amenities: string[]
   is_active: boolean
   image_url?: string
+  gallery?: string[]
+}
+
+function GalleryEditor({ gallery, onChange }: { gallery: string[]; onChange: (g: string[]) => void }) {
+  const add = () => onChange([...gallery, ''])
+  const remove = (i: number) => onChange(gallery.filter((_, idx) => idx !== i))
+  const update = (i: number, val: string) => onChange(gallery.map((v, idx) => idx === i ? val : v))
+
+  return (
+    <div>
+      <div className="flex items-center justify-between mb-2">
+        <label className="block text-xs uppercase tracking-wider text-gray-400">Gallery Εικόνες</label>
+        <button
+          type="button"
+          onClick={add}
+          className="text-xs px-2.5 py-1 border border-olive text-olive hover:bg-olive hover:text-white transition-colors"
+        >
+          + Προσθήκη
+        </button>
+      </div>
+      <div className="space-y-2">
+        {gallery.map((url, i) => (
+          <div key={i} className="flex gap-2 items-start">
+            <div className="flex-1">
+              <input
+                type="url"
+                value={url}
+                onChange={e => update(i, e.target.value)}
+                placeholder="https://..."
+                className="w-full border border-gray-200 px-3 py-2 text-sm focus:outline-none focus:border-olive"
+              />
+              {url && (
+                <img
+                  src={url}
+                  alt={`Gallery ${i + 1}`}
+                  className="mt-1 h-16 w-full object-cover border border-gray-100"
+                  onError={e => { (e.target as HTMLImageElement).style.display = 'none' }}
+                />
+              )}
+            </div>
+            <button
+              type="button"
+              onClick={() => remove(i)}
+              className="text-red-400 hover:text-red-600 px-2 py-2 text-lg leading-none shrink-0"
+            >
+              ×
+            </button>
+          </div>
+        ))}
+        {gallery.length === 0 && (
+          <p className="text-xs text-gray-400 italic">Δεν υπάρχουν φωτογραφίες gallery</p>
+        )}
+      </div>
+    </div>
+  )
 }
 
 export default function CmsPage() {
@@ -81,6 +136,7 @@ export default function CmsPage() {
         amenities: apt.amenities,
         is_active: apt.is_active,
         image_url: apt.image_url,
+        gallery: apt.gallery ?? [],
       })
       .eq('id', apt.id)
 
@@ -127,7 +183,7 @@ export default function CmsPage() {
         {apartments.map(apt => (
           <div key={apt.id} className="bg-white shadow-sm">
             {/* Header */}
-            <div className="p-5 bg-deep-wood/5 border-b border-deep-wood/8 flex items-center justify-between">
+            <div className="p-4 sm:p-5 bg-deep-wood/5 border-b border-deep-wood/8 flex flex-wrap items-center justify-between gap-3">
               <h2 className="font-serif text-lg text-deep-wood">{apt.name_el || 'Κατάλυμα'}</h2>
               <div className="flex items-center gap-3">
                 <label className="flex items-center gap-2 text-sm text-gray-600 cursor-pointer">
@@ -153,7 +209,7 @@ export default function CmsPage() {
               </div>
             </div>
 
-            <div className="p-6 grid md:grid-cols-2 gap-6">
+            <div className="p-4 sm:p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
               {/* Left column */}
               <div className="space-y-4">
                 <div>
@@ -176,8 +232,9 @@ export default function CmsPage() {
                   />
                 </div>
 
+                {/* Main image */}
                 <div>
-                  <label className="block text-xs uppercase tracking-wider text-gray-400 mb-1.5">URL Εικόνας</label>
+                  <label className="block text-xs uppercase tracking-wider text-gray-400 mb-1.5">Κεντρική Εικόνα (URL)</label>
                   <input
                     type="url"
                     value={apt.image_url ?? ''}
@@ -185,7 +242,21 @@ export default function CmsPage() {
                     placeholder="https://..."
                     className="w-full border border-gray-200 px-4 py-2.5 text-sm focus:outline-none focus:border-olive"
                   />
+                  {apt.image_url && (
+                    <img
+                      src={apt.image_url}
+                      alt="Preview"
+                      className="mt-2 h-32 w-full object-cover border border-gray-100"
+                      onError={e => { (e.target as HTMLImageElement).style.display = 'none' }}
+                    />
+                  )}
                 </div>
+
+                {/* Gallery */}
+                <GalleryEditor
+                  gallery={apt.gallery ?? []}
+                  onChange={g => updateField(apt.id, 'gallery', g)}
+                />
               </div>
 
               {/* Right column */}

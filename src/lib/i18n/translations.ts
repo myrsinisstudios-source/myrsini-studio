@@ -18,6 +18,12 @@ export interface Translations {
     eyebrow: string; title: string; desc: string
     guests: string; sqm: string; bedrooms: string; bathrooms: string
     book: string; perNight: string; bookingLabel: string
+    apt1: string; apt2: string
+  }
+  amenities: {
+    AC: string; WiFi: string; kitchen: string; kitchenette: string; parking: string
+    veranda: string; seaview: string; BBQ: string; washer: string; TV: string
+    towels: string; petFriendly: string
   }
   acts: { eyebrow: string; title: string; viewMore: string }
   history: { eyebrow: string; title: string; para1: string; para2: string }
@@ -36,6 +42,7 @@ export interface Translations {
   }
   weather: {
     temp: string; sea: string; wind: string; today: string; howToArrive: string
+    airport: string; port: string
   }
   footer: {
     tagline: string; contact: string; booking: string
@@ -75,6 +82,12 @@ export const translations: Record<Lang, Translations> = {
       desc: 'Κλείστε απευθείας και εξοικονομήστε έως 15% σε σύγκριση με τις πλατφόρμες κράτησης',
       guests: 'Άτομα', sqm: 'Εμβαδόν', bedrooms: 'Υπνοδωμάτια', bathrooms: 'Μπάνια',
       book: 'Κράτηση', perNight: '/νύχτα', bookingLabel: 'Booking',
+      apt1: 'Αρχοντικό', apt2: 'Θαλασσινό',
+    },
+    amenities: {
+      AC: 'Κλιματισμός', WiFi: 'WiFi', kitchen: 'Κουζίνα', kitchenette: 'Μικρή Κουζίνα',
+      parking: 'Parking', veranda: 'Βεράντα', seaview: 'Θέα Θάλασσα', BBQ: 'BBQ',
+      washer: 'Πλυντήριο', TV: 'Τηλεόραση', towels: 'Πετσέτες/Σεντόνια', petFriendly: 'Pet Friendly',
     },
     acts: { eyebrow: 'Ανακαλύψτε', title: 'Δραστηριότητες', viewMore: 'Δείτε Περισσότερα' },
     history: {
@@ -97,6 +110,7 @@ export const translations: Record<Lang, Translations> = {
     weather: {
       temp: 'Θερμοκρασία', sea: 'Θάλασσα', wind: 'Άνεμος',
       today: 'Χόρτο Πηλίου · Σήμερα', howToArrive: 'Πώς να φτάσετε',
+      airport: 'Αεροδρόμιο Νέας Αγχιάλου', port: 'Λιμάνι Βόλου',
     },
     footer: {
       tagline: 'Παραδοσιακά καταλύματα στο Χόρτο Πηλίου. Πέτρα, ελαιώνες και κρυστάλλινα νερά του Αιγαίου σε αδιάσπαστη αρμονία.',
@@ -147,6 +161,12 @@ export const translations: Record<Lang, Translations> = {
       desc: 'Book directly and save up to 15% compared to booking platforms',
       guests: 'Guests', sqm: 'Area', bedrooms: 'Bedrooms', bathrooms: 'Bathrooms',
       book: 'Book', perNight: '/night', bookingLabel: 'Booking',
+      apt1: 'Archontiko', apt2: 'Thalassino',
+    },
+    amenities: {
+      AC: 'Air Conditioning', WiFi: 'WiFi', kitchen: 'Kitchen', kitchenette: 'Kitchenette',
+      parking: 'Parking', veranda: 'Veranda', seaview: 'Sea View', BBQ: 'BBQ',
+      washer: 'Washing Machine', TV: 'TV', towels: 'Towels & Linen', petFriendly: 'Pet Friendly',
     },
     acts: { eyebrow: 'Discover', title: 'Activities', viewMore: 'See More' },
     history: {
@@ -169,6 +189,7 @@ export const translations: Record<Lang, Translations> = {
     weather: {
       temp: 'Temperature', sea: 'Sea', wind: 'Wind',
       today: 'Horto Pelion · Today', howToArrive: 'How to get here',
+      airport: 'Nea Anchialos Airport', port: 'Volos Port',
     },
     footer: {
       tagline: 'Traditional accommodation in Horto, Pelion. Stone, olive groves and crystal waters of the Aegean in perfect harmony.',
@@ -219,6 +240,12 @@ export const translations: Record<Lang, Translations> = {
       desc: 'Direkt buchen und bis zu 15% gegenüber Buchungsplattformen sparen',
       guests: 'Gäste', sqm: 'Fläche', bedrooms: 'Schlafzimmer', bathrooms: 'Bäder',
       book: 'Buchen', perNight: '/Nacht', bookingLabel: 'Booking',
+      apt1: 'Archontiko', apt2: 'Thalassino',
+    },
+    amenities: {
+      AC: 'Klimaanlage', WiFi: 'WLAN', kitchen: 'Küche', kitchenette: 'Küchenzeile',
+      parking: 'Parkplatz', veranda: 'Veranda', seaview: 'Meerblick', BBQ: 'Grill',
+      washer: 'Waschmaschine', TV: 'Fernseher', towels: 'Handtücher & Bettwäsche', petFriendly: 'Haustierfreundlich',
     },
     acts: { eyebrow: 'Entdecken', title: 'Aktivitäten', viewMore: 'Mehr anzeigen' },
     history: {
@@ -241,6 +268,7 @@ export const translations: Record<Lang, Translations> = {
     weather: {
       temp: 'Temperatur', sea: 'Meer', wind: 'Wind',
       today: 'Horto Pelion · Heute', howToArrive: 'Anreise',
+      airport: 'Flughafen Nea Anchialos', port: 'Hafen Volos',
     },
     footer: {
       tagline: 'Traditionelle Unterkunft in Horto, Pelion. Stein, Olivenhaine und kristallklares Ägäisches Meer in harmonischer Einheit.',
@@ -291,6 +319,12 @@ export const translations: Record<Lang, Translations> = {
       desc: "Réservez directement et économisez jusqu'à 15% par rapport aux plateformes",
       guests: 'Personnes', sqm: 'Surface', bedrooms: 'Chambres', bathrooms: 'Salles de bain',
       book: 'Réserver', perNight: '/nuit', bookingLabel: 'Booking',
+      apt1: 'Archontiko', apt2: 'Thalassino',
+    },
+    amenities: {
+      AC: 'Climatisation', WiFi: 'WiFi', kitchen: 'Cuisine', kitchenette: 'Kitchenette',
+      parking: 'Parking', veranda: 'Véranda', seaview: 'Vue mer', BBQ: 'Barbecue',
+      washer: 'Lave-linge', TV: 'Télévision', towels: 'Serviettes & Linge', petFriendly: 'Animaux acceptés',
     },
     acts: { eyebrow: 'Découvrir', title: 'Activités', viewMore: 'Voir Plus' },
     history: {
@@ -313,6 +347,7 @@ export const translations: Record<Lang, Translations> = {
     weather: {
       temp: 'Température', sea: 'Mer', wind: 'Vent',
       today: "Horto Pélion · Aujourd'hui", howToArrive: 'Comment venir',
+      airport: 'Aéroport Nea Anchialos', port: 'Port de Volos',
     },
     footer: {
       tagline: "Hébergement traditionnel à Horto, Pélion. Pierre, oliveraies et eaux cristallines de la mer Égée en parfaite harmonie.",
