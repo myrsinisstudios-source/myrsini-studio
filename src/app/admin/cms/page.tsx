@@ -135,6 +135,7 @@ export default function CmsPage() {
         price_per_night: apt.price_per_night,
         max_guests: apt.max_guests,
         area_sqm: apt.area_sqm,
+        sqm: apt.area_sqm,
         bedrooms: apt.bedrooms,
         bathrooms: apt.bathrooms,
         amenities: apt.amenities,

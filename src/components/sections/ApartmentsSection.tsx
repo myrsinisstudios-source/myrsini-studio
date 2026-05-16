@@ -79,9 +79,9 @@ export default function ApartmentsSection({ apartments: initialApts }: { apartme
     import('@/lib/supabase/client').then(({ createClient }) => {
       createClient()
         .from('apartments')
-        .select('id, slug, name_el, name_en, description_el, description_en, price_per_night, max_guests, sqm, bedrooms, bathrooms, amenities, is_active, image_url, gallery')
+        .select('id, slug, name_el, name_en, description_el, description_en, price_per_night, max_guests, sqm, area_sqm, bedrooms, bathrooms, amenities, is_active, image_url, gallery')
         .eq('is_active', true)
-        .order('sort_order')
+        .order('created_at')
         .then(({ data }) => {
           if (data && data.length > 0) setApartments(data as Apartment[])
         })
