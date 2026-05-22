@@ -54,6 +54,13 @@ type AptRow = {
   gallery?: string[]
 }
 
+type SettingsRow = {
+  id: number
+  quote_el: string; quote_en: string; quote_de: string; quote_fr: string
+  airport_minutes: number; airport_km: number
+  port_minutes: number; port_km: number
+}
+
 type SaveStatus = 'idle' | 'saving' | 'saved' | 'error'
 
 // ── Markdown description editor with preview ───────────────────────────────
@@ -362,6 +369,8 @@ export default function CmsPage() {
   const [saving, setSaving] = useState<string | null>(null)
   const [saved, setSaved] = useState<string | null>(null)
   const [error, setError] = useState('')
+  const [settings, setSettings] = useState<SettingsRow | null>(null)
+  const [settingsStatus, setSettingsStatus] = useState<Record<string, SaveStatus>>({})
 
   useEffect(() => {
     supabase
@@ -379,7 +388,25 @@ export default function CmsPage() {
         }
         setLoading(false)
       })
+
+    supabase.from('settings').select('*').eq('id', 1).single()
+      .then(({ data }) => { if (data) setSettings(data as SettingsRow) })
+      .catch(() => {})
   }, [])
+
+  const updateSettings = (field: keyof SettingsRow, value: string | number) =>
+    setSettings(prev => prev ? { ...prev, [field]: value } : prev)
+
+  const saveSettingsField = async (field: string, value: string | number) => {
+    setSettingsStatus(prev => ({ ...prev, [field]: 'saving' }))
+    const { error: err } = await supabase.from('settings').upsert({ id: 1, [field]: value })
+    if (err) {
+      setSettingsStatus(prev => ({ ...prev, [field]: 'error' }))
+    } else {
+      setSettingsStatus(prev => ({ ...prev, [field]: 'saved' }))
+      setTimeout(() => setSettingsStatus(prev => ({ ...prev, [field]: 'idle' })), 2000)
+    }
+  }
 
   const updateField = (id: string, field: keyof AptRow, value: unknown) =>
     setApartments(prev => prev.map(a => a.id === id ? { ...a, [field]: value } : a))
@@ -455,6 +482,80 @@ export default function CmsPage() {
           <p className="text-4xl mb-3">🏠</p>
           <p>Δεν βρέθηκαν καταλύματα στη βάση δεδομένων.</p>
           <p className="text-xs mt-2">Ελέγξτε ότι ο πίνακας <code>apartments</code> υπάρχει στο Supabase.</p>
+        </div>
+      )}
+
+      {/* Settings Panel */}
+      {settings && (
+        <div className="bg-white shadow-sm mb-8">
+          <div className="p-4 sm:p-5 bg-deep-wood/5 border-b border-deep-wood/8">
+            <h2 className="font-serif text-lg text-deep-wood">Ρυθμίσεις Ιστοσελίδας</h2>
+          </div>
+          <div className="p-4 sm:p-6 space-y-6">
+
+            {/* Quotes */}
+            <div>
+              <p className="text-xs uppercase tracking-wider text-gray-400 mb-4 pb-2 border-b border-gray-100">
+                Εισαγωγικό Απόσπασμα — εμφανίζεται στο Weather Widget
+              </p>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {(['el', 'en', 'de', 'fr'] as const).map(lng => {
+                  const field = `quote_${lng}` as keyof SettingsRow
+                  const label = lng === 'el' ? 'Απόσπασμα (ΕΛ)' : lng === 'en' ? 'Quote (EN)' : lng === 'de' ? 'Zitat (DE)' : 'Citation (FR)'
+                  return (
+                    <div key={lng}>
+                      <label className="flex items-center gap-2 text-xs uppercase tracking-wider text-gray-400 mb-1.5">
+                        {label}
+                        {settingsStatus[field] === 'saving' && <span className="text-gray-300 font-normal normal-case not-italic">saving...</span>}
+                        {settingsStatus[field] === 'saved'  && <span className="text-green-500 font-normal normal-case not-italic">✓</span>}
+                        {settingsStatus[field] === 'error'  && <span className="text-red-500 font-normal normal-case not-italic">✗ failed</span>}
+                      </label>
+                      <textarea
+                        value={String(settings[field] ?? '')}
+                        onChange={e => updateSettings(field, e.target.value)}
+                        onBlur={e => saveSettingsField(field, e.target.value)}
+                        rows={3}
+                        className="w-full border border-gray-200 px-4 py-2.5 text-sm focus:outline-none focus:border-olive resize-none font-serif italic text-deep-wood/80"
+                      />
+                    </div>
+                  )
+                })}
+              </div>
+            </div>
+
+            {/* Distances */}
+            <div>
+              <p className="text-xs uppercase tracking-wider text-gray-400 mb-4 pb-2 border-b border-gray-100">
+                Αποστάσεις — εμφανίζονται στα Travel Cards
+              </p>
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                {([
+                  { field: 'airport_minutes', label: 'Αεροδρόμιο (λεπτά)' },
+                  { field: 'airport_km',      label: 'Αεροδρόμιο (χλμ)' },
+                  { field: 'port_minutes',    label: 'Λιμάνι (λεπτά)' },
+                  { field: 'port_km',         label: 'Λιμάνι (χλμ)' },
+                ] as const).map(({ field, label }) => (
+                  <div key={field}>
+                    <label className="flex items-center gap-2 text-xs uppercase tracking-wider text-gray-400 mb-1.5">
+                      {label}
+                      {settingsStatus[field] === 'saving' && <span className="text-gray-300 font-normal normal-case">...</span>}
+                      {settingsStatus[field] === 'saved'  && <span className="text-green-500 font-normal normal-case">✓</span>}
+                      {settingsStatus[field] === 'error'  && <span className="text-red-500 font-normal normal-case">✗</span>}
+                    </label>
+                    <input
+                      type="number"
+                      min={0}
+                      value={Number(settings[field as keyof SettingsRow] ?? 0)}
+                      onChange={e => updateSettings(field as keyof SettingsRow, Number(e.target.value))}
+                      onBlur={e => saveSettingsField(field, Number(e.target.value))}
+                      className="w-full border border-gray-200 px-4 py-2.5 text-sm focus:outline-none focus:border-olive"
+                    />
+                  </div>
+                ))}
+              </div>
+            </div>
+
+          </div>
         </div>
       )}
 
