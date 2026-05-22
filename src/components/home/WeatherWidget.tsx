@@ -9,6 +9,8 @@ export type SiteSettings = {
   quote_el: string; quote_en: string; quote_de: string; quote_fr: string
   airport_minutes: number; airport_km: number
   port_minutes: number; port_km: number
+  phone: string; email: string; address: string
+  checkin_time: string; checkout_time: string
 }
 
 type Distances = {

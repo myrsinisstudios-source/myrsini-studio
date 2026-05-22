@@ -127,7 +127,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
   if (!auth) {
     return (
-      <div className="min-h-screen flex items-center justify-center px-4" style={{ background: '#F5F0E8' }}>
+      <div className="min-h-[100dvh] flex items-center justify-center px-4" style={{ background: '#F5F0E8' }}>
         <div className="bg-white p-8 w-full max-w-xs shadow-xl" style={{ border: '1px solid #E8E0D0' }}>
           <div className="text-center mb-8">
             <div className="w-12 h-12 rounded-full mx-auto mb-4 flex items-center justify-center text-white font-serif text-xl" style={{ background: '#C9A96E' }}>M</div>
@@ -140,7 +140,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             value={password}
             onChange={e => { setPassword(e.target.value); setError(false) }}
             onKeyDown={e => e.key === 'Enter' && handleLogin()}
-            className="w-full px-4 py-3 text-sm mb-3 focus:outline-none"
+            className="w-full px-4 py-3 text-base mb-3 focus:outline-none"
             style={{ border: '1px solid #D5CCBB', background: '#FAFAF8', color: '#3A2A1A' }}
           />
           {error && <p className="text-red-500 text-xs mb-3 text-center">Λάθος κωδικός</p>}
@@ -157,7 +157,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   }
 
   return (
-    <div className="min-h-screen flex" style={{ background: '#F0EDE6' }}>
+    <div className="min-h-[100dvh] flex" style={{ background: '#F0EDE6' }}>
 
       {/* Mobile backdrop */}
       {sidebarOpen && (

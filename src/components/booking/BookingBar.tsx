@@ -4,6 +4,7 @@ import { useState, useCallback } from 'react'
 import dynamic from 'next/dynamic'
 import { useLanguage } from '@/lib/i18n/LanguageContext'
 import type { Lang } from '@/lib/i18n/translations'
+import type { SiteSettings } from '@/components/home/WeatherWidget'
 
 const MiniCalendar = dynamic(() => import('./MiniCalendar'), { ssr: false })
 
@@ -14,7 +15,7 @@ const APARTMENTS = [
   { id: 'thalassino', name: 'Το Θαλασσινό', price: 65, guests: 2 },
 ]
 
-export default function BookingBar() {
+export default function BookingBar({ settings }: { settings?: SiteSettings | null }) {
   const { t, lang } = useLanguage()
   const b = t.booking
 
@@ -84,8 +85,9 @@ export default function BookingBar() {
   }
 
   const handleWhatsApp = () => {
+    const waPhone = (settings?.phone ?? '+30 694 457 1280').replace(/\D/g, '')
     const msg = `Γεια σας! Θέλω να κάνω κράτηση:\n🏡 ${apt.name}\n📅 ${checkIn} → ${checkOut}\n👥 ${adults + children} ${b.guests}`
-    window.open(`https://wa.me/306944571280?text=${encodeURIComponent(msg)}`, '_blank')
+    window.open(`https://wa.me/${waPhone}?text=${encodeURIComponent(msg)}`, '_blank')
   }
 
   return (

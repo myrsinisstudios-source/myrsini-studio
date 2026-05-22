@@ -60,7 +60,25 @@ export async function POST(request: Request) {
     }
 
     const weatherText = type === 'confirmation' ? await getArrivalWeather(String(booking.check_in ?? '')) : null
-    const msgs = buildMessages(language, booking, weatherText)
+
+    let checkinTime = '14:00'
+    let checkoutTime = '11:00'
+    const sbUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+    const sbKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+    if (sbUrl && sbKey) {
+      try {
+        const sr = await fetch(`${sbUrl}/rest/v1/settings?id=eq.1&limit=1`, {
+          headers: { apikey: sbKey, Authorization: `Bearer ${sbKey}` },
+          cache: 'no-store',
+        })
+        if (sr.ok) {
+          const sd = await sr.json()
+          if (sd[0]) { checkinTime = sd[0].checkin_time ?? '14:00'; checkoutTime = sd[0].checkout_time ?? '11:00' }
+        }
+      } catch {}
+    }
+
+    const msgs = buildMessages(language, booking, weatherText, checkinTime, checkoutTime)
     const results = []
 
     if (type === 'confirmation') {
@@ -79,7 +97,7 @@ export async function POST(request: Request) {
   }
 }
 
-function buildMessages(lang: string, b: Record<string, string | number>, weatherText: string | null = null) {
+function buildMessages(lang: string, b: Record<string, string | number>, weatherText: string | null = null, checkinTime = '14:00', checkoutTime = '11:00') {
   const name = String(b.guest_name ?? '')
   const apt  = String(b.apartment_name ?? '')
   const ci   = String(b.check_in ?? '')
@@ -98,23 +116,23 @@ function buildMessages(lang: string, b: Record<string, string | number>, weather
 
   const map: Record<string, { confirmation: string; reminder: string; owner: string }> = {
     el: {
-      confirmation: `✅ Επιβεβαίωση κράτησης\n\nΑγαπητέ/ή ${name},\n🏡 ${apt}\n📅 ${ci} → ${co} · ${ng} άτομα\n💰 Σύνολο: €${tot}${wLine}\n\nCheck-in 14:00 · Check-out 11:00\nΓια πληροφορίες: ${own}\n\nΣας περιμένουμε! — Myrsini Studios 🌿`,
-      reminder: `👋 Αύριο σας περιμένουμε!\n\nΑγαπητέ/ή ${name},\nΥπενθυμίζουμε ότι η άφιξή σας είναι αύριο.\n\n🏡 ${apt} · Χόρτο Πηλίου\n🕐 Check-in από τις 14:00\n📞 ${own}\n\nΚαλό ταξίδι! 🚗`,
+      confirmation: `✅ Επιβεβαίωση κράτησης\n\nΑγαπητέ/ή ${name},\n🏡 ${apt}\n📅 ${ci} → ${co} · ${ng} άτομα\n💰 Σύνολο: €${tot}${wLine}\n\nCheck-in ${checkinTime} · Check-out ${checkoutTime}\nΓια πληροφορίες: ${own}\n\nΣας περιμένουμε! — Myrsini Studios 🌿`,
+      reminder: `👋 Αύριο σας περιμένουμε!\n\nΑγαπητέ/ή ${name},\nΥπενθυμίζουμε ότι η άφιξή σας είναι αύριο.\n\n🏡 ${apt} · Χόρτο Πηλίου\n🕐 Check-in από τις ${checkinTime}\n📞 ${own}\n\nΚαλό ταξίδι! 🚗`,
       owner: `🔔 ΝΕΑ ΚΡΑΤΗΣΗ\n👤 ${name}\n🏡 ${apt}\n📅 ${ci} → ${co}\n👥 ${ng} άτομα\n💰 €${tot}\n📞 ${b.guest_phone}`,
     },
     en: {
-      confirmation: `✅ Booking Confirmation\n\nDear ${name},\n🏡 ${apt}\n📅 ${ci} → ${co} · ${ng} guests\n💰 Total: €${tot}${wLine}\n\nCheck-in 14:00 · Check-out 11:00\nContact: ${own}\n\nSee you soon! — Myrsini Studios 🌿`,
+      confirmation: `✅ Booking Confirmation\n\nDear ${name},\n🏡 ${apt}\n📅 ${ci} → ${co} · ${ng} guests\n💰 Total: €${tot}${wLine}\n\nCheck-in ${checkinTime} · Check-out ${checkoutTime}\nContact: ${own}\n\nSee you soon! — Myrsini Studios 🌿`,
       reminder: `👋 See you tomorrow!\n\nDear ${name},\nYour arrival is tomorrow.\n\n🏡 ${apt} · Chorto, Pelion\n🕐 Check-in from 14:00\n📞 ${own}\n\nSafe travels! 🚗`,
       owner: `🔔 NEW BOOKING\n👤 ${name}\n🏡 ${apt}\n📅 ${ci} → ${co}\n👥 ${ng} guests\n💰 €${tot}\n📞 ${b.guest_phone}`,
     },
     de: {
-      confirmation: `✅ Buchungsbestätigung\n\nLiebe/r ${name},\n🏡 ${apt}\n📅 ${ci} → ${co} · ${ng} Personen\n💰 Gesamt: €${tot}${wLine}\n\nCheck-in 14:00 · Check-out 11:00\nKontakt: ${own}\n\nBis bald! — Myrsini Studios 🌿`,
-      reminder: `👋 Wir sehen uns morgen!\n\nLiebe/r ${name},\nIhre Ankunft ist morgen.\n\n🏡 ${apt} · Chorto, Pelion\n🕐 Check-in ab 14:00\n📞 ${own}\n\nGute Reise! 🚗`,
+      confirmation: `✅ Buchungsbestätigung\n\nLiebe/r ${name},\n🏡 ${apt}\n📅 ${ci} → ${co} · ${ng} Personen\n💰 Gesamt: €${tot}${wLine}\n\nCheck-in ${checkinTime} · Check-out ${checkoutTime}\nKontakt: ${own}\n\nBis bald! — Myrsini Studios 🌿`,
+      reminder: `👋 Wir sehen uns morgen!\n\nLiebe/r ${name},\nIhre Ankunft ist morgen.\n\n🏡 ${apt} · Chorto, Pelion\n🕐 Check-in ab ${checkinTime}\n📞 ${own}\n\nGute Reise! 🚗`,
       owner: `🔔 NEUE BUCHUNG\n👤 ${name}\n🏡 ${apt}\n📅 ${ci} → ${co}\n👥 ${ng} Pers.\n💰 €${tot}\n📞 ${b.guest_phone}`,
     },
     fr: {
-      confirmation: `✅ Confirmation de réservation\n\nCher/Chère ${name},\n🏡 ${apt}\n📅 ${ci} → ${co} · ${ng} personnes\n💰 Total: €${tot}${wLine}\n\nCheck-in 14:00 · Check-out 11:00\nContact: ${own}\n\nÀ bientôt! — Myrsini Studios 🌿`,
-      reminder: `👋 On vous attend demain!\n\nCher/Chère ${name},\nVotre arrivée est demain.\n\n🏡 ${apt} · Chorto, Pélion\n🕐 Check-in dès 14:00\n📞 ${own}\n\nBon voyage! 🚗`,
+      confirmation: `✅ Confirmation de réservation\n\nCher/Chère ${name},\n🏡 ${apt}\n📅 ${ci} → ${co} · ${ng} personnes\n💰 Total: €${tot}${wLine}\n\nCheck-in ${checkinTime} · Check-out ${checkoutTime}\nContact: ${own}\n\nÀ bientôt! — Myrsini Studios 🌿`,
+      reminder: `👋 On vous attend demain!\n\nCher/Chère ${name},\nVotre arrivée est demain.\n\n🏡 ${apt} · Chorto, Pélion\n🕐 Check-in dès ${checkinTime}\n📞 ${own}\n\nBon voyage! 🚗`,
       owner: `🔔 NOUVELLE RÉSERVATION\n👤 ${name}\n🏡 ${apt}\n📅 ${ci} → ${co}\n👥 ${ng} pers.\n💰 €${tot}\n📞 ${b.guest_phone}`,
     },
   }

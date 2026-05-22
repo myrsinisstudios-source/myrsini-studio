@@ -7,7 +7,7 @@ export default function HeroSection() {
   const { t } = useLanguage()
 
   return (
-    <div className="relative min-h-screen overflow-hidden">
+    <div className="relative min-h-[100dvh] overflow-hidden">
       {/* Background photo */}
       <Image
         src="https://res.cloudinary.com/dusy3drw7/image/upload/v1779475268/remove-object_ibqbtd.avif"
@@ -29,7 +29,7 @@ export default function HeroSection() {
       />
 
       {/* Content */}
-      <div className="relative z-10 flex flex-col items-center justify-center min-h-screen px-4 text-center pb-48">
+      <div className="relative z-10 flex flex-col items-center justify-center min-h-[100dvh] px-4 text-center pb-48">
         <div className="animate-fade-in-up inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm border border-white/20 px-5 py-2 text-white/70 text-xs tracking-widest uppercase mb-10">
           {t.hero.badge}
         </div>

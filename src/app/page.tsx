@@ -45,14 +45,14 @@ export default async function Home() {
     <main>
       <HeroSection />
       <div className="relative z-20 max-w-5xl mx-auto px-4 sm:px-6 -mt-32">
-        <BookingBar />
+        <BookingBar settings={settings} />
       </div>
       <WeatherWidget settings={settings} />
       <ApartmentsSection apartments={apartments} />
       <CircularCarousel activities={activities} />
       <HistoryMasonry />
       <HikingMode />
-      <EmergencyGrid />
+      <EmergencyGrid phone={settings?.phone} />
       <HeritageSlider />
     </main>
   )

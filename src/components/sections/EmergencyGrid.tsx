@@ -39,11 +39,17 @@ const CAT_KEY: Record<string, keyof EL> = {
 type DbContact = { id: string; icon: string; label: string; number: string; description: string; category: string; sort_order: number }
 type DbGroup   = { category: string; items: { icon: string; label: string; number: string; note: string }[] }
 
-export default function EmergencyGrid() {
+export default function EmergencyGrid({ phone }: { phone?: string }) {
   const { t } = useLanguage()
   const e  = t.emergency
   const el = t.emergencyLabels
   const [dbGroups, setDbGroups] = useState<DbGroup[] | null>(null)
+
+  const studiosPhone = phone ?? '+30 694 457 1280'
+  const staticGroups = STATIC_GROUPS.map(g => ({
+    ...g,
+    items: g.items.map(i => i.labelKey === 'studios' ? { ...i, number: studiosPhone } : i),
+  }))
 
   useEffect(() => {
     import('@/lib/supabase/client').then(({ createClient }) => {
@@ -96,7 +102,7 @@ export default function EmergencyGrid() {
                   </div>
                 )
               })
-            : STATIC_GROUPS.map(group => (
+            : staticGroups.map(group => (
                 <div key={group.key as string}>
                   <h3 className="text-xs tracking-widest uppercase text-white/30 mb-4 pb-2 border-b border-white/10">
                     {el[group.key]}

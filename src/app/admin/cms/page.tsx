@@ -7,18 +7,26 @@ import { createClient } from '@/lib/supabase/client'
 const CLOUD_NAME = 'dusy3drw7'
 const UPLOAD_PRESET = 'myrsini_unsigned'
 
-async function uploadToCloudinary(file: File, folder: string): Promise<string> {
-  const fd = new FormData()
-  fd.append('file', file)
-  fd.append('upload_preset', UPLOAD_PRESET)
-  fd.append('folder', folder)
-  const res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`, {
-    method: 'POST',
-    body: fd,
+function uploadToCloudinary(file: File, folder: string, onProgress?: (pct: number) => void): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const fd = new FormData()
+    fd.append('file', file)
+    fd.append('upload_preset', UPLOAD_PRESET)
+    fd.append('folder', folder)
+    const xhr = new XMLHttpRequest()
+    xhr.open('POST', `https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`)
+    xhr.upload.onprogress = e => { if (e.lengthComputable && onProgress) onProgress(Math.round(e.loaded / e.total * 100)) }
+    xhr.onload = () => {
+      const data = JSON.parse(xhr.responseText)
+      if (xhr.status >= 200 && xhr.status < 300) {
+        resolve((data.secure_url as string).replace('/upload/', '/upload/f_auto,q_auto,w_2000/'))
+      } else {
+        reject(new Error(data.error?.message || 'Upload failed'))
+      }
+    }
+    xhr.onerror = () => reject(new Error('Network error'))
+    xhr.send(fd)
   })
-  const data = await res.json()
-  if (!res.ok) throw new Error(data.error?.message || 'Upload failed')
-  return (data.secure_url as string).replace('/upload/', '/upload/f_auto,q_auto,w_2000/')
 }
 
 const ALL_AMENITIES = [
@@ -59,6 +67,8 @@ type SettingsRow = {
   quote_el: string; quote_en: string; quote_de: string; quote_fr: string
   airport_minutes: number; airport_km: number
   port_minutes: number; port_km: number
+  phone: string; email: string; address: string
+  checkin_time: string; checkout_time: string
 }
 
 type SaveStatus = 'idle' | 'saving' | 'saved' | 'error'
@@ -75,7 +85,7 @@ function DescriptionEditor({ label, value, onChange }: {
         <button
           type="button"
           onClick={() => setPreview(v => !v)}
-          className="text-xs px-2 py-0.5 border border-gray-200 text-gray-400 hover:border-olive hover:text-olive transition-colors"
+          className="text-xs px-3 py-2 min-h-[44px] border border-gray-200 text-gray-400 hover:border-olive hover:text-olive transition-colors"
         >
           {preview ? 'Edit' : 'Preview'}
         </button>
@@ -98,7 +108,7 @@ function DescriptionEditor({ label, value, onChange }: {
           value={value}
           onChange={e => onChange(e.target.value)}
           rows={12}
-          className="w-full border border-gray-200 px-4 py-2.5 text-sm focus:outline-none focus:border-olive resize-y font-mono"
+          className="w-full border border-gray-200 px-4 py-2.5 text-base focus:outline-none focus:border-olive resize-y font-mono"
         />
       )}
       <p className="text-xs text-gray-300 mt-1">
@@ -116,6 +126,7 @@ function ImageUploader({ value, onChange, folder, autoSave }: {
   autoSave?: (url: string) => Promise<void>
 }) {
   const [uploading, setUploading] = useState(false)
+  const [uploadProgress, setUploadProgress] = useState(0)
   const [uploadError, setUploadError] = useState('')
   const [saveStatus, setSaveStatus] = useState<SaveStatus>('idle')
   const [showPaste, setShowPaste] = useState(false)
@@ -138,9 +149,9 @@ function ImageUploader({ value, onChange, folder, autoSave }: {
 
   const handleFile = async (file: File) => {
     if (!file.type.startsWith('image/')) { setUploadError('Μόνο αρχεία εικόνας'); return }
-    setUploadError(''); setUploading(true); setSaveStatus('idle')
+    setUploadError(''); setUploading(true); setUploadProgress(0); setSaveStatus('idle')
     try {
-      const url = await uploadToCloudinary(file, folder)
+      const url = await uploadToCloudinary(file, folder, pct => setUploadProgress(pct))
       onChange(url)
       await runAutoSave(url)
     }
@@ -172,7 +183,7 @@ function ImageUploader({ value, onChange, folder, autoSave }: {
           }`}
         >
           {uploading
-            ? <p className="text-xs text-gray-400 animate-pulse">Ανέβασμα...</p>
+            ? <><div className="w-32 h-1.5 bg-gray-100 rounded-full overflow-hidden"><div className="h-full bg-olive transition-all duration-200" style={{ width: `${uploadProgress}%` }} /></div><p className="text-xs text-gray-400 mt-1">{uploadProgress}%</p></>
             : <><span className="text-3xl">📸</span><p className="text-xs text-gray-400">Drag & drop ή click για upload</p></>
           }
         </div>
@@ -226,6 +237,7 @@ function GalleryUploader({ gallery, onChange, folder, autoSave }: {
   autoSave?: (g: string[]) => Promise<void>
 }) {
   const [uploading, setUploading] = useState(false)
+  const [uploadProgress, setUploadProgress] = useState(0)
   const [uploadError, setUploadError] = useState('')
   const [saveStatus, setSaveStatus] = useState<SaveStatus>('idle')
   const [over, setOver] = useState(false)
@@ -250,9 +262,12 @@ function GalleryUploader({ gallery, onChange, folder, autoSave }: {
   const handleFiles = async (files: FileList) => {
     const imgs = Array.from(files).filter(f => f.type.startsWith('image/'))
     if (!imgs.length) return
-    setUploadError(''); setUploading(true); setSaveStatus('idle')
+    setUploadError(''); setUploading(true); setUploadProgress(0); setSaveStatus('idle')
     try {
-      const urls = await Promise.all(imgs.map(f => uploadToCloudinary(f, folder)))
+      let done = 0
+      const urls = await Promise.all(imgs.map(f => uploadToCloudinary(f, folder, () => {
+        done++; setUploadProgress(Math.round(done / imgs.length * 100))
+      })))
       const newGallery = [...gallery, ...urls]
       onChange(newGallery)
       await runAutoSave(newGallery)
@@ -280,7 +295,7 @@ function GalleryUploader({ gallery, onChange, folder, autoSave }: {
           type="button"
           onClick={() => inputRef.current?.click()}
           disabled={uploading}
-          className="text-xs px-2.5 py-1 border border-olive text-olive hover:bg-olive hover:text-white transition-colors disabled:opacity-50"
+          className="text-xs px-3 py-2 min-h-[44px] border border-olive text-olive hover:bg-olive hover:text-white transition-colors disabled:opacity-50"
         >
           {uploading ? 'Ανέβασμα...' : '+ Προσθήκη'}
         </button>
@@ -304,9 +319,19 @@ function GalleryUploader({ gallery, onChange, folder, autoSave }: {
               <button
                 type="button"
                 onClick={() => remove(i)}
-                className="absolute top-1 right-1 bg-black/60 hover:bg-black/80 text-white w-5 h-5 flex items-center justify-center text-xs leading-none opacity-0 group-hover:opacity-100 transition-opacity"
+                className="absolute top-1 right-1 bg-black/60 hover:bg-black/80 text-white w-6 h-6 flex items-center justify-center text-sm leading-none opacity-0 group-hover:opacity-100 transition-opacity"
               >×</button>
-              <div className="absolute bottom-0 inset-x-0 h-5 bg-black/30 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+              {/* Mobile reorder arrows */}
+              <div className="absolute bottom-0 inset-x-0 flex sm:hidden justify-between bg-black/50">
+                <button type="button" disabled={i === 0}
+                  onClick={e => { e.stopPropagation(); const n=[...gallery];[n[i-1],n[i]]=[n[i],n[i-1]];onChange(n) }}
+                  className="text-white px-2 py-1 text-base disabled:opacity-30 min-w-[36px] flex items-center justify-center">‹</button>
+                <button type="button" disabled={i === gallery.length - 1}
+                  onClick={e => { e.stopPropagation(); const n=[...gallery];[n[i],n[i+1]]=[n[i+1],n[i]];onChange(n) }}
+                  className="text-white px-2 py-1 text-base disabled:opacity-30 min-w-[36px] flex items-center justify-center">›</button>
+              </div>
+              {/* Desktop drag hint */}
+              <div className="absolute bottom-0 inset-x-0 h-5 bg-black/30 hidden sm:flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
                 <span className="text-white/80 text-xs">⠿ drag</span>
               </div>
             </div>
@@ -328,7 +353,7 @@ function GalleryUploader({ gallery, onChange, folder, autoSave }: {
         }`}
       >
         {uploading
-          ? <p className="text-xs text-gray-400 animate-pulse">Ανέβασμα...</p>
+          ? <><div className="w-24 h-1.5 bg-gray-100 rounded-full overflow-hidden"><div className="h-full bg-olive transition-all duration-200" style={{ width: `${uploadProgress}%` }} /></div><p className="text-xs text-gray-400 mt-0.5">{uploadProgress}%</p></>
           : <p className="text-xs text-gray-400">Drag & drop εικόνες ή click για multi-upload</p>
         }
       </div>
@@ -548,10 +573,63 @@ export default function CmsPage() {
                       value={Number(settings[field as keyof SettingsRow] ?? 0)}
                       onChange={e => updateSettings(field as keyof SettingsRow, Number(e.target.value))}
                       onBlur={e => saveSettingsField(field, Number(e.target.value))}
-                      className="w-full border border-gray-200 px-4 py-2.5 text-sm focus:outline-none focus:border-olive"
+                      className="w-full border border-gray-200 px-4 py-2.5 text-base focus:outline-none focus:border-olive"
                     />
                   </div>
                 ))}
+              </div>
+            </div>
+
+            {/* Contact info */}
+            <div>
+              <p className="text-xs uppercase tracking-wider text-gray-400 mb-4 pb-2 border-b border-gray-100">
+                Στοιχεία Επικοινωνίας — Footer, EmergencyGrid, WhatsApp
+              </p>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {([
+                  { field: 'phone',    label: 'Τηλέφωνο (με +30)',     type: 'tel',   placeholder: '+30 694 457 1280' },
+                  { field: 'email',    label: 'Email',                  type: 'email', placeholder: 'myrsinisstudios@gmail.com' },
+                  { field: 'address',  label: 'Διεύθυνση',              type: 'text',  placeholder: 'Χόρτο, Πήλιο 37006' },
+                ] as const).map(({ field, label, type, placeholder }) => (
+                  <div key={field}>
+                    <label className="flex items-center gap-2 text-xs uppercase tracking-wider text-gray-400 mb-1.5">
+                      {label}
+                      {settingsStatus[field] === 'saving' && <span className="text-gray-300 font-normal normal-case">...</span>}
+                      {settingsStatus[field] === 'saved'  && <span className="text-green-500 font-normal normal-case">✓</span>}
+                      {settingsStatus[field] === 'error'  && <span className="text-red-500 font-normal normal-case">✗</span>}
+                    </label>
+                    <input
+                      type={type}
+                      value={String(settings[field as keyof SettingsRow] ?? '')}
+                      placeholder={placeholder}
+                      onChange={e => updateSettings(field as keyof SettingsRow, e.target.value)}
+                      onBlur={e => saveSettingsField(field, e.target.value)}
+                      className="w-full border border-gray-200 px-4 py-2.5 text-base focus:outline-none focus:border-olive"
+                    />
+                  </div>
+                ))}
+                <div className="grid grid-cols-2 gap-3">
+                  {([
+                    { field: 'checkin_time',  label: 'Check-in ώρα' },
+                    { field: 'checkout_time', label: 'Check-out ώρα' },
+                  ] as const).map(({ field, label }) => (
+                    <div key={field}>
+                      <label className="flex items-center gap-2 text-xs uppercase tracking-wider text-gray-400 mb-1.5">
+                        {label}
+                        {settingsStatus[field] === 'saving' && <span className="text-gray-300 font-normal normal-case">...</span>}
+                        {settingsStatus[field] === 'saved'  && <span className="text-green-500 font-normal normal-case">✓</span>}
+                        {settingsStatus[field] === 'error'  && <span className="text-red-500 font-normal normal-case">✗</span>}
+                      </label>
+                      <input
+                        type="time"
+                        value={String(settings[field as keyof SettingsRow] ?? '')}
+                        onChange={e => updateSettings(field as keyof SettingsRow, e.target.value)}
+                        onBlur={e => saveSettingsField(field, e.target.value)}
+                        className="w-full border border-gray-200 px-4 py-2.5 text-base focus:outline-none focus:border-olive"
+                      />
+                    </div>
+                  ))}
+                </div>
               </div>
             </div>
 
@@ -599,7 +677,7 @@ export default function CmsPage() {
                         type="text"
                         value={apt.name_el}
                         onChange={e => updateField(apt.id, 'name_el', e.target.value)}
-                        className="w-full border border-gray-200 px-4 py-2.5 text-sm focus:outline-none focus:border-olive"
+                        className="w-full border border-gray-200 px-4 py-2.5 text-base focus:outline-none focus:border-olive"
                       />
                     </div>
                     <div>
@@ -608,7 +686,7 @@ export default function CmsPage() {
                         type="text"
                         value={apt.name_en ?? ''}
                         onChange={e => updateField(apt.id, 'name_en', e.target.value)}
-                        className="w-full border border-gray-200 px-4 py-2.5 text-sm focus:outline-none focus:border-olive"
+                        className="w-full border border-gray-200 px-4 py-2.5 text-base focus:outline-none focus:border-olive"
                       />
                     </div>
                   </div>
@@ -663,7 +741,7 @@ export default function CmsPage() {
                           min={f.min}
                           value={(apt[f.key as keyof AptRow] as number) ?? ''}
                           onChange={e => updateField(apt.id, f.key as keyof AptRow, Number(e.target.value))}
-                          className="w-full border border-gray-200 px-4 py-2.5 text-sm focus:outline-none focus:border-olive"
+                          className="w-full border border-gray-200 px-4 py-2.5 text-base focus:outline-none focus:border-olive"
                         />
                       </div>
                     ))}
