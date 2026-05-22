@@ -35,7 +35,7 @@ export default function Navbar() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 h-20 flex items-center justify-between">
         {/* Logo */}
         <Link href="/" className="flex items-center group">
-          <Image src="/logo.png" alt="Myrsini Studios" width={60} height={60} className="object-contain rounded-sm" />
+          <Image src="/logo.png" alt="Myrsini Studios" width={100} height={100} className="object-contain rounded-sm w-16 h-16 sm:w-24 sm:h-24 drop-shadow-lg" />
         </Link>
 
         {/* Desktop nav */}
