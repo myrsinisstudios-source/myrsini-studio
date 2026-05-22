@@ -53,11 +53,12 @@ export interface Translations {
   acts_page: {
     back: string; location: string; locationName: string; locationSub: string
     category: string; duration: string; distance: string; mapBtn: string
+    elevation: string; difficulty: string
     help: string; helpDesc: string; contact: string
   }
   weather: {
     temp: string; sea: string; wind: string; today: string; howToArrive: string
-    airport: string; port: string; quote: string
+    airport: string; port: string; quote: string; minutes: string; km: string
   }
   footer: {
     tagline: string; contact: string; booking: string
@@ -126,6 +127,7 @@ export const translations: Record<Lang, Translations> = {
       today: 'Χόρτο Πηλίου · Σήμερα', howToArrive: 'Πώς να φτάσετε',
       airport: 'Αεροδρόμιο Νέας Αγχιάλου', port: 'Λιμάνι Βόλου',
       quote: '«Είμαστε 35 λεπτά από τον Βόλο, αλλά αιώνες μακριά από τη βιασύνη του.»',
+      minutes: 'λεπτά', km: 'χλμ',
     },
     footer: {
       tagline: 'Παραδοσιακά καταλύματα στο Χόρτο Πηλίου. Πέτρα, ελαιώνες και κρυστάλλινα νερά του Αιγαίου σε αδιάσπαστη αρμονία.',
@@ -154,6 +156,7 @@ export const translations: Record<Lang, Translations> = {
       locationName: 'Χόρτο, Πήλιο', locationSub: 'Νότιο Πήλιο · Μαγνησία · Ελλάδα',
       category: 'Κατηγορία', duration: 'Διάρκεια', distance: 'Απόσταση',
       mapBtn: 'Άνοιγμα στο Google Maps →',
+      elevation: 'Υψόμετρο', difficulty: 'Δυσκολία',
       help: 'Myrsini Studios', helpDesc: 'Χρειάζεστε βοήθεια για να οργανώσετε τη δραστηριότητα;',
       contact: 'Επικοινωνήστε μαζί μας →',
     },
@@ -220,6 +223,7 @@ export const translations: Record<Lang, Translations> = {
       today: 'Horto Pelion · Today', howToArrive: 'How to get here',
       airport: 'Nea Anchialos Airport', port: 'Volos Port',
       quote: '«35 minutes from Volos, but centuries away from its rush.»',
+      minutes: 'minutes', km: 'km',
     },
     footer: {
       tagline: 'Traditional accommodation in Horto, Pelion. Stone, olive groves and crystal waters of the Aegean in perfect harmony.',
@@ -248,6 +252,7 @@ export const translations: Record<Lang, Translations> = {
       locationName: 'Horto, Pelion', locationSub: 'South Pelion · Magnesia · Greece',
       category: 'Category', duration: 'Duration', distance: 'Distance',
       mapBtn: 'Open in Google Maps →',
+      elevation: 'Elevation', difficulty: 'Difficulty',
       help: 'Myrsini Studios', helpDesc: 'Need help organising the activity?',
       contact: 'Contact us →',
     },
@@ -314,6 +319,7 @@ export const translations: Record<Lang, Translations> = {
       today: 'Horto Pelion · Heute', howToArrive: 'Anreise',
       airport: 'Flughafen Nea Anchialos', port: 'Hafen Volos',
       quote: '«35 Minuten von Volos entfernt, aber Jahrhunderte weit weg von seiner Hektik.»',
+      minutes: 'Minuten', km: 'km',
     },
     footer: {
       tagline: 'Traditionelle Unterkunft in Horto, Pelion. Stein, Olivenhaine und kristallklares Ägäisches Meer in harmonischer Einheit.',
@@ -342,6 +348,7 @@ export const translations: Record<Lang, Translations> = {
       locationName: 'Horto, Pelion', locationSub: 'Süd-Pelion · Magnesia · Griechenland',
       category: 'Kategorie', duration: 'Dauer', distance: 'Distanz',
       mapBtn: 'In Google Maps öffnen →',
+      elevation: 'Höhenprofil', difficulty: 'Schwierigkeitsgrad',
       help: 'Myrsini Studios', helpDesc: 'Benötigen Sie Hilfe bei der Organisation der Aktivität?',
       contact: 'Kontaktieren Sie uns →',
     },
@@ -408,6 +415,7 @@ export const translations: Record<Lang, Translations> = {
       today: "Horto Pélion · Aujourd'hui", howToArrive: 'Comment venir',
       airport: 'Aéroport Nea Anchialos', port: 'Port de Volos',
       quote: '«À 35 minutes de Volos, mais à des siècles de son agitation.»',
+      minutes: 'minutes', km: 'km',
     },
     footer: {
       tagline: "Hébergement traditionnel à Horto, Pélion. Pierre, oliveraies et eaux cristallines de la mer Égée en parfaite harmonie.",
@@ -436,6 +444,7 @@ export const translations: Record<Lang, Translations> = {
       locationName: 'Horto, Pélion', locationSub: 'Pélion Sud · Magnésie · Grèce',
       category: 'Catégorie', duration: 'Durée', distance: 'Distance',
       mapBtn: 'Ouvrir dans Google Maps →',
+      elevation: 'Dénivelé', difficulty: 'Difficulté',
       help: 'Myrsini Studios', helpDesc: "Besoin d'aide pour organiser l'activité ?",
       contact: 'Contactez-nous →',
     },

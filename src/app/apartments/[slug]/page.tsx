@@ -8,8 +8,12 @@ export type ApartmentData = {
   slug: string
   name_el: string
   name_en?: string | null
+  name_de?: string | null
+  name_fr?: string | null
   description_el?: string | null
   description_en?: string | null
+  description_de?: string | null
+  description_fr?: string | null
   price_per_night: number
   max_guests?: number | null
   sqm?: number | null
@@ -31,7 +35,7 @@ export default async function ApartmentPage({ params }: { params: Promise<{ slug
   if (!SB_URL || !SB_KEY) notFound()
 
   const res = await fetch(
-    `${SB_URL}/rest/v1/apartments?select=id,slug,name_el,name_en,description_el,description_en,price_per_night,max_guests,sqm,area_sqm,bedrooms,bathrooms,amenities,image_url,images,gallery&slug=eq.${encodeURIComponent(slug)}&limit=1`,
+    `${SB_URL}/rest/v1/apartments?select=id,slug,name_el,name_en,name_de,name_fr,description_el,description_en,description_de,description_fr,price_per_night,max_guests,sqm,area_sqm,bedrooms,bathrooms,amenities,image_url,images,gallery&slug=eq.${encodeURIComponent(slug)}&limit=1`,
     { headers: { apikey: SB_KEY, Authorization: `Bearer ${SB_KEY}` }, cache: 'no-store' }
   )
 

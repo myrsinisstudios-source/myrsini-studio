@@ -9,8 +9,12 @@ interface Apartment {
   slug?: string | null
   name_el: string
   name_en?: string | null
+  name_de?: string | null
+  name_fr?: string | null
   description_el?: string
   description_en?: string | null
+  description_de?: string | null
+  description_fr?: string | null
   price_per_night: number
   max_guests?: number
   sqm?: number
@@ -49,6 +53,12 @@ const GRADIENT_BG = [
 
 type Lightbox = { images: string[]; idx: number }
 
+function getLocalizedField(apt: Apartment, base: 'name' | 'description', lang: string): string {
+  if (lang === 'el') return (apt[`${base}_el` as keyof Apartment] as string) ?? ''
+  const langVal = apt[`${base}_${lang}` as keyof Apartment] as string | null | undefined
+  return langVal || (apt[`${base}_en` as keyof Apartment] as string) || (apt[`${base}_el` as keyof Apartment] as string) || ''
+}
+
 export default function ApartmentsSection({ apartments }: { apartments: Apartment[] }) {
   const { t, lang } = useLanguage()
   const am = t.amenities
@@ -82,8 +92,8 @@ export default function ApartmentsSection({ apartments }: { apartments: Apartmen
 
         <div className="grid md:grid-cols-2 gap-8">
           {apartments.map((apt, i) => {
-            const name = (!isEl && apt.name_en) ? apt.name_en : apt.name_el
-            const rawDesc = ((!isEl && apt.description_en) ? apt.description_en : apt.description_el) ?? ''
+            const name = getLocalizedField(apt, 'name', lang)
+            const rawDesc = getLocalizedField(apt, 'description', lang)
             const firstPara = rawDesc.split('\n\n')[0].replace(/[#*_`]/g, '').trim()
             const desc = firstPara.length > 140 ? firstPara.slice(0, 140) + '…' : firstPara
             const bookingPrice = Math.round(apt.price_per_night * 1.151)

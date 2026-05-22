@@ -55,16 +55,21 @@ function getAmenityLabel(key: string, am: AmenityLabels): string {
 
 type Lightbox = { images: string[]; idx: number }
 
+function getLocalized(apt: ApartmentData, base: 'name' | 'description', lang: string): string {
+  if (lang === 'el') return (apt[`${base}_el` as keyof ApartmentData] as string) ?? ''
+  const v = apt[`${base}_${lang}` as keyof ApartmentData] as string | null | undefined
+  return v || (apt[`${base}_en` as keyof ApartmentData] as string) || (apt[`${base}_el` as keyof ApartmentData] as string) || ''
+}
+
 export default function ApartmentContent({ apartment: apt }: { apartment: ApartmentData }) {
   const { t, lang } = useLanguage()
   const a  = t.apts
   const am = t.amenities
-  const isEl = lang === 'el'
 
   const [lightbox, setLightbox] = useState<Lightbox | null>(null)
 
-  const name = (!isEl && apt.name_en) ? apt.name_en : apt.name_el
-  const desc = (!isEl && apt.description_en) ? apt.description_en : apt.description_el
+  const name = getLocalized(apt, 'name', lang)
+  const desc = getLocalized(apt, 'description', lang) || undefined
   const bookingPrice = Math.round(apt.price_per_night * 1.151)
   const sqm       = apt.sqm ?? apt.area_sqm ?? 45
   const mainImage = apt.image_url || apt.images?.[0] || apt.gallery?.[0]

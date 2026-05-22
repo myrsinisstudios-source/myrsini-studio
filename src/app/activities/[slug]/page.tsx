@@ -1,22 +1,12 @@
-import { createClient } from '@/lib/supabase/server'
+export const dynamic = 'force-dynamic'
+
 import { notFound } from 'next/navigation'
-import ActivityContent from '@/components/sections/ActivityContent'
+import ActivityContent, { type ActivityData } from '@/components/sections/ActivityContent'
 
-type Activity = {
-  id: string
-  slug: string
-  name_el: string
-  name_en?: string | null
-  icon: string
-  image_url?: string | null
-  description_el: string
-  description_en?: string | null
-  duration?: string | null
-  distance?: string | null
-  category?: string | null
-}
+const SB_URL = process.env.NEXT_PUBLIC_SUPABASE_URL
+const SB_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
 
-const FALLBACK: Record<string, Activity> = {
+const FALLBACK: Record<string, ActivityData> = {
   'beaches': {
     id: '1', slug: 'beaches', icon: '🏖️', name_el: 'Παραλίες', name_en: 'Beaches',
     category: 'Θάλασσα', duration: '5 λεπτά', distance: '0.3 km',
@@ -26,54 +16,54 @@ const FALLBACK: Record<string, Activity> = {
   'hiking-trails': {
     id: '2', slug: 'hiking-trails', icon: '🥾', name_el: 'Πεζοπορία', name_en: 'Hiking',
     category: 'Φύση', duration: '2–4 ώρες', distance: '5–12 km',
-    description_el: 'Τα ιστορικά καλντερίμια του Πηλίου σας καλούν σε αξέχαστες πεζοπορίες μέσα από πυκνά δάση καστανιάς, πλατάνια και ελαιώνες. Το Νότιο Πήλιο διαθέτει δίκτυο μονοπατιών που ενώνουν τα παραδοσιακά χωριά και παρέχουν πανοραμική θέα στον Παγασητικό Κόλπο και το Αιγαίο πέλαγος.',
+    description_el: 'Τα ιστορικά καλντερίμια του Πηλίου σας καλούν σε αξέχαστες πεζοπορίες μέσα από πυκνά δάση καστανιάς, πλατάνια και ελαιώνες.',
     description_en: 'Historic cobblestone paths of Pelion invite you on unforgettable hikes through dense chestnut forests, plane trees and olive groves.',
   },
   'marine-activities': {
     id: '3', slug: 'marine-activities', icon: '🐟', name_el: 'Θαλάσσιες Δραστηριότητες', name_en: 'Marine Activities',
     category: 'Θάλασσα', duration: 'Κατόπιν ρύθμισης',
-    description_el: 'Εξερευνήστε τον υποβρύχιο κόσμο του Παγασητικού με κατάδυση ή snorkeling. Ψαρέψτε με τους ντόπιους ψαράδες τα χαράματα και απολαύστε τα αποτελέσματα στο τραπέζι.',
-    description_en: 'Explore the underwater world of the Pagasetic with diving or snorkeling. Fish with local fishermen at dawn and enjoy the results at the table.',
+    description_el: 'Εξερευνήστε τον υποβρύχιο κόσμο του Παγασητικού με κατάδυση ή snorkeling.',
+    description_en: 'Explore the underwater world of the Pagasetic with diving or snorkeling.',
   },
   'gastronomy': {
     id: '4', slug: 'gastronomy', icon: '🍷', name_el: 'Γαστρονομία', name_en: 'Gastronomy',
     category: 'Φαγητό',
-    description_el: 'Η γαστρονομία του Πηλίου είναι αναπόσπαστο κομμάτι της εμπειρίας σας. Φρέσκα ψάρια και θαλασσινά αλιευμένα κάθε πρωί, παραδοσιακές χορτόπιτες με τοπικά χόρτα, ελαιόλαδο Πηλίου ΠΟΠ και το αποστακτήριο τσίπουρο σε αυθεντικές ταβέρνες με θέα τη θάλασσα.',
-    description_en: 'The gastronomy of Pelion is an inseparable part of your experience. Fresh fish caught every morning, traditional vegetable pies, Pelion PDO olive oil and local tsipouro.',
+    description_el: 'Η γαστρονομία του Πηλίου είναι αναπόσπαστο κομμάτι της εμπειρίας σας.',
+    description_en: 'The gastronomy of Pelion is an inseparable part of your experience.',
   },
   'boat-trips': {
     id: '5', slug: 'boat-trips', icon: '⛵', name_el: 'Βαρκάδες', name_en: 'Boat Trips',
     category: 'Θάλασσα', duration: 'Κατόπιν κράτησης',
-    description_el: 'Νοικιάστε βάρκα και εξερευνήστε κρυφές παραλίες και σπηλιές του Νότιου Πηλίου που δεν είναι προσβάσιμες από την ξηρά. Ο κόλπος της Μηλίνας, τα ακατοίκητα νησάκια και οι απομονωμένοι κολπίσκοι σας περιμένουν.',
-    description_en: 'Rent a boat and explore hidden beaches and caves of Southern Pelion that are not accessible by land.',
+    description_el: 'Νοικιάστε βάρκα και εξερευνήστε κρυφές παραλίες και σπηλιές του Νότιου Πηλίου.',
+    description_en: 'Rent a boat and explore hidden beaches and caves of Southern Pelion.',
   },
   'culture-history': {
     id: '6', slug: 'culture-history', icon: '🏛️', name_el: 'Πολιτισμός & Ιστορία', name_en: 'Culture & History',
     category: 'Πολιτισμός',
-    description_el: 'Το Πήλιο έχει πλούσια ιστορία και παράδοση. Επισκεφθείτε τα γραφικά χωριά — Τρίκερι, Μηλίνα, Αργαλαστή — με αρχοντικά του 18ου και 19ου αιώνα, βυζαντινές εκκλησίες και μουσεία λαϊκής τέχνης.',
-    description_en: 'Pelion has a rich history and tradition. Visit the picturesque villages with 18th and 19th century mansions, Byzantine churches and folk art museums.',
+    description_el: 'Το Πήλιο έχει πλούσια ιστορία και παράδοση.',
+    description_en: 'Pelion has a rich history and tradition.',
   },
 }
 
 export default async function ActivityPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params
 
-  const supabase = await createClient()
-  let activity: Activity | null = null
+  let activity: ActivityData | null = null
 
-  try {
-    const { data } = await supabase
-      .from('activities')
-      .select('*')
-      .eq('slug', slug)
-      .single()
-    if (data) activity = data as Activity
-  } catch {}
-
-  if (!activity) {
-    activity = FALLBACK[slug] ?? null
+  if (SB_URL && SB_KEY) {
+    try {
+      const res = await fetch(
+        `${SB_URL}/rest/v1/activities?select=id,slug,name_el,name_en,name_de,name_fr,icon,image_url,images,description_el,description_en,description_de,description_fr,duration,distance,elevation,difficulty,category&slug=eq.${encodeURIComponent(slug)}&limit=1`,
+        { headers: { apikey: SB_KEY, Authorization: `Bearer ${SB_KEY}` }, cache: 'no-store' }
+      )
+      if (res.ok) {
+        const rows: ActivityData[] = await res.json()
+        activity = rows[0] ?? null
+      }
+    } catch {}
   }
 
+  if (!activity) activity = FALLBACK[slug] ?? null
   if (!activity) notFound()
 
   return <ActivityContent activity={activity} />

@@ -14,8 +14,8 @@ export type SiteSettings = {
 }
 
 type Distances = {
-  airport: { duration: string; distance: string }
-  port:    { duration: string; distance: string }
+  airport: { min: number; km: number }
+  port:    { min: number; km: number }
 }
 
 type DayForecast = {
@@ -62,14 +62,14 @@ function shortDay(dateStr: string, lang: string): string {
 
 function settingsToDistances(s: SiteSettings): Distances {
   return {
-    airport: { duration: `${s.distance_airport_min} λεπτά`, distance: `${s.distance_airport_km} χλμ` },
-    port:    { duration: `${s.distance_port_min} λεπτά`,    distance: `${s.distance_port_km} χλμ` },
+    airport: { min: s.distance_airport_min, km: s.distance_airport_km },
+    port:    { min: s.distance_port_min,    km: s.distance_port_km },
   }
 }
 
 const DEFAULT_DISTANCES: Distances = {
-  airport: { duration: '58 λεπτά', distance: '54 χλμ' },
-  port:    { duration: '42 λεπτά', distance: '37 χλμ' },
+  airport: { min: 58, km: 54 },
+  port:    { min: 42, km: 37 },
 }
 
 export default function WeatherWidget({ settings }: { settings?: SiteSettings | null }) {
@@ -103,8 +103,8 @@ export default function WeatherWidget({ settings }: { settings?: SiteSettings | 
   }, [])
 
   const travelCards = [
-    { ...TRAVEL_BASE[0], origin: w.airport, destination: "Myrsini's Studios", time: distances.airport.duration, distance: distances.airport.distance },
-    { ...TRAVEL_BASE[1], origin: w.port,    destination: "Myrsini's Studios", time: distances.port.duration,    distance: distances.port.distance },
+    { ...TRAVEL_BASE[0], origin: w.airport, destination: "Myrsini's Studios", time: `${distances.airport.min} ${w.minutes}`, distance: `${distances.airport.km} ${w.km}` },
+    { ...TRAVEL_BASE[1], origin: w.port,    destination: "Myrsini's Studios", time: `${distances.port.min} ${w.minutes}`,    distance: `${distances.port.km} ${w.km}` },
   ]
 
   return (

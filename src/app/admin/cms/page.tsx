@@ -49,8 +49,12 @@ type AptRow = {
   slug?: string | null
   name_el: string
   name_en?: string
+  name_de?: string
+  name_fr?: string
   description_el: string
   description_en?: string
+  description_de?: string
+  description_fr?: string
   price_per_night: number
   max_guests: number
   area_sqm: number
@@ -459,8 +463,12 @@ export default function CmsPage() {
     const payload: Record<string, unknown> = {
       name_el:         apt.name_el,
       name_en:         apt.name_en,
+      name_de:         apt.name_de,
+      name_fr:         apt.name_fr,
       description_el:  apt.description_el,
       description_en:  apt.description_en,
+      description_de:  apt.description_de,
+      description_fr:  apt.description_fr,
       price_per_night: apt.price_per_night,
       max_guests:      apt.max_guests,
       sqm:             apt.area_sqm,
@@ -695,7 +703,7 @@ export default function CmsPage() {
               <div className="p-4 sm:p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
                 {/* Left column */}
                 <div className="space-y-4">
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-3">
                     <div>
                       <label className="block text-xs uppercase tracking-wider text-gray-400 mb-1.5">Όνομα (ΕΛ)</label>
                       <input
@@ -714,6 +722,24 @@ export default function CmsPage() {
                         className="w-full border border-gray-200 px-4 py-2.5 text-base focus:outline-none focus:border-olive"
                       />
                     </div>
+                    <div>
+                      <label className="block text-xs uppercase tracking-wider text-gray-400 mb-1.5">Name (DE)</label>
+                      <input
+                        type="text"
+                        value={apt.name_de ?? ''}
+                        onChange={e => updateField(apt.id, 'name_de', e.target.value)}
+                        className="w-full border border-gray-200 px-4 py-2.5 text-base focus:outline-none focus:border-olive"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs uppercase tracking-wider text-gray-400 mb-1.5">Nom (FR)</label>
+                      <input
+                        type="text"
+                        value={apt.name_fr ?? ''}
+                        onChange={e => updateField(apt.id, 'name_fr', e.target.value)}
+                        className="w-full border border-gray-200 px-4 py-2.5 text-base focus:outline-none focus:border-olive"
+                      />
+                    </div>
                   </div>
 
                   <DescriptionEditor
@@ -726,6 +752,18 @@ export default function CmsPage() {
                     label="Description (EN)"
                     value={apt.description_en ?? ''}
                     onChange={v => updateField(apt.id, 'description_en', v)}
+                  />
+
+                  <DescriptionEditor
+                    label="Beschreibung (DE)"
+                    value={apt.description_de ?? ''}
+                    onChange={v => updateField(apt.id, 'description_de', v)}
+                  />
+
+                  <DescriptionEditor
+                    label="Description (FR)"
+                    value={apt.description_fr ?? ''}
+                    onChange={v => updateField(apt.id, 'description_fr', v)}
                   />
 
                   <ImageUploader
