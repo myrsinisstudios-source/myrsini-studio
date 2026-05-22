@@ -414,9 +414,12 @@ export default function CmsPage() {
         setLoading(false)
       })
 
-    supabase.from('settings').select('*').eq('id', 1).single()
-      .then(({ data }) => { if (data) setSettings(data as SettingsRow) })
-      .catch(() => {})
+    ;(async () => {
+      try {
+        const { data } = await supabase.from('settings').select('*').eq('id', 1).single()
+        if (data) setSettings(data as SettingsRow)
+      } catch {}
+    })()
   }, [])
 
   const updateSettings = (field: keyof SettingsRow, value: string | number) =>
