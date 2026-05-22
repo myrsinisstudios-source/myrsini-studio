@@ -6,9 +6,9 @@ import { useLanguage } from '@/lib/i18n/LanguageContext'
 
 export type SiteSettings = {
   id: number
-  quote_el: string; quote_en: string; quote_de: string; quote_fr: string
-  airport_minutes: number; airport_km: number
-  port_minutes: number; port_km: number
+  hero_quote_el: string; hero_quote_en: string; hero_quote_de: string; hero_quote_fr: string
+  distance_airport_min: number; distance_airport_km: number
+  distance_port_min: number; distance_port_km: number
   phone: string; email: string; address: string
   checkin_time: string; checkout_time: string
 }
@@ -62,8 +62,8 @@ function shortDay(dateStr: string, lang: string): string {
 
 function settingsToDistances(s: SiteSettings): Distances {
   return {
-    airport: { duration: `${s.airport_minutes} λεπτά`, distance: `${s.airport_km} χλμ` },
-    port:    { duration: `${s.port_minutes} λεπτά`,    distance: `${s.port_km} χλμ` },
+    airport: { duration: `${s.distance_airport_min} λεπτά`, distance: `${s.distance_airport_km} χλμ` },
+    port:    { duration: `${s.distance_port_min} λεπτά`,    distance: `${s.distance_port_km} χλμ` },
   }
 }
 
@@ -81,7 +81,7 @@ export default function WeatherWidget({ settings }: { settings?: SiteSettings | 
   const [weather, setWeather]     = useState<WeatherData>(STATIC_WEATHER)
 
   const quote = settings
-    ? (lang === 'el' ? settings.quote_el : lang === 'de' ? settings.quote_de : lang === 'fr' ? settings.quote_fr : settings.quote_en)
+    ? (lang === 'el' ? settings.hero_quote_el : lang === 'de' ? settings.hero_quote_de : lang === 'fr' ? settings.hero_quote_fr : settings.hero_quote_en)
     : w.quote
 
   useEffect(() => {

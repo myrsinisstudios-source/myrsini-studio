@@ -64,9 +64,9 @@ type AptRow = {
 
 type SettingsRow = {
   id: number
-  quote_el: string; quote_en: string; quote_de: string; quote_fr: string
-  airport_minutes: number; airport_km: number
-  port_minutes: number; port_km: number
+  hero_quote_el: string; hero_quote_en: string; hero_quote_de: string; hero_quote_fr: string
+  distance_airport_min: number; distance_airport_km: number
+  distance_port_min: number; distance_port_km: number
   phone: string; email: string; address: string
   checkin_time: string; checkout_time: string
 }
@@ -396,6 +396,8 @@ export default function CmsPage() {
   const [error, setError] = useState('')
   const [settings, setSettings] = useState<SettingsRow | null>(null)
   const [settingsStatus, setSettingsStatus] = useState<Record<string, SaveStatus>>({})
+  const [settingsErrors, setSettingsErrors] = useState<Record<string, string>>({})
+  const settingsLastAttempt = useRef<Record<string, string | number>>({})
 
   useEffect(() => {
     supabase
@@ -426,10 +428,14 @@ export default function CmsPage() {
     setSettings(prev => prev ? { ...prev, [field]: value } : prev)
 
   const saveSettingsField = async (field: string, value: string | number) => {
+    settingsLastAttempt.current[field] = value
     setSettingsStatus(prev => ({ ...prev, [field]: 'saving' }))
-    const { error: err } = await supabase.from('settings').upsert({ id: 1, [field]: value })
-    if (err) {
+    setSettingsErrors(prev => ({ ...prev, [field]: '' }))
+    const result = await supabase.from('settings').update({ [field]: value }).eq('id', 1)
+    console.log('TEST SAVE:', field, value, result)
+    if (result.error) {
       setSettingsStatus(prev => ({ ...prev, [field]: 'error' }))
+      setSettingsErrors(prev => ({ ...prev, [field]: result.error!.message }))
     } else {
       setSettingsStatus(prev => ({ ...prev, [field]: 'saved' }))
       setTimeout(() => setSettingsStatus(prev => ({ ...prev, [field]: 'idle' })), 2000)
@@ -528,7 +534,7 @@ export default function CmsPage() {
               </p>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 {(['el', 'en', 'de', 'fr'] as const).map(lng => {
-                  const field = `quote_${lng}` as keyof SettingsRow
+                  const field = `hero_quote_${lng}` as keyof SettingsRow
                   const label = lng === 'el' ? 'Απόσπασμα (ΕΛ)' : lng === 'en' ? 'Quote (EN)' : lng === 'de' ? 'Zitat (DE)' : 'Citation (FR)'
                   return (
                     <div key={lng}>
@@ -536,15 +542,19 @@ export default function CmsPage() {
                         {label}
                         {settingsStatus[field] === 'saving' && <span className="text-gray-300 font-normal normal-case not-italic">saving...</span>}
                         {settingsStatus[field] === 'saved'  && <span className="text-green-500 font-normal normal-case not-italic">✓</span>}
-                        {settingsStatus[field] === 'error'  && <span className="text-red-500 font-normal normal-case not-italic">✗ failed</span>}
+                        {settingsStatus[field] === 'error'  && (
+                          <><span className="text-red-500 font-normal normal-case not-italic">✗</span>
+                          <button type="button" className="text-red-500 font-normal normal-case not-italic underline text-[11px]" onClick={e => { e.preventDefault(); saveSettingsField(String(field), String(settingsLastAttempt.current[String(field)] ?? '')) }}>Δοκιμή ξανά</button></>
+                        )}
                       </label>
                       <textarea
                         value={String(settings[field] ?? '')}
                         onChange={e => updateSettings(field, e.target.value)}
-                        onBlur={e => saveSettingsField(field, e.target.value)}
+                        onBlur={e => saveSettingsField(String(field), e.target.value)}
                         rows={3}
                         className="w-full border border-gray-200 px-4 py-2.5 text-sm focus:outline-none focus:border-olive resize-none font-serif italic text-deep-wood/80"
                       />
+                      {settingsErrors[String(field)] && <p className="text-red-500 text-xs mt-1 not-italic normal-case">{settingsErrors[String(field)]}</p>}
                     </div>
                   )
                 })}
@@ -558,26 +568,30 @@ export default function CmsPage() {
               </p>
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
                 {([
-                  { field: 'airport_minutes', label: 'Αεροδρόμιο (λεπτά)' },
-                  { field: 'airport_km',      label: 'Αεροδρόμιο (χλμ)' },
-                  { field: 'port_minutes',    label: 'Λιμάνι (λεπτά)' },
-                  { field: 'port_km',         label: 'Λιμάνι (χλμ)' },
+                  { field: 'distance_airport_min', label: 'Αεροδρόμιο (λεπτά)' },
+                  { field: 'distance_airport_km',  label: 'Αεροδρόμιο (χλμ)' },
+                  { field: 'distance_port_min',    label: 'Λιμάνι (λεπτά)' },
+                  { field: 'distance_port_km',     label: 'Λιμάνι (χλμ)' },
                 ] as const).map(({ field, label }) => (
                   <div key={field}>
                     <label className="flex items-center gap-2 text-xs uppercase tracking-wider text-gray-400 mb-1.5">
                       {label}
                       {settingsStatus[field] === 'saving' && <span className="text-gray-300 font-normal normal-case">...</span>}
                       {settingsStatus[field] === 'saved'  && <span className="text-green-500 font-normal normal-case">✓</span>}
-                      {settingsStatus[field] === 'error'  && <span className="text-red-500 font-normal normal-case">✗</span>}
+                      {settingsStatus[field] === 'error'  && (
+                        <><span className="text-red-500 font-normal normal-case">✗</span>
+                        <button type="button" className="text-red-500 font-normal normal-case underline text-[11px]" onClick={e => { e.preventDefault(); saveSettingsField(field, parseInt(String(settingsLastAttempt.current[field] ?? 0), 10)) }}>Δοκιμή ξανά</button></>
+                      )}
                     </label>
                     <input
                       type="number"
                       min={0}
                       value={Number(settings[field as keyof SettingsRow] ?? 0)}
-                      onChange={e => updateSettings(field as keyof SettingsRow, Number(e.target.value))}
-                      onBlur={e => saveSettingsField(field, Number(e.target.value))}
+                      onChange={e => updateSettings(field as keyof SettingsRow, parseInt(e.target.value, 10) || 0)}
+                      onBlur={e => saveSettingsField(field, parseInt(e.target.value, 10) || 0)}
                       className="w-full border border-gray-200 px-4 py-2.5 text-base focus:outline-none focus:border-olive"
                     />
+                    {settingsErrors[field] && <p className="text-red-500 text-xs mt-1">{settingsErrors[field]}</p>}
                   </div>
                 ))}
               </div>
@@ -599,7 +613,10 @@ export default function CmsPage() {
                       {label}
                       {settingsStatus[field] === 'saving' && <span className="text-gray-300 font-normal normal-case">...</span>}
                       {settingsStatus[field] === 'saved'  && <span className="text-green-500 font-normal normal-case">✓</span>}
-                      {settingsStatus[field] === 'error'  && <span className="text-red-500 font-normal normal-case">✗</span>}
+                      {settingsStatus[field] === 'error'  && (
+                        <><span className="text-red-500 font-normal normal-case">✗</span>
+                        <button type="button" className="text-red-500 font-normal normal-case underline text-[11px]" onClick={e => { e.preventDefault(); saveSettingsField(field, String(settingsLastAttempt.current[field] ?? '')) }}>Δοκιμή ξανά</button></>
+                      )}
                     </label>
                     <input
                       type={type}
@@ -609,6 +626,7 @@ export default function CmsPage() {
                       onBlur={e => saveSettingsField(field, e.target.value)}
                       className="w-full border border-gray-200 px-4 py-2.5 text-base focus:outline-none focus:border-olive"
                     />
+                    {settingsErrors[field] && <p className="text-red-500 text-xs mt-1">{settingsErrors[field]}</p>}
                   </div>
                 ))}
                 <div className="grid grid-cols-2 gap-3">
@@ -621,7 +639,10 @@ export default function CmsPage() {
                         {label}
                         {settingsStatus[field] === 'saving' && <span className="text-gray-300 font-normal normal-case">...</span>}
                         {settingsStatus[field] === 'saved'  && <span className="text-green-500 font-normal normal-case">✓</span>}
-                        {settingsStatus[field] === 'error'  && <span className="text-red-500 font-normal normal-case">✗</span>}
+                        {settingsStatus[field] === 'error'  && (
+                          <><span className="text-red-500 font-normal normal-case">✗</span>
+                          <button type="button" className="text-red-500 font-normal normal-case underline text-[11px]" onClick={e => { e.preventDefault(); saveSettingsField(field, String(settingsLastAttempt.current[field] ?? '')) }}>Δοκιμή ξανά</button></>
+                        )}
                       </label>
                       <input
                         type="time"
@@ -630,6 +651,7 @@ export default function CmsPage() {
                         onBlur={e => saveSettingsField(field, e.target.value)}
                         className="w-full border border-gray-200 px-4 py-2.5 text-base focus:outline-none focus:border-olive"
                       />
+                      {settingsErrors[field] && <p className="text-red-500 text-xs mt-1">{settingsErrors[field]}</p>}
                     </div>
                   ))}
                 </div>
