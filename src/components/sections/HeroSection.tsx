@@ -30,15 +30,14 @@ export default function HeroSection() {
 
       {/* Content */}
       <div className="relative z-10 flex flex-col items-center justify-center min-h-[100dvh] px-4 text-center pb-48">
-        <div className="animate-fade-in-up inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm border border-white/20 px-5 py-2 text-white/70 text-xs tracking-widest uppercase mb-10">
-          {t.hero.badge}
-        </div>
-
-        <h1 className="animate-fade-in-up animation-delay-200 font-serif text-white leading-tight mb-6">
+        <h1 className="animate-fade-in-up font-serif text-white leading-tight mb-6">
           <span className="block text-5xl sm:text-7xl md:text-8xl font-normal tracking-tight">{t.hero.title1}</span>
           <span className="block text-4xl sm:text-6xl md:text-7xl font-light italic text-white/80 mt-1">{t.hero.title2}</span>
         </h1>
 
+        <div className="animate-fade-in-up animation-delay-200 inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm border border-white/20 px-5 py-2 text-white/70 text-xs tracking-widest">
+          {t.hero.badge}
+        </div>
       </div>
 
       {/* Wave divider */}

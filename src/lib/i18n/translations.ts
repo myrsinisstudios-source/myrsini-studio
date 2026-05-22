@@ -267,7 +267,7 @@ export const translations: Record<Lang, Translations> = {
       history: 'Geschichte', hiking: 'Wandern', book: 'Buchen',
     },
     hero: {
-      badge: '🌿 Horto · Süd-Pelion · Griechenland', title1: "Myrsini's", title2: 'Studios',
+      badge: '🌿 Chorto · Süd-Pelion · Griechenland', title1: "Myrsini's", title2: 'Studios',
     },
     booking: {
       arrival: 'Ankunft', departure: 'Abreise', adults: 'Erwachsene', children: 'Kinder',
@@ -361,7 +361,7 @@ export const translations: Record<Lang, Translations> = {
       history: 'Histoire', hiking: 'Randonnée', book: 'Réserver',
     },
     hero: {
-      badge: '🌿 Horto · Pélion Sud · Grèce', title1: "Myrsini's", title2: 'Studios',
+      badge: '🌿 Horto · Pelion Sud · Grèce', title1: "Myrsini's", title2: 'Studios',
     },
     booking: {
       arrival: 'Arrivée', departure: 'Départ', adults: 'Adultes', children: 'Enfants',
