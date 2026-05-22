@@ -5,7 +5,7 @@ export interface Translations {
     apartments: string; activities: string; history: string; hiking: string; book: string
   }
   hero: {
-    badge: string; title1: string; title2: string; tagline: string; bestPrice: string
+    badge: string; title1: string; title2: string
   }
   booking: {
     arrival: string; departure: string; adults: string; children: string
@@ -77,8 +77,7 @@ export const translations: Record<Lang, Translations> = {
       history: 'Ιστορία', hiking: 'Πεζοπορία', book: 'Κράτηση',
     },
     hero: {
-      badge: '🌿 Χόρτο · Νότιο Πήλιο · Ελλάδα', title1: 'Myrsini', title2: 'Studios',
-      tagline: 'Παραδοσιακά καταλύματα · Άμεση κράτηση', bestPrice: 'Best Price Guarantee',
+      badge: '🌿 Χόρτο · Νότιο Πήλιο · Ελλάδα', title1: "Myrsini's", title2: 'Studios',
     },
     booking: {
       arrival: 'Άφιξη', departure: 'Αναχώρηση', adults: 'Ενήλικες', children: 'Παιδιά',
@@ -174,8 +173,7 @@ export const translations: Record<Lang, Translations> = {
       history: 'History', hiking: 'Hiking', book: 'Book Now',
     },
     hero: {
-      badge: '🌿 Horto · South Pelion · Greece', title1: 'Myrsini', title2: 'Studios',
-      tagline: 'Traditional accommodation · Direct booking', bestPrice: 'Best Price Guarantee',
+      badge: '🌿 Horto · South Pelion · Greece', title1: "Myrsini's", title2: 'Studios',
     },
     booking: {
       arrival: 'Arrival', departure: 'Departure', adults: 'Adults', children: 'Children',
@@ -269,8 +267,7 @@ export const translations: Record<Lang, Translations> = {
       history: 'Geschichte', hiking: 'Wandern', book: 'Buchen',
     },
     hero: {
-      badge: '🌿 Horto · Süd-Pelion · Griechenland', title1: 'Myrsini', title2: 'Studios',
-      tagline: 'Traditionelle Unterkunft · Direktbuchung', bestPrice: 'Bestpreis-Garantie',
+      badge: '🌿 Horto · Süd-Pelion · Griechenland', title1: "Myrsini's", title2: 'Studios',
     },
     booking: {
       arrival: 'Ankunft', departure: 'Abreise', adults: 'Erwachsene', children: 'Kinder',
@@ -364,8 +361,7 @@ export const translations: Record<Lang, Translations> = {
       history: 'Histoire', hiking: 'Randonnée', book: 'Réserver',
     },
     hero: {
-      badge: '🌿 Horto · Pélion Sud · Grèce', title1: 'Myrsini', title2: 'Studios',
-      tagline: 'Hébergement traditionnel · Réservation directe', bestPrice: 'Meilleur prix garanti',
+      badge: '🌿 Horto · Pélion Sud · Grèce', title1: "Myrsini's", title2: 'Studios',
     },
     booking: {
       arrival: 'Arrivée', departure: 'Départ', adults: 'Adultes', children: 'Enfants',

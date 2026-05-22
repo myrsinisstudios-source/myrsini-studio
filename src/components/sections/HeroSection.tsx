@@ -39,15 +39,6 @@ export default function HeroSection() {
           <span className="block text-4xl sm:text-6xl md:text-7xl font-light italic text-white/80 mt-1">{t.hero.title2}</span>
         </h1>
 
-        <p className="animate-fade-in-up animation-delay-400 text-white/55 text-base sm:text-lg tracking-wider max-w-sm mb-6">
-          {t.hero.tagline}
-        </p>
-
-        <div className="animate-fade-in-up animation-delay-600 flex items-center gap-3 text-sm">
-          <span className="text-amber-400 tracking-widest">★★★★★</span>
-          <span className="text-white/30">|</span>
-          <span className="text-white/40 text-xs tracking-widest uppercase">{t.hero.bestPrice}</span>
-        </div>
       </div>
 
       {/* Wave divider */}
