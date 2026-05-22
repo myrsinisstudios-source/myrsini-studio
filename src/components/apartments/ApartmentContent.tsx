@@ -5,7 +5,6 @@ import Link from 'next/link'
 import ReactMarkdown from 'react-markdown'
 import { useLanguage } from '@/lib/i18n/LanguageContext'
 import type { ApartmentData } from '@/app/apartments/[slug]/page'
-import WaveSection from '@/components/sections/WaveSection'
 
 function DescriptionBlock({ text }: { text: string }) {
   const hasMarkdown = /#{1,3} |^\s*[-*] |\*\*|\n\n/m.test(text)
@@ -200,9 +199,6 @@ export default function ApartmentContent({ apartment: apt }: { apartment: Apartm
           </div>
         </div>
       )}
-
-      {/* Decorative video */}
-      <WaveSection />
 
       {/* Lightbox */}
       {lightbox && (
