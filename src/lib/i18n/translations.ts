@@ -18,7 +18,7 @@ export interface Translations {
     eyebrow: string; title: string; desc: string
     guests: string; sqm: string; bedrooms: string; bathrooms: string
     book: string; perNight: string; bookingLabel: string
-    apt1: string; apt2: string; back: string
+    apt1: string; apt2: string; back: string; details: string
   }
   amenities: {
     AC: string; WiFi: string; kitchen: string; kitchenette: string; parking: string
@@ -96,7 +96,7 @@ export const translations: Record<Lang, Translations> = {
       desc: 'Κλείστε απευθείας και εξοικονομήστε έως 15% σε σύγκριση με τις πλατφόρμες κράτησης',
       guests: 'Άτομα', sqm: 'Εμβαδόν', bedrooms: 'Υπνοδωμάτια', bathrooms: 'Μπάνια',
       book: 'Κράτηση', perNight: '/νύχτα', bookingLabel: 'Booking',
-      apt1: 'Αρχοντικό', apt2: 'Θαλασσινό', back: '← Πίσω στα Καταλύματα',
+      apt1: 'Αρχοντικό', apt2: 'Θαλασσινό', back: '← Πίσω στα Καταλύματα', details: 'Λεπτομέρειες →',
     },
     amenities: {
       AC: 'Κλιματισμός', WiFi: 'WiFi', kitchen: 'Κουζίνα', kitchenette: 'Μικρή Κουζίνα',
@@ -190,7 +190,7 @@ export const translations: Record<Lang, Translations> = {
       desc: 'Book directly and save up to 15% compared to booking platforms',
       guests: 'Guests', sqm: 'Area', bedrooms: 'Bedrooms', bathrooms: 'Bathrooms',
       book: 'Book', perNight: '/night', bookingLabel: 'Booking',
-      apt1: 'Archontiko', apt2: 'Thalassino', back: '← Back to Rooms',
+      apt1: 'Archontiko', apt2: 'Thalassino', back: '← Back to Rooms', details: 'Details →',
     },
     amenities: {
       AC: 'Air Conditioning', WiFi: 'WiFi', kitchen: 'Kitchen', kitchenette: 'Kitchenette',
@@ -284,7 +284,7 @@ export const translations: Record<Lang, Translations> = {
       desc: 'Direkt buchen und bis zu 15% gegenüber Buchungsplattformen sparen',
       guests: 'Gäste', sqm: 'Fläche', bedrooms: 'Schlafzimmer', bathrooms: 'Bäder',
       book: 'Buchen', perNight: '/Nacht', bookingLabel: 'Booking',
-      apt1: 'Archontiko', apt2: 'Thalassino', back: '← Zurück zu den Zimmern',
+      apt1: 'Archontiko', apt2: 'Thalassino', back: '← Zurück zu den Zimmern', details: 'Details →',
     },
     amenities: {
       AC: 'Klimaanlage', WiFi: 'WLAN', kitchen: 'Küche', kitchenette: 'Küchenzeile',
@@ -378,7 +378,7 @@ export const translations: Record<Lang, Translations> = {
       desc: "Réservez directement et économisez jusqu'à 15% par rapport aux plateformes",
       guests: 'Personnes', sqm: 'Surface', bedrooms: 'Chambres', bathrooms: 'Salles de bain',
       book: 'Réserver', perNight: '/nuit', bookingLabel: 'Booking',
-      apt1: 'Archontiko', apt2: 'Thalassino', back: '← Retour aux Logements',
+      apt1: 'Archontiko', apt2: 'Thalassino', back: '← Retour aux Logements', details: 'Détails →',
     },
     amenities: {
       AC: 'Climatisation', WiFi: 'WiFi', kitchen: 'Cuisine', kitchenette: 'Kitchenette',

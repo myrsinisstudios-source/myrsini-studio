@@ -83,7 +83,9 @@ export default function ApartmentsSection({ apartments }: { apartments: Apartmen
         <div className="grid md:grid-cols-2 gap-8">
           {apartments.map((apt, i) => {
             const name = (!isEl && apt.name_en) ? apt.name_en : apt.name_el
-            const desc = (!isEl && apt.description_en) ? apt.description_en : apt.description_el
+            const rawDesc = ((!isEl && apt.description_en) ? apt.description_en : apt.description_el) ?? ''
+            const firstPara = rawDesc.split('\n\n')[0].replace(/[#*_`]/g, '').trim()
+            const desc = firstPara.length > 140 ? firstPara.slice(0, 140) + '…' : firstPara
             const bookingPrice = Math.round(apt.price_per_night * 1.151)
             const sqm = apt.sqm ?? apt.area_sqm ?? 45
             const mainImage = apt.image_url || apt.images?.[0] || apt.gallery?.[0]
@@ -174,7 +176,7 @@ export default function ApartmentsSection({ apartments }: { apartments: Apartmen
                     {apt.slug && (
                       <a href={`/apartments/${apt.slug}`}
                         className="flex-1 text-center border border-deep-wood text-deep-wood py-3 text-xs tracking-widest uppercase hover:bg-deep-wood hover:text-white transition-colors">
-                        Details →
+                        {t.apts.details}
                       </a>
                     )}
                     <a href="/#booking"
