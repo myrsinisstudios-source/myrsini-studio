@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect, useRef } from 'react'
+import ReactMarkdown from 'react-markdown'
 import { createClient } from '@/lib/supabase/client'
 
 const CLOUD_NAME = 'dusy3drw7'
@@ -54,6 +55,51 @@ type AptRow = {
 }
 
 type SaveStatus = 'idle' | 'saving' | 'saved' | 'error'
+
+// ── Markdown description editor with preview ───────────────────────────────
+function DescriptionEditor({ label, value, onChange }: {
+  label: string; value: string; onChange: (v: string) => void
+}) {
+  const [preview, setPreview] = useState(false)
+  return (
+    <div>
+      <div className="flex items-center justify-between mb-1.5">
+        <label className="text-xs uppercase tracking-wider text-gray-400">{label}</label>
+        <button
+          type="button"
+          onClick={() => setPreview(v => !v)}
+          className="text-xs px-2 py-0.5 border border-gray-200 text-gray-400 hover:border-olive hover:text-olive transition-colors"
+        >
+          {preview ? 'Edit' : 'Preview'}
+        </button>
+      </div>
+      {preview ? (
+        <div className="w-full min-h-[16rem] border border-gray-200 px-4 py-3 text-sm prose prose-sm max-w-none space-y-3
+          [&_h2]:font-serif [&_h2]:text-lg [&_h2]:text-olive [&_h2]:mt-4 [&_h2]:mb-1 [&_h2]:first:mt-0
+          [&_h3]:font-serif [&_h3]:text-base [&_h3]:text-deep-wood [&_h3]:mt-3 [&_h3]:mb-0.5
+          [&_p]:text-deep-wood/80 [&_p]:leading-relaxed
+          [&_ul]:list-disc [&_ul]:list-inside [&_ul]:text-deep-wood/80
+          [&_strong]:font-semibold [&_strong]:text-deep-wood">
+          {value ? (
+            <ReactMarkdown>{value}</ReactMarkdown>
+          ) : (
+            <span className="text-gray-300 italic">Κενό περιεχόμενο</span>
+          )}
+        </div>
+      ) : (
+        <textarea
+          value={value}
+          onChange={e => onChange(e.target.value)}
+          rows={12}
+          className="w-full border border-gray-200 px-4 py-2.5 text-sm focus:outline-none focus:border-olive resize-y font-mono"
+        />
+      )}
+      <p className="text-xs text-gray-300 mt-1">
+        Markdown: <code>## Κεφαλίδα</code> · <code>**bold**</code> · <code>- bullet</code> · κενή γραμμή για νέα παράγραφο
+      </p>
+    </div>
+  )
+}
 
 // ── Single image uploader ──────────────────────────────────────────────────
 function ImageUploader({ value, onChange, folder, autoSave }: {
@@ -466,25 +512,17 @@ export default function CmsPage() {
                     </div>
                   </div>
 
-                  <div>
-                    <label className="block text-xs uppercase tracking-wider text-gray-400 mb-1.5">Περιγραφή (ΕΛ)</label>
-                    <textarea
-                      value={apt.description_el ?? ''}
-                      onChange={e => updateField(apt.id, 'description_el', e.target.value)}
-                      rows={3}
-                      className="w-full border border-gray-200 px-4 py-2.5 text-sm focus:outline-none focus:border-olive resize-none"
-                    />
-                  </div>
+                  <DescriptionEditor
+                    label="Περιγραφή (ΕΛ)"
+                    value={apt.description_el ?? ''}
+                    onChange={v => updateField(apt.id, 'description_el', v)}
+                  />
 
-                  <div>
-                    <label className="block text-xs uppercase tracking-wider text-gray-400 mb-1.5">Description (EN)</label>
-                    <textarea
-                      value={apt.description_en ?? ''}
-                      onChange={e => updateField(apt.id, 'description_en', e.target.value)}
-                      rows={3}
-                      className="w-full border border-gray-200 px-4 py-2.5 text-sm focus:outline-none focus:border-olive resize-none"
-                    />
-                  </div>
+                  <DescriptionEditor
+                    label="Description (EN)"
+                    value={apt.description_en ?? ''}
+                    onChange={v => updateField(apt.id, 'description_en', v)}
+                  />
 
                   <ImageUploader
                     value={apt.image_url ?? ''}

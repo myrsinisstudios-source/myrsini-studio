@@ -2,9 +2,39 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
+import ReactMarkdown from 'react-markdown'
 import { useLanguage } from '@/lib/i18n/LanguageContext'
 import type { ApartmentData } from '@/app/apartments/[slug]/page'
 import WaveSection from '@/components/sections/WaveSection'
+
+function DescriptionBlock({ text }: { text: string }) {
+  const hasMarkdown = /#{1,3} |^\s*[-*] |\*\*|\n\n/m.test(text)
+  if (!hasMarkdown) {
+    return <p className="text-deep-wood/80 text-lg leading-relaxed font-light">{text}</p>
+  }
+  return (
+    <ReactMarkdown
+      components={{
+        h2: ({ children }) => (
+          <h2 className="font-serif text-2xl text-olive mt-6 mb-2 first:mt-0">{children}</h2>
+        ),
+        h3: ({ children }) => (
+          <h3 className="font-serif text-lg text-deep-wood mt-4 mb-1">{children}</h3>
+        ),
+        p: ({ children }) => (
+          <p className="text-deep-wood/80 text-base leading-relaxed font-light">{children}</p>
+        ),
+        ul: ({ children }) => (
+          <ul className="list-disc list-inside space-y-1 text-deep-wood/80 text-base font-light">{children}</ul>
+        ),
+        li: ({ children }) => <li>{children}</li>,
+        strong: ({ children }) => <strong className="font-semibold text-deep-wood">{children}</strong>,
+      }}
+    >
+      {text}
+    </ReactMarkdown>
+  )
+}
 
 const AMENITY_ICONS: Record<string, string> = {
   AC: '❄️', WiFi: '📶', Κουζίνα: '🍳', Kitchenette: '☕',
@@ -95,7 +125,9 @@ export default function ApartmentContent({ apartment: apt }: { apartment: Apartm
 
             {/* Description */}
             {desc && (
-              <p className="text-deep-wood/80 text-lg leading-relaxed font-light">{desc}</p>
+              <div className="space-y-4">
+                <DescriptionBlock text={desc} />
+              </div>
             )}
 
             {/* Amenities */}
