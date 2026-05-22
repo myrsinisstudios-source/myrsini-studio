@@ -8,10 +8,10 @@ export default function Footer() {
   return (
     <footer className="bg-deep-wood text-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-16">
-        <div className="grid md:grid-cols-4 gap-12 mb-12">
+        <div className="grid md:grid-cols-2 gap-12 mb-12">
           {/* Brand */}
-          <div className="md:col-span-2">
-            <h3 className="font-serif text-2xl text-white mb-4">Myrsini Studios</h3>
+          <div>
+            <h3 className="font-serif text-2xl text-white mb-4">Myrsini&apos;s Studios</h3>
             <p className="text-white/50 text-sm leading-relaxed max-w-xs">{t.footer.tagline}</p>
             <div className="flex items-center gap-3 mt-6">
               <a href="https://wa.me/306944571280" target="_blank" rel="noopener noreferrer"
@@ -36,30 +36,15 @@ export default function Footer() {
                 <span>✉️</span> myrsinisstudios@gmail.com
               </a>
               <p className="flex items-center gap-2">
-                <span>📍</span> Χόρτο, Πήλιο 37010
+                <span>📍</span> Χόρτο, Πήλιο 37006
               </p>
-            </div>
-          </div>
-
-          {/* Links */}
-          <div>
-            <h4 className="text-white/50 text-xs tracking-widest uppercase mb-5">{t.footer.booking}</h4>
-            <div className="space-y-3 text-sm text-white/60">
-              <a href="#booking"     className="hover:text-white transition-colors">{t.footer.direct}</a>
-              <a href="#apartments"  className="hover:text-white transition-colors">{t.footer.apartments}</a>
-              <a href="#hiking"      className="hover:text-white transition-colors">{t.footer.hiking}</a>
-              <a href="#activities"  className="hover:text-white transition-colors">{t.footer.activities}</a>
             </div>
           </div>
         </div>
 
         {/* Bottom bar */}
-        <div className="pt-8 border-t border-white/10 flex flex-col md:flex-row items-center justify-between gap-4 text-white/30 text-xs">
-          <span>© {new Date().getFullYear()} Myrsini Studios · Χόρτο Πηλίου, Ελλάδα</span>
-          <div className="flex gap-6">
-            <a href="/admin" className="hover:text-white/60 transition-colors">Admin</a>
-            <span>{t.footer.checkin}</span>
-          </div>
+        <div className="pt-8 border-t border-white/10 text-white/30 text-xs">
+          <span>© {new Date().getFullYear()} Myrsini&apos;s Studios · Χόρτο Πηλίου, Ελλάδα</span>
         </div>
       </div>
     </footer>

@@ -35,20 +35,20 @@ export default function Navbar() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 h-20 flex items-center justify-between">
         {/* Logo */}
         <Link href="/" className="flex items-center group">
-          <Image src="/logo.png" alt="Myrsini Studios" width={200} height={200} className="object-contain rounded-sm w-28 h-28 sm:w-44 sm:h-44 drop-shadow-lg" />
+          <Image src="/logo.png" alt="Myrsini's Studios" width={200} height={200} className="object-contain rounded-sm w-28 h-28 sm:w-44 sm:h-44 drop-shadow-lg" />
         </Link>
 
         {/* Desktop nav */}
         <div className="hidden md:flex items-center gap-6">
           {NAV_LINKS.map(({ href, label }) => (
             <a key={href} href={href}
-              className={`text-sm tracking-widest uppercase transition-colors duration-300 ${scrolled ? 'text-deep-wood/60 hover:text-deep-wood' : 'text-white/70 hover:text-white'}`}>
+              className={`text-sm tracking-wide transition-colors duration-300 ${scrolled ? 'text-deep-wood/60 hover:text-deep-wood' : 'text-white/70 hover:text-white'}`}>
               {label}
             </a>
           ))}
 
           <a href="/#booking"
-            className="bg-olive text-white px-5 py-2.5 text-xs tracking-widest uppercase hover:bg-olive-dark transition-colors duration-200">
+            className="bg-olive text-white px-5 py-2.5 text-sm tracking-wide hover:bg-olive-dark transition-colors duration-200">
             {t.nav.book}
           </a>
 
@@ -70,7 +70,7 @@ export default function Navbar() {
           </div>
 
           <a href="/admin"
-            className={`text-xs tracking-widest uppercase transition-colors duration-300 ${scrolled ? 'text-deep-wood/30 hover:text-deep-wood/60' : 'text-white/30 hover:text-white/60'}`}>
+            className={`text-xs tracking-wide transition-colors duration-300 ${scrolled ? 'text-deep-wood/30 hover:text-deep-wood/60' : 'text-white/30 hover:text-white/60'}`}>
             Admin
           </a>
         </div>
@@ -90,13 +90,13 @@ export default function Navbar() {
         <div className="px-6 py-4 space-y-1">
           {NAV_LINKS.map(({ href, label }) => (
             <a key={href} href={href} onClick={() => setMenuOpen(false)}
-              className="block py-3 text-deep-wood/60 hover:text-deep-wood text-sm tracking-widest uppercase border-b border-deep-wood/8 last:border-0">
+              className="block py-3 text-deep-wood/60 hover:text-deep-wood text-sm tracking-wide border-b border-deep-wood/8 last:border-0">
               {label}
             </a>
           ))}
           <div className="pt-2">
             <a href="/#booking" onClick={() => setMenuOpen(false)}
-              className="block bg-olive text-white text-center px-4 py-3 text-xs tracking-widest uppercase">
+              className="block bg-olive text-white text-center px-4 py-3 text-sm tracking-wide">
               {t.nav.book}
             </a>
           </div>

@@ -103,7 +103,7 @@ export default function ApartmentContent({ apartment: apt }: { apartment: Apartm
         )}
         <div className="absolute inset-0 bg-black/40" />
         <div className="relative z-10 h-full flex flex-col justify-end px-6 pb-10 max-w-5xl mx-auto">
-          <p className="text-white/50 text-xs tracking-widest uppercase mb-2">Myrsini Studios · Χόρτο Πηλίου</p>
+          <p className="text-white/50 text-xs tracking-widest mb-2">Myrsini&apos;s Studios · Χόρτο Πηλίου</p>
           <h1 className="font-serif text-4xl sm:text-5xl text-white drop-shadow">{name}</h1>
           <p className="text-white/60 text-lg font-light mt-2">€{apt.price_per_night}<span className="text-sm">{a.perNight}</span></p>
         </div>
@@ -113,7 +113,7 @@ export default function ApartmentContent({ apartment: apt }: { apartment: Apartm
       <div className="max-w-5xl mx-auto px-4 sm:px-6 py-10">
         <Link
           href="/#apartments"
-          className="inline-flex items-center gap-2 text-olive text-xs tracking-widest uppercase mb-10 hover:text-deep-wood transition-colors"
+          className="inline-flex items-center gap-2 text-olive text-sm mb-10 hover:text-deep-wood transition-colors"
         >
           {a.back}
         </Link>
@@ -172,7 +172,7 @@ export default function ApartmentContent({ apartment: apt }: { apartment: Apartm
 
               <Link
                 href="/#booking"
-                className="block text-center bg-deep-wood text-white py-3.5 text-xs tracking-widest uppercase hover:bg-olive transition-colors"
+                className="block text-center bg-deep-wood text-white py-3.5 text-sm tracking-wide hover:bg-olive transition-colors"
               >
                 {a.book}
               </Link>

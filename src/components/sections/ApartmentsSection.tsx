@@ -114,7 +114,7 @@ export default function ApartmentsSection({ apartments }: { apartments: Apartmen
                   <div className="absolute inset-0 bg-black/30" />
                   <div className="absolute inset-0 flex items-end p-6">
                     <div>
-                      <p className="text-white/60 text-xs tracking-widest uppercase mb-1">Myrsini Studios</p>
+                      <p className="text-white/60 text-xs tracking-widest mb-1">Myrsini&apos;s Studios</p>
                       {apt.slug ? (
                         <a href={`/apartments/${apt.slug}`} className="font-serif text-white text-2xl drop-shadow hover:text-white/80 transition-colors">
                           {name}
@@ -175,12 +175,12 @@ export default function ApartmentsSection({ apartments }: { apartments: Apartmen
                   <div className="flex gap-3">
                     {apt.slug && (
                       <a href={`/apartments/${apt.slug}`}
-                        className="flex-1 text-center border border-deep-wood text-deep-wood py-3 text-xs tracking-widest uppercase hover:bg-deep-wood hover:text-white transition-colors">
+                        className="flex-1 text-center border border-deep-wood text-deep-wood py-3 text-sm tracking-wide hover:bg-deep-wood hover:text-white transition-colors">
                         {t.apts.details}
                       </a>
                     )}
                     <a href="/#booking"
-                      className={`${apt.slug ? 'flex-1' : 'w-full block'} text-center bg-deep-wood text-white py-3 text-xs tracking-widest uppercase hover:bg-olive transition-colors`}>
+                      className={`${apt.slug ? 'flex-1' : 'w-full block'} text-center bg-deep-wood text-white py-3 text-sm tracking-wide hover:bg-olive transition-colors`}>
                       {t.apts.book} — €{apt.price_per_night}{t.apts.perNight}
                     </a>
                   </div>
