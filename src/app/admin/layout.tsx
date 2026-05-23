@@ -51,6 +51,18 @@ const IcoHeritage = () => (
     <polyline points="21 15 16 10 5 21"/>
   </svg>
 )
+const IcoMemories = () => (
+  <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/>
+    <circle cx="12" cy="13" r="4"/>
+  </svg>
+)
+const IcoPOI = () => (
+  <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/>
+    <circle cx="12" cy="10" r="3"/>
+  </svg>
+)
 
 const NAV = [
   { href: '/admin',            Icon: IcoDashboard,   label: 'Dashboard',      sub: 'Active',           exact: true },
@@ -58,8 +70,10 @@ const NAV = [
   { href: '/admin/finances',   Icon: IcoFinance,     label: 'Οικονομικά',     sub: 'Finance' },
   { href: '/admin/activities', Icon: IcoActivities,  label: 'Δραστηριότητες', sub: 'Activities CMS' },
   { href: '/admin/soul',       Icon: IcoSoul,        label: 'Ψυχή Πηλίου',   sub: 'Soul Section' },
-  { href: '/admin/heritage',   Icon: IcoHeritage,    label: 'Κληρονομιά',     sub: 'Heritage Photos' },
-  { href: '/admin/cms',        Icon: IcoMaintenance, label: 'Συντήρηση',      sub: 'Maintenance Log' },
+  { href: '/admin/heritage',   Icon: IcoHeritage,    label: 'Κληρονομιά',          sub: 'Heritage Photos' },
+  { href: '/admin/memories',   Icon: IcoMemories,    label: 'Παλιές Αναμνήσεις',  sub: 'Slider Photos' },
+  { href: '/admin/pois',       Icon: IcoPOI,         label: 'Τοπικός Οδηγός',     sub: 'Local Guide' },
+  { href: '/admin/cms',        Icon: IcoMaintenance, label: 'Συντήρηση',           sub: 'Maintenance Log' },
   { href: '/admin/settings',   Icon: IcoSettings,    label: 'Ρυθμίσεις',      sub: 'Settings' },
 ]
 
