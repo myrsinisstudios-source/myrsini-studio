@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import ReactMarkdown from 'react-markdown'
 import { useLanguage } from '@/lib/i18n/LanguageContext'
 import type { Lang } from '@/lib/i18n/translations'
 
@@ -36,10 +37,31 @@ const FALLBACK_GRADIENTS = [
 ]
 
 function soulField(soul: SoulRow, base: 'title' | 'body', lang: Lang): string {
-  const key = `${base}_${lang}` as keyof SoulRow
-  const v = soul[key]
+  const v = soul[`${base}_${lang}` as keyof SoulRow] as string
   if (v) return v
-  return soul[`${base}_en` as keyof SoulRow] || soul[`${base}_el` as keyof SoulRow] || ''
+  // Non-EL: fall back to EL (never cross to EN — keeps title+body in the same language)
+  if (lang !== 'el') return (soul[`${base}_el` as keyof SoulRow] as string) || ''
+  return ''
+}
+
+function SoulBody({ text }: { text: string }) {
+  return (
+    <ReactMarkdown
+      components={{
+        h2: ({ children }) => (
+          <h2 className="font-serif text-2xl text-deep-wood mt-10 mb-3 first:mt-0">{children}</h2>
+        ),
+        p: ({ children }) => (
+          <p className="text-deep-wood/65 text-base leading-[1.85] mb-4">{children}</p>
+        ),
+        strong: ({ children }) => (
+          <strong className="font-semibold text-deep-wood">{children}</strong>
+        ),
+      }}
+    >
+      {text}
+    </ReactMarkdown>
+  )
 }
 
 export default function HistoryMasonry() {
@@ -64,15 +86,15 @@ export default function HistoryMasonry() {
   return (
     <section id="history" className="py-24 bg-cream">
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
-        <div className="max-w-2xl mb-16">
+        <div className="max-w-4xl mb-16">
           <p className="text-xs tracking-widest uppercase text-olive mb-3">{h.eyebrow}</p>
-          <h2 className="font-serif text-4xl sm:text-5xl text-deep-wood mb-6">{title}</h2>
+          <h2 className="font-serif text-4xl sm:text-5xl text-deep-wood mb-8">{title}</h2>
           {body ? (
-            <p className="text-deep-wood/60 text-base leading-relaxed">{body}</p>
+            <SoulBody text={body} />
           ) : (
             <>
-              <p className="text-deep-wood/60 text-base leading-relaxed mb-4">{h.para1}</p>
-              <p className="text-deep-wood/60 text-base leading-relaxed">{h.para2}</p>
+              <p className="text-deep-wood/60 text-base leading-[1.85] mb-4">{h.para1}</p>
+              <p className="text-deep-wood/60 text-base leading-[1.85]">{h.para2}</p>
             </>
           )}
         </div>
