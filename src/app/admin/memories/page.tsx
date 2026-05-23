@@ -52,6 +52,7 @@ export default function AdminMemoriesPage() {
   const [uploading, setUploading] = useState(false)
   const [uploadProgress, setUploadProgress] = useState(0)
   const [uploadError, setUploadError] = useState('')
+  const [validationError, setValidationError] = useState('')
   const imgInputRef = useRef<HTMLInputElement>(null)
 
   const load = () =>
@@ -81,24 +82,40 @@ export default function AdminMemoriesPage() {
   }
 
   const handleSubmit = async () => {
+    console.log('[MEMORIES SAVE] start', { image_url: form.image_url, title: form.title, editId })
+
+    if (!form.image_url || !form.title.trim()) {
+      setValidationError('Παρακαλώ ανεβάστε εικόνα και βάλτε τουλάχιστον ελληνικό τίτλο')
+      return
+    }
+    setValidationError('')
     setState('saving')
+
     const payload = {
       image_url: form.image_url,
-      title: form.title,
-      title_en: form.title_en || null,
-      title_de: form.title_de || null,
-      title_fr: form.title_fr || null,
+      title: form.title.trim(),
+      title_en: form.title_en.trim() || null,
+      title_de: form.title_de.trim() || null,
+      title_fr: form.title_fr.trim() || null,
       sort_order: form.sort_order || photos.length + 1,
     }
-    let error
-    if (editId) {
-      ;({ error } = await supabase.from('slider_photos').update(payload).eq('id', editId))
-      if (!error) setEditId(null)
-    } else {
-      ;({ error } = await supabase.from('slider_photos').insert(payload))
+    console.log('[MEMORIES SAVE] payload', payload)
+
+    try {
+      let error
+      if (editId) {
+        ;({ error } = await supabase.from('slider_photos').update(payload).eq('id', editId))
+        if (!error) setEditId(null)
+      } else {
+        ;({ error } = await supabase.from('slider_photos').insert(payload))
+      }
+      console.log('[MEMORIES SAVE] result', { error })
+      if (error) { setState('error') }
+      else { setState('saved'); setTimeout(() => setState('idle'), 2000); setForm(EMPTY); load() }
+    } catch (err) {
+      console.error('[MEMORIES SAVE] threw', err)
+      setState('error')
     }
-    if (error) { setState('error') }
-    else { setState('saved'); setTimeout(() => setState('idle'), 2000); setForm(EMPTY); load() }
   }
 
   const handleEdit = (p: SliderPhoto) => {
@@ -198,8 +215,12 @@ export default function AdminMemoriesPage() {
               style={{ border: '1px solid #D5CCBB', background: '#FAFAF8', color: '#2C1B0E' }} />
           </div>
 
+          {validationError && (
+            <p className="text-xs text-red-500 -mt-1">{validationError}</p>
+          )}
+
           <div className="flex gap-2 pt-1">
-            <button onClick={handleSubmit} disabled={state === 'saving' || !form.image_url || !form.title}
+            <button onClick={handleSubmit} disabled={state === 'saving' || uploading}
               className="flex-1 py-2.5 text-xs tracking-widest uppercase text-white rounded-lg hover:opacity-90 disabled:opacity-40 transition-all"
               style={{ background: state === 'saved' ? '#22c55e' : state === 'error' ? '#ef4444' : '#C9A96E' }}>
               {state === 'saving' ? '...' : state === 'saved' ? '✓ Αποθηκεύτηκε' : state === 'error' ? '✗ Σφάλμα' : editId ? 'Ενημέρωση' : 'Προσθήκη'}

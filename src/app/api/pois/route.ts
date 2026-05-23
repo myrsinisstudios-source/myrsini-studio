@@ -15,7 +15,8 @@ export type POI = {
   description_en?: string
   description_de?: string
   description_fr?: string
-  category: 'restaurant' | 'cafe' | 'beach' | 'viewpoint' | 'museum' | 'bar' | 'supermarket' | 'attraction'
+  category: 'restaurant' | 'cafe' | 'beach' | 'viewpoint' | 'museum' | 'bar' | 'supermarket' | 'other'
+  address?: string
   google_maps_url?: string
   image_url?: string
 }
@@ -26,7 +27,7 @@ export async function GET() {
   try {
     const res = await fetch(
       `${SB_URL}/rest/v1/local_pois` +
-      `?select=id,name_el,name_en,name_de,name_fr,description_el,description_en,description_de,description_fr,category,google_maps_url,image_url` +
+      `?select=id,name_el,name_en,name_de,name_fr,description_el,description_en,description_de,description_fr,category,address,google_maps_url,image_url` +
       `&is_active=eq.true&order=sort_order`,
       { headers: { apikey: SB_KEY, Authorization: `Bearer ${SB_KEY}` }, cache: 'no-store' }
     )

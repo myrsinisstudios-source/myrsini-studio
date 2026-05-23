@@ -15,7 +15,7 @@ const CATEGORY_LABELS: Record<Category, string> = {
   museum:      'Μουσεία',
   bar:         'Μπαρ',
   supermarket: 'Super market',
-  attraction:  'Αξιοθέατα',
+  other:  'Αξιοθέατα',
 }
 
 const CATEGORY_ICONS: Record<Category, string> = {
@@ -27,10 +27,10 @@ const CATEGORY_ICONS: Record<Category, string> = {
   museum:      '🏛️',
   bar:         '🍹',
   supermarket: '🛒',
-  attraction:  '🏰',
+  other:  '🏰',
 }
 
-const CATEGORIES: Category[] = ['all','restaurant','cafe','beach','viewpoint','museum','bar','supermarket','attraction']
+const CATEGORIES: Category[] = ['all','restaurant','cafe','beach','viewpoint','museum','bar','supermarket','other']
 
 export default function LocalGuide() {
   const { lang } = useLanguage()

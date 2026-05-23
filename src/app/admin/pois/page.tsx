@@ -28,18 +28,18 @@ function uploadToCloudinary(file: File, onProgress?: (pct: number) => void): Pro
   })
 }
 
-const CATEGORIES = ['restaurant', 'cafe', 'beach', 'viewpoint', 'museum', 'bar', 'supermarket', 'attraction'] as const
+const CATEGORIES = ['restaurant', 'cafe', 'beach', 'viewpoint', 'museum', 'bar', 'supermarket', 'other'] as const
 type Category = typeof CATEGORIES[number]
 
 const CATEGORY_LABELS: Record<Category, string> = {
   restaurant: 'Εστιατόριο', cafe: 'Καφέ', beach: 'Παραλία',
   viewpoint: 'Θέα', museum: 'Μουσείο', bar: 'Μπαρ',
-  supermarket: 'Super Market', attraction: 'Αξιοθέατο',
+  supermarket: 'Super Market', other: 'Αξιοθέατο',
 }
 const CATEGORY_ICONS: Record<Category, string> = {
   restaurant: '🍽️', cafe: '☕', beach: '🏖️',
   viewpoint: '🔭', museum: '🏛️', bar: '🍹',
-  supermarket: '🛒', attraction: '🏰',
+  supermarket: '🛒', other: '🏰',
 }
 
 type POI = {
@@ -47,6 +47,7 @@ type POI = {
   name_el: string; name_en?: string; name_de?: string; name_fr?: string
   description_el?: string; description_en?: string; description_de?: string; description_fr?: string
   category: Category
+  address?: string
   google_maps_url?: string
   image_url?: string
   sort_order: number
@@ -56,7 +57,7 @@ type POI = {
 const EMPTY: Omit<POI, 'id'> = {
   name_el: '', name_en: '', name_de: '', name_fr: '',
   description_el: '', description_en: '', description_de: '', description_fr: '',
-  category: 'restaurant', google_maps_url: '', image_url: '',
+  category: 'restaurant', address: '', google_maps_url: '', image_url: '',
   sort_order: 0, is_active: true,
 }
 type SaveState = 'idle' | 'saving' | 'saved' | 'error'
@@ -117,6 +118,7 @@ export default function AdminPoisPage() {
       description_de: form.description_de || null,
       description_fr: form.description_fr || null,
       category: form.category,
+      address: form.address || '',
       google_maps_url: form.google_maps_url || null,
       image_url: form.image_url || null,
       sort_order: form.sort_order || pois.length + 1,
@@ -139,7 +141,8 @@ export default function AdminPoisPage() {
       name_el: p.name_el, name_en: p.name_en ?? '', name_de: p.name_de ?? '', name_fr: p.name_fr ?? '',
       description_el: p.description_el ?? '', description_en: p.description_en ?? '',
       description_de: p.description_de ?? '', description_fr: p.description_fr ?? '',
-      category: p.category, google_maps_url: p.google_maps_url ?? '',
+      category: p.category, address: p.address ?? '',
+      google_maps_url: p.google_maps_url ?? '',
       image_url: p.image_url ?? '', sort_order: p.sort_order, is_active: p.is_active,
     })
     window.scrollTo({ top: 0, behavior: 'smooth' })
@@ -259,6 +262,16 @@ export default function AdminPoisPage() {
                   style={inpStyle} />
               </div>
             ))}
+          </div>
+
+          {/* Address */}
+          <div>
+            <label className={lbl} style={lblStyle}>Διεύθυνση</label>
+            <input value={form.address}
+              onChange={e => setForm(p => ({ ...p, address: e.target.value }))}
+              onBlur={e => autoSave('address', e.target.value)}
+              placeholder="π.χ. Χόρτο, Πήλιο"
+              className={inp} style={inpStyle} />
           </div>
 
           {/* Google Maps URL */}
