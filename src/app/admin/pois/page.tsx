@@ -1,38 +1,63 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { createClient } from '@/lib/supabase/client'
 
-const CATEGORIES = ['restaurant', 'cafe', 'beach', 'viewpoint', 'museum', 'bar', 'supermarket'] as const
+const CLOUD_NAME    = 'dusy3drw7'
+const UPLOAD_PRESET = 'myrsini_unsigned'
+
+function uploadToCloudinary(file: File, onProgress?: (pct: number) => void): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const fd = new FormData()
+    fd.append('file', file)
+    fd.append('upload_preset', UPLOAD_PRESET)
+    fd.append('folder', 'myrsini-studios/pois')
+    const xhr = new XMLHttpRequest()
+    xhr.open('POST', `https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`)
+    xhr.upload.onprogress = e => { if (e.lengthComputable && onProgress) onProgress(Math.round(e.loaded / e.total * 100)) }
+    xhr.onload = () => {
+      const data = JSON.parse(xhr.responseText)
+      if (xhr.status >= 200 && xhr.status < 300) {
+        resolve((data.secure_url as string).replace('/upload/', '/upload/f_auto,q_auto,w_800/'))
+      } else {
+        reject(new Error(data.error?.message || 'Upload failed'))
+      }
+    }
+    xhr.onerror = () => reject(new Error('Network error'))
+    xhr.send(fd)
+  })
+}
+
+const CATEGORIES = ['restaurant', 'cafe', 'beach', 'viewpoint', 'museum', 'bar', 'supermarket', 'attraction'] as const
 type Category = typeof CATEGORIES[number]
 
 const CATEGORY_LABELS: Record<Category, string> = {
   restaurant: 'Εστιατόριο', cafe: 'Καφέ', beach: 'Παραλία',
-  viewpoint: 'Θέα', museum: 'Μουσείο', bar: 'Μπαρ', supermarket: 'Super Market',
+  viewpoint: 'Θέα', museum: 'Μουσείο', bar: 'Μπαρ',
+  supermarket: 'Super Market', attraction: 'Αξιοθέατο',
 }
-
 const CATEGORY_ICONS: Record<Category, string> = {
   restaurant: '🍽️', cafe: '☕', beach: '🏖️',
-  viewpoint: '🔭', museum: '🏛️', bar: '🍹', supermarket: '🛒',
+  viewpoint: '🔭', museum: '🏛️', bar: '🍹',
+  supermarket: '🛒', attraction: '🏰',
 }
 
 type POI = {
   id: string
-  name: string
+  name_el: string; name_en?: string; name_de?: string; name_fr?: string
+  description_el?: string; description_en?: string; description_de?: string; description_fr?: string
   category: Category
-  lat: number
-  lon: number
-  address?: string
-  phone?: string
-  website?: string
-  opening_hours?: string
+  google_maps_url?: string
+  image_url?: string
   sort_order: number
-  active: boolean
+  is_active: boolean
 }
 
 const EMPTY: Omit<POI, 'id'> = {
-  name: '', category: 'restaurant', lat: 39.1003, lon: 23.3731,
-  address: '', phone: '', website: '', opening_hours: '', sort_order: 0, active: true,
+  name_el: '', name_en: '', name_de: '', name_fr: '',
+  description_el: '', description_en: '', description_de: '', description_fr: '',
+  category: 'restaurant', google_maps_url: '', image_url: '',
+  sort_order: 0, is_active: true,
 }
 type SaveState = 'idle' | 'saving' | 'saved' | 'error'
 
@@ -45,6 +70,10 @@ export default function AdminPoisPage() {
   const [deleting, setDeleting] = useState<string | null>(null)
   const [loaded, setLoaded] = useState(false)
   const [dbError, setDbError] = useState('')
+  const [uploading, setUploading] = useState(false)
+  const [uploadProgress, setUploadProgress] = useState(0)
+  const [uploadError, setUploadError] = useState('')
+  const imgInputRef = useRef<HTMLInputElement>(null)
 
   const load = () =>
     supabase.from('local_pois').select('*').order('sort_order').then(({ data, error }) => {
@@ -56,6 +85,21 @@ export default function AdminPoisPage() {
 
   useEffect(() => { load() }, [])
 
+  const handleImageFile = async (file: File) => {
+    if (!file.type.startsWith('image/')) { setUploadError('Μόνο αρχεία εικόνας'); return }
+    setUploadError(''); setUploading(true); setUploadProgress(0)
+    try {
+      const url = await uploadToCloudinary(file, pct => setUploadProgress(pct))
+      setForm(p => ({ ...p, image_url: url }))
+      if (editId) {
+        await supabase.from('local_pois').update({ image_url: url }).eq('id', editId)
+        load()
+      }
+    } catch (e: unknown) {
+      setUploadError(e instanceof Error ? e.message : 'Upload failed')
+    } finally { setUploading(false) }
+  }
+
   const autoSave = (key: string, value: string | number | boolean) => {
     if (!editId) return
     supabase.from('local_pois').update({ [key]: value }).eq('id', editId).then(() => {})
@@ -64,16 +108,19 @@ export default function AdminPoisPage() {
   const handleSubmit = async () => {
     setState('saving')
     const payload = {
-      name: form.name,
+      name_el: form.name_el,
+      name_en: form.name_en || null,
+      name_de: form.name_de || null,
+      name_fr: form.name_fr || null,
+      description_el: form.description_el || null,
+      description_en: form.description_en || null,
+      description_de: form.description_de || null,
+      description_fr: form.description_fr || null,
       category: form.category,
-      lat: Number(form.lat),
-      lon: Number(form.lon),
-      address: form.address || null,
-      phone: form.phone || null,
-      website: form.website || null,
-      opening_hours: form.opening_hours || null,
+      google_maps_url: form.google_maps_url || null,
+      image_url: form.image_url || null,
       sort_order: form.sort_order || pois.length + 1,
-      active: form.active,
+      is_active: form.is_active,
     }
     let error
     if (editId) {
@@ -88,7 +135,13 @@ export default function AdminPoisPage() {
 
   const handleEdit = (p: POI) => {
     setEditId(p.id)
-    setForm({ name: p.name, category: p.category, lat: p.lat, lon: p.lon, address: p.address ?? '', phone: p.phone ?? '', website: p.website ?? '', opening_hours: p.opening_hours ?? '', sort_order: p.sort_order, active: p.active })
+    setForm({
+      name_el: p.name_el, name_en: p.name_en ?? '', name_de: p.name_de ?? '', name_fr: p.name_fr ?? '',
+      description_el: p.description_el ?? '', description_en: p.description_en ?? '',
+      description_de: p.description_de ?? '', description_fr: p.description_fr ?? '',
+      category: p.category, google_maps_url: p.google_maps_url ?? '',
+      image_url: p.image_url ?? '', sort_order: p.sort_order, is_active: p.is_active,
+    })
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
@@ -100,16 +153,21 @@ export default function AdminPoisPage() {
     load()
   }
 
+  const inp = 'w-full px-3 py-2 text-sm focus:outline-none rounded-lg'
+  const inpStyle = { border: '1px solid #D5CCBB', background: '#FAFAF8', color: '#2C1B0E' }
+  const lbl = 'block text-[10px] uppercase tracking-wider mb-1 font-medium'
+  const lblStyle = { color: '#8B7355' }
+
   return (
     <div className="max-w-5xl space-y-6">
       <div>
         <h1 className="font-serif text-2xl font-light" style={{ color: '#2C1B0E' }}>Τοπικός Οδηγός</h1>
-        <p className="text-xs mt-1" style={{ color: '#8B7355' }}>Σημεία ενδιαφέροντος για το tab «Τοπικός Οδηγός»</p>
+        <p className="text-xs mt-1" style={{ color: '#8B7355' }}>Σημεία ενδιαφέροντος — εμφανίζονται στο tab «Τοπικός Οδηγός»</p>
         {dbError && (
           <div className="mt-2 text-xs text-red-600 bg-red-50 border border-red-200 px-3 py-2 rounded-lg">
-            Σφάλμα DB: {dbError}
-            {dbError.includes('does not exist') && (
-              <span className="block mt-1 text-red-500">Δημιουργήστε τον πίνακα <code className="bg-red-100 px-1 rounded">local_pois</code> στο Supabase με τα πεδία: id, name, category, lat, lon, address, phone, website, opening_hours, sort_order, active.</span>
+            Σφάλμα: {dbError}
+            {dbError.includes('exist') && (
+              <span className="block mt-1">Δημιουργήστε τον πίνακα <code className="bg-red-100 px-1 rounded">local_pois</code> στο Supabase πρώτα.</span>
             )}
           </div>
         )}
@@ -117,78 +175,124 @@ export default function AdminPoisPage() {
 
       <div className="grid md:grid-cols-3 gap-6">
         {/* ─── Form ─── */}
-        <div className="bg-white rounded-xl p-5 space-y-3" style={{ border: '1px solid #E8E0D0' }}>
+        <div className="bg-white rounded-xl p-5 space-y-4" style={{ border: '1px solid #E8E0D0' }}>
           <p className="text-xs font-semibold uppercase tracking-wider" style={{ color: '#8B7355' }}>
             {editId ? 'Επεξεργασία POI' : 'Νέο POI'}
           </p>
 
+          {/* Image */}
           <div>
-            <label className="block text-[10px] uppercase tracking-wider mb-1 font-medium" style={{ color: '#8B7355' }}>Όνομα</label>
-            <input value={form.name}
-              onChange={e => setForm(p => ({ ...p, name: e.target.value }))}
-              onBlur={e => autoSave('name', e.target.value)}
-              placeholder="π.χ. Ταβέρνα Κύμα"
-              className="w-full px-3 py-2 text-sm focus:outline-none rounded-lg"
-              style={{ border: '1px solid #D5CCBB', background: '#FAFAF8', color: '#2C1B0E' }} />
+            <label className={lbl} style={lblStyle}>Εικόνα</label>
+            {form.image_url ? (
+              <div className="mb-2">
+                <div className="relative group">
+                  <img src={form.image_url} alt="" className="w-full h-28 object-cover border border-gray-200 rounded-lg block"
+                    onError={e => { (e.currentTarget as HTMLImageElement).style.display = 'none' }} />
+                  {uploading && (
+                    <div className="absolute inset-0 bg-black/50 rounded-lg flex flex-col items-center justify-center gap-1">
+                      <div className="w-24 h-1.5 bg-white/30 rounded-full overflow-hidden">
+                        <div className="h-full bg-white transition-all" style={{ width: `${uploadProgress}%` }} />
+                      </div>
+                      <p className="text-xs text-white">{uploadProgress}%</p>
+                    </div>
+                  )}
+                  <button type="button" onClick={() => setForm(p => ({ ...p, image_url: '' }))}
+                    className="absolute top-1 right-1 bg-black/60 hover:bg-black/80 text-white w-6 h-6 flex items-center justify-center text-sm leading-none opacity-0 group-hover:opacity-100 transition-opacity rounded">×</button>
+                </div>
+                <button type="button" onClick={() => imgInputRef.current?.click()} disabled={uploading}
+                  className="mt-1.5 w-full text-xs py-1.5 rounded-lg disabled:opacity-40 transition-colors"
+                  style={{ border: '1px solid #D5CCBB', color: '#8B7355' }}>
+                  📸 Αλλαγή εικόνας
+                </button>
+              </div>
+            ) : (
+              <div onClick={() => imgInputRef.current?.click()}
+                className="border-2 border-dashed cursor-pointer flex flex-col items-center justify-center h-20 gap-1 border-gray-200 hover:border-olive/40 rounded-lg transition-colors">
+                {uploading
+                  ? <><div className="w-24 h-1.5 bg-gray-100 rounded-full overflow-hidden"><div className="h-full bg-olive transition-all" style={{ width: `${uploadProgress}%` }} /></div><p className="text-xs text-gray-400">{uploadProgress}%</p></>
+                  : <><span className="text-xl">📸</span><p className="text-xs text-gray-400">Optional — click για upload</p></>
+                }
+              </div>
+            )}
+            <input ref={imgInputRef} type="file" accept="image/*" className="hidden"
+              onChange={e => { const f = e.target.files?.[0]; if (f) handleImageFile(f); e.target.value = '' }} />
+            {uploadError && <p className="text-[10px] text-red-500 mt-1">{uploadError}</p>}
           </div>
 
-          <div>
-            <label className="block text-[10px] uppercase tracking-wider mb-1 font-medium" style={{ color: '#8B7355' }}>Κατηγορία</label>
-            <select value={form.category}
-              onChange={e => { const v = e.target.value as Category; setForm(p => ({ ...p, category: v })); autoSave('category', v) }}
-              className="w-full px-3 py-2 text-sm focus:outline-none rounded-lg"
-              style={{ border: '1px solid #D5CCBB', background: '#FAFAF8', color: '#2C1B0E' }}>
-              {CATEGORIES.map(c => <option key={c} value={c}>{CATEGORY_ICONS[c]} {CATEGORY_LABELS[c]}</option>)}
-            </select>
-          </div>
-
-          <div className="grid grid-cols-2 gap-2">
-            {(['lat', 'lon'] as const).map(key => (
-              <div key={key}>
-                <label className="block text-[10px] uppercase tracking-wider mb-1 font-medium" style={{ color: '#8B7355' }}>{key === 'lat' ? 'Lat' : 'Lon'}</label>
-                <input type="number" step="0.0001" value={form[key]}
-                  onChange={e => setForm(p => ({ ...p, [key]: Number(e.target.value) }))}
-                  onBlur={e => autoSave(key, Number(e.target.value))}
-                  className="w-full px-3 py-2 text-sm focus:outline-none rounded-lg"
-                  style={{ border: '1px solid #D5CCBB', background: '#FAFAF8', color: '#2C1B0E' }} />
+          {/* Names — 4 languages */}
+          <div className="space-y-2.5">
+            <p className="text-[10px] uppercase tracking-wider font-semibold" style={{ color: '#8B7355' }}>Όνομα (4 γλώσσες)</p>
+            {([['name_el','ΕΛ *'], ['name_en','EN'], ['name_de','DE'], ['name_fr','FR']] as [keyof typeof form, string][]).map(([key, lang]) => (
+              <div key={key} className="flex items-center gap-2">
+                <span className="text-[10px] font-bold w-8 shrink-0" style={{ color: '#8B7355' }}>{lang}</span>
+                <input value={form[key] as string}
+                  onChange={e => setForm(p => ({ ...p, [key]: e.target.value }))}
+                  onBlur={e => autoSave(key as string, e.target.value)}
+                  className={inp} style={inpStyle} />
               </div>
             ))}
           </div>
 
-          {([['opening_hours', 'Ώρες', 'Mo-Su 12:00-24:00'], ['phone', 'Τηλέφωνο', ''], ['address', 'Διεύθυνση', '']] as [keyof typeof form, string, string][]).map(([key, label, ph]) => (
-            <div key={key}>
-              <label className="block text-[10px] uppercase tracking-wider mb-1 font-medium" style={{ color: '#8B7355' }}>{label}</label>
-              <input value={form[key] as string}
-                onChange={e => setForm(p => ({ ...p, [key]: e.target.value }))}
-                onBlur={e => autoSave(key as string, e.target.value)}
-                placeholder={ph}
-                className="w-full px-3 py-2 text-sm focus:outline-none rounded-lg"
-                style={{ border: '1px solid #D5CCBB', background: '#FAFAF8', color: '#2C1B0E' }} />
-            </div>
-          ))}
+          {/* Category */}
+          <div>
+            <label className={lbl} style={lblStyle}>Κατηγορία</label>
+            <select value={form.category}
+              onChange={e => { const v = e.target.value as Category; setForm(p => ({ ...p, category: v })); autoSave('category', v) }}
+              className={inp} style={inpStyle}>
+              {CATEGORIES.map(c => (
+                <option key={c} value={c}>{CATEGORY_ICONS[c]} {CATEGORY_LABELS[c]}</option>
+              ))}
+            </select>
+          </div>
 
+          {/* Descriptions — 4 languages */}
+          <div className="space-y-2.5">
+            <p className="text-[10px] uppercase tracking-wider font-semibold" style={{ color: '#8B7355' }}>Περιγραφή (4 γλώσσες)</p>
+            {([['description_el','ΕΛ'], ['description_en','EN'], ['description_de','DE'], ['description_fr','FR']] as [keyof typeof form, string][]).map(([key, lang]) => (
+              <div key={key} className="flex gap-2">
+                <span className="text-[10px] font-bold w-8 shrink-0 mt-2" style={{ color: '#8B7355' }}>{lang}</span>
+                <textarea value={form[key] as string}
+                  onChange={e => setForm(p => ({ ...p, [key]: e.target.value }))}
+                  onBlur={e => autoSave(key as string, e.target.value)}
+                  rows={2}
+                  className="w-full px-3 py-2 text-sm focus:outline-none rounded-lg resize-none"
+                  style={inpStyle} />
+              </div>
+            ))}
+          </div>
+
+          {/* Google Maps URL */}
+          <div>
+            <label className={lbl} style={lblStyle}>Google Maps URL</label>
+            <input value={form.google_maps_url}
+              onChange={e => setForm(p => ({ ...p, google_maps_url: e.target.value }))}
+              onBlur={e => autoSave('google_maps_url', e.target.value)}
+              placeholder="https://maps.google.com/..."
+              className={inp} style={inpStyle} />
+          </div>
+
+          {/* Sort order + is_active */}
           <div className="grid grid-cols-2 gap-2">
             <div>
-              <label className="block text-[10px] uppercase tracking-wider mb-1 font-medium" style={{ color: '#8B7355' }}>Σειρά</label>
+              <label className={lbl} style={lblStyle}>Σειρά</label>
               <input type="number" value={form.sort_order}
                 onChange={e => setForm(p => ({ ...p, sort_order: Number(e.target.value) }))}
                 onBlur={e => autoSave('sort_order', Number(e.target.value))}
-                className="w-full px-3 py-2 text-sm focus:outline-none rounded-lg"
-                style={{ border: '1px solid #D5CCBB', background: '#FAFAF8', color: '#2C1B0E' }} />
+                className={inp} style={inpStyle} />
             </div>
             <label className="flex items-center gap-2 mt-5 cursor-pointer">
-              <input type="checkbox" checked={form.active}
-                onChange={e => { const v = e.target.checked; setForm(p => ({ ...p, active: v })); autoSave('active', v) }}
+              <input type="checkbox" checked={form.is_active}
+                onChange={e => { const v = e.target.checked; setForm(p => ({ ...p, is_active: v })); autoSave('is_active', v) }}
                 className="w-4 h-4 accent-olive" />
               <span className="text-xs" style={{ color: '#5A4A35' }}>Ενεργό</span>
             </label>
           </div>
 
           <div className="flex gap-2 pt-1">
-            <button onClick={handleSubmit} disabled={state === 'saving' || !form.name}
+            <button onClick={handleSubmit} disabled={state === 'saving' || !form.name_el}
               className="flex-1 py-2.5 text-xs tracking-widest uppercase text-white rounded-lg hover:opacity-90 disabled:opacity-40 transition-all"
               style={{ background: state === 'saved' ? '#22c55e' : state === 'error' ? '#ef4444' : '#C9A96E' }}>
-              {state === 'saving' ? '...' : state === 'saved' ? '✓' : state === 'error' ? '✗' : editId ? 'Ενημέρωση' : 'Προσθήκη'}
+              {state === 'saving' ? '...' : state === 'saved' ? '✓' : state === 'error' ? '✗ Σφάλμα' : editId ? 'Ενημέρωση' : 'Προσθήκη'}
             </button>
             {editId && (
               <button onClick={() => { setEditId(null); setForm(EMPTY); setState('idle') }}
@@ -209,32 +313,38 @@ export default function AdminPoisPage() {
           ) : pois.length === 0 ? (
             <div className="bg-white rounded-xl p-10 text-center" style={{ border: '1px solid #E8E0D0', color: '#A09080' }}>
               <p className="text-2xl mb-2">🗺️</p>
-              <p className="text-sm">Δεν υπάρχουν POIs ακόμα. Προσθέστε το πρώτο!</p>
+              <p className="text-sm">Δεν υπάρχουν POIs. Προσθέστε το πρώτο!</p>
             </div>
           ) : (
             <div className="space-y-2">
               {pois.map(p => (
-                <div key={p.id} className="bg-white rounded-xl px-4 py-3 flex items-center gap-3 group" style={{ border: '1px solid #E8E0D0' }}>
-                  <div className="w-8 h-8 rounded-full bg-cream flex items-center justify-center text-lg shrink-0">
-                    {CATEGORY_ICONS[p.category]}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2">
-                      <p className="text-sm font-medium truncate" style={{ color: '#5A4A35' }}>{p.name}</p>
-                      {!p.active && <span className="text-[10px] px-1.5 py-0.5 rounded bg-gray-100 text-gray-400">ανενεργό</span>}
+                <div key={p.id} className="bg-white rounded-xl overflow-hidden group" style={{ border: '1px solid #E8E0D0' }}>
+                  <div className="flex items-center gap-3 px-4 py-3">
+                    {p.image_url
+                      ? <img src={p.image_url} alt={p.name_el} className="w-12 h-12 object-cover rounded-lg shrink-0 block" />
+                      : <div className="w-12 h-12 rounded-lg bg-cream flex items-center justify-center text-2xl shrink-0">{CATEGORY_ICONS[p.category]}</div>
+                    }
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2">
+                        <p className="text-sm font-medium" style={{ color: '#5A4A35' }}>{p.name_el}</p>
+                        {!p.is_active && <span className="text-[10px] px-1.5 py-0.5 rounded bg-gray-100 text-gray-400">ανενεργό</span>}
+                      </div>
+                      <p className="text-[10px] mt-0.5" style={{ color: '#A09080' }}>
+                        {CATEGORY_ICONS[p.category]} {CATEGORY_LABELS[p.category]}
+                        {p.name_en && <span className="ml-2 text-deep-wood/30">· {p.name_en}</span>}
+                      </p>
+                      {p.description_el && (
+                        <p className="text-[10px] mt-0.5 line-clamp-1" style={{ color: '#B0A090' }}>{p.description_el}</p>
+                      )}
                     </div>
-                    <p className="text-[10px] mt-0.5 truncate" style={{ color: '#A09080' }}>
-                      {CATEGORY_LABELS[p.category]} · {p.lat.toFixed(4)}, {p.lon.toFixed(4)}
-                      {p.opening_hours && ` · ${p.opening_hours}`}
-                    </p>
-                  </div>
-                  <div className="flex gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity shrink-0">
-                    <button onClick={() => handleEdit(p)}
-                      className="text-xs px-2.5 py-1.5 rounded-lg"
-                      style={{ background: 'rgba(59,130,246,0.08)', color: '#3B82F6', border: '1px solid rgba(59,130,246,0.2)' }}>✎</button>
-                    <button onClick={() => handleDelete(p.id)} disabled={deleting === p.id}
-                      className="text-xs px-2.5 py-1.5 rounded-lg disabled:opacity-40"
-                      style={{ background: 'rgba(239,68,68,0.08)', color: '#EF4444', border: '1px solid rgba(239,68,68,0.2)' }}>✕</button>
+                    <div className="flex gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity shrink-0">
+                      <button onClick={() => handleEdit(p)}
+                        className="text-xs px-2.5 py-1.5 rounded-lg"
+                        style={{ background: 'rgba(59,130,246,0.08)', color: '#3B82F6', border: '1px solid rgba(59,130,246,0.2)' }}>✎</button>
+                      <button onClick={() => handleDelete(p.id)} disabled={deleting === p.id}
+                        className="text-xs px-2.5 py-1.5 rounded-lg disabled:opacity-40"
+                        style={{ background: 'rgba(239,68,68,0.08)', color: '#EF4444', border: '1px solid rgba(239,68,68,0.2)' }}>✕</button>
+                    </div>
                   </div>
                 </div>
               ))}

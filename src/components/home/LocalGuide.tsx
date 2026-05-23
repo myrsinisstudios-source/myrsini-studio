@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect, useRef, useCallback } from 'react'
+import { useLanguage } from '@/lib/i18n/LanguageContext'
 import type { POI } from '@/app/api/pois/route'
 
 type Category = 'all' | POI['category']
@@ -14,6 +15,7 @@ const CATEGORY_LABELS: Record<Category, string> = {
   museum:      'Μουσεία',
   bar:         'Μπαρ',
   supermarket: 'Super market',
+  attraction:  'Αξιοθέατα',
 }
 
 const CATEGORY_ICONS: Record<Category, string> = {
@@ -25,31 +27,13 @@ const CATEGORY_ICONS: Record<Category, string> = {
   museum:      '🏛️',
   bar:         '🍹',
   supermarket: '🛒',
+  attraction:  '🏰',
 }
 
-const CATEGORIES: Category[] = ['all','restaurant','cafe','beach','viewpoint','museum','bar','supermarket']
-
-function mapsUrl(poi: POI) {
-  return `https://www.google.com/maps/search/?api=1&query=${poi.lat},${poi.lon}`
-}
-
-function ChevronLeft() {
-  return (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-      <polyline points="15 18 9 12 15 6" />
-    </svg>
-  )
-}
-
-function ChevronRight() {
-  return (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-      <polyline points="9 18 15 12 9 6" />
-    </svg>
-  )
-}
+const CATEGORIES: Category[] = ['all','restaurant','cafe','beach','viewpoint','museum','bar','supermarket','attraction']
 
 export default function LocalGuide() {
+  const { lang } = useLanguage()
   const [pois, setPois] = useState<POI[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(false)
@@ -72,17 +56,26 @@ export default function LocalGuide() {
     setCanScrollRight(el.scrollLeft < el.scrollWidth - el.clientWidth - 4)
   }, [])
 
-  // Re-check when filtered list changes (category switch resets scroll)
   useEffect(() => {
     const el = scrollRef.current
     if (el) el.scrollLeft = 0
-    // Let the DOM update before checking
     const id = setTimeout(checkScroll, 50)
     return () => clearTimeout(id)
   }, [activeCategory, pois, checkScroll])
 
   const scroll = (dir: 'left' | 'right') => {
     scrollRef.current?.scrollBy({ left: dir === 'right' ? 300 : -300, behavior: 'smooth' })
+  }
+
+  const getName = (poi: POI): string => {
+    if (lang === 'el') return poi.name_el
+    const v = poi[`name_${lang}` as keyof POI] as string | undefined
+    return v || poi.name_en || poi.name_el
+  }
+
+  const getDesc = (poi: POI): string | undefined => {
+    const field = lang === 'el' ? poi.description_el : (poi[`description_${lang}` as keyof POI] as string | undefined) || poi.description_en || poi.description_el
+    return field || undefined
   }
 
   const filtered = activeCategory === 'all'
@@ -120,18 +113,17 @@ export default function LocalGuide() {
       ) : error || pois.length === 0 ? (
         <div className="text-center py-12 text-deep-wood/40 text-sm">
           <p className="text-2xl mb-2">🗺️</p>
-          <p>Δεν βρέθηκαν POIs για αυτή την περιοχή.</p>
+          <p>Δεν βρέθηκαν σημεία ενδιαφέροντος.</p>
         </div>
       ) : (
         <div className="relative">
-          {/* Left arrow */}
           {canScrollLeft && (
             <button
               onClick={() => scroll('left')}
               className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-1/2 z-10 w-8 h-8 flex items-center justify-center bg-white border border-deep-wood/12 shadow-md rounded-full text-deep-wood/60 hover:text-olive hover:border-olive/40 transition-colors"
               aria-label="Scroll left"
             >
-              <ChevronLeft />
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6" /></svg>
             </button>
           )}
 
@@ -141,34 +133,43 @@ export default function LocalGuide() {
             className="flex gap-4 overflow-x-auto pb-3 scrollbar-hide snap-x snap-mandatory"
           >
             {filtered.map(poi => (
-              <a
+              <div
                 key={poi.id}
-                href={mapsUrl(poi)}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="shrink-0 w-48 sm:w-56 bg-white border border-deep-wood/8 rounded-xl p-4 hover:border-olive/40 hover:shadow-md transition-all snap-start group cursor-pointer"
+                className="shrink-0 w-48 sm:w-56 bg-white border border-deep-wood/8 rounded-xl overflow-hidden hover:border-olive/40 hover:shadow-md transition-all snap-start group cursor-pointer"
               >
-                <div className="w-10 h-10 rounded-full bg-cream flex items-center justify-center text-2xl mb-3 group-hover:scale-110 transition-transform">
-                  {CATEGORY_ICONS[poi.category]}
-                </div>
-
-                <p className="text-sm font-medium text-deep-wood leading-tight mb-1 line-clamp-2">{poi.name}</p>
-
-                <p className="text-[10px] text-olive/80 uppercase tracking-wider mb-2">
-                  {CATEGORY_LABELS[poi.category]}
-                </p>
-
-                {poi.opening_hours && (
-                  <p className="text-[10px] text-deep-wood/40 flex items-center gap-1">
-                    <span>🕐</span>
-                    <span className="truncate">{poi.opening_hours}</span>
-                  </p>
+                {/* Image if exists */}
+                {poi.image_url && (
+                  <img src={poi.image_url} alt={getName(poi)} className="w-full h-28 object-cover block" />
                 )}
 
-                <p className="text-[10px] text-olive mt-3 flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                  <span>📍</span> Google Maps
-                </p>
-              </a>
+                <div className="p-4">
+                  {/* Icon + category */}
+                  <div className="flex items-center gap-2 mb-2">
+                    <div className={`w-8 h-8 rounded-full bg-cream flex items-center justify-center text-lg shrink-0 group-hover:scale-110 transition-transform ${poi.image_url ? '' : ''}`}>
+                      {CATEGORY_ICONS[poi.category]}
+                    </div>
+                    <p className="text-[10px] text-olive/80 uppercase tracking-wider">{CATEGORY_LABELS[poi.category]}</p>
+                  </div>
+
+                  <p className="text-sm font-medium text-deep-wood leading-tight mb-1 line-clamp-2">{getName(poi)}</p>
+
+                  {getDesc(poi) && (
+                    <p className="text-[10px] text-deep-wood/50 leading-relaxed line-clamp-2 mb-2">{getDesc(poi)}</p>
+                  )}
+
+                  {poi.google_maps_url ? (
+                    <a
+                      href={poi.google_maps_url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      onClick={e => e.stopPropagation()}
+                      className="text-[10px] text-olive flex items-center gap-1 mt-2 opacity-0 group-hover:opacity-100 transition-opacity"
+                    >
+                      <span>📍</span> Google Maps
+                    </a>
+                  ) : null}
+                </div>
+              </div>
             ))}
 
             {filtered.length === 0 && (
@@ -178,14 +179,13 @@ export default function LocalGuide() {
             )}
           </div>
 
-          {/* Right arrow */}
           {canScrollRight && (
             <button
               onClick={() => scroll('right')}
               className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-1/2 z-10 w-8 h-8 flex items-center justify-center bg-white border border-deep-wood/12 shadow-md rounded-full text-deep-wood/60 hover:text-olive hover:border-olive/40 transition-colors"
               aria-label="Scroll right"
             >
-              <ChevronRight />
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6" /></svg>
             </button>
           )}
         </div>
