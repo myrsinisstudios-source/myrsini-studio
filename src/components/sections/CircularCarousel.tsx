@@ -10,10 +10,14 @@ export type Activity = {
   slug: string
   name_el: string
   name_en?: string | null
+  name_de?: string | null
+  name_fr?: string | null
   icon: string
   image_url?: string | null
   description_el: string
   description_en?: string | null
+  description_de?: string | null
+  description_fr?: string | null
   duration?: string | null
   distance?: string | null
   category?: string | null
@@ -54,8 +58,18 @@ export default function CircularCarousel({ activities }: { activities?: Activity
   const N = items.length
   const [active, setActive] = useState(0)
   const { t, lang } = useLanguage()
-  const getName = (item: Activity) => (lang !== 'el' && item.name_en) ? item.name_en : item.name_el
-  const getDesc = (item: Activity) => (lang !== 'el' && item.description_en) ? item.description_en : item.description_el
+  const getName = (item: Activity) => {
+    if (lang === 'el') return item.name_el
+    const langKey = `name_${lang}` as keyof Activity
+    const v = item[langKey] as string | null | undefined
+    return v || item.name_en || item.name_el
+  }
+  const getDesc = (item: Activity) => {
+    if (lang === 'el') return item.description_el
+    const langKey = `description_${lang}` as keyof Activity
+    const v = item[langKey] as string | null | undefined
+    return v || item.description_en || item.description_el
+  }
   const dragStart = useRef<number | null>(null)
   const isDragging = useRef(false)
 

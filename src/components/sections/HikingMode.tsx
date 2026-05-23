@@ -4,8 +4,11 @@ import { useState, useEffect } from 'react'
 import { useLanguage } from '@/lib/i18n/LanguageContext'
 
 type Trail = {
-  id: string; name: string; name_en?: string; difficulty: string; distance: string; duration: string
-  elevation: string; start_point: string; start_point_en?: string; description: string; description_en?: string; tags: string[]; icon?: string
+  id: string; name: string; name_en?: string; name_de?: string; name_fr?: string
+  difficulty: string; distance: string; duration: string; elevation: string
+  start_point: string; start_point_en?: string; start_point_de?: string; start_point_fr?: string
+  description: string; description_en?: string; description_de?: string; description_fr?: string
+  tags: string[]; icon?: string
 }
 
 const DIFFICULTY_STYLE: Record<string, string> = {
@@ -54,8 +57,14 @@ export default function HikingMode() {
   const { t, lang } = useLanguage()
   const h = t.hiking
   const d = t.difficulty
-  const isEl = lang === 'el'
   const [trails, setTrails] = useState<Trail[]>(FALLBACK)
+
+  function trailField(trail: Trail, base: 'name' | 'description' | 'start_point'): string {
+    if (lang === 'el') return (trail[base] as string) ?? ''
+    const key = `${base}_${lang}` as keyof Trail
+    const v = trail[key] as string | null | undefined
+    return v || (trail[`${base}_en` as keyof Trail] as string) || (trail[base] as string) || ''
+  }
 
   useEffect(() => {
     import('@/lib/supabase/client').then(({ createClient }) => {
@@ -94,10 +103,10 @@ export default function HikingMode() {
 
                   <div className="flex-1">
                     <h3 className="font-serif text-2xl text-deep-wood mb-2 group-hover:text-olive transition-colors">
-                      {(!isEl && trail.name_en) ? trail.name_en : trail.name}
+                      {trailField(trail, 'name')}
                     </h3>
                     <p className="text-deep-wood/55 text-sm leading-relaxed mb-5">
-                      {(!isEl && trail.description_en) ? trail.description_en : trail.description}
+                      {trailField(trail, 'description')}
                     </p>
 
                     {trail.tags?.length > 0 && (
@@ -115,7 +124,7 @@ export default function HikingMode() {
                       <div className={STAT}><span className="text-lg mb-1">📏</span><span className="text-sm font-semibold text-deep-wood">{trail.distance}</span><span className="text-xs text-deep-wood/40 mt-0.5">{h.distance}</span></div>
                       <div className={STAT}><span className="text-lg mb-1">⏱</span><span className="text-sm font-semibold text-deep-wood">{trail.duration}</span><span className="text-xs text-deep-wood/40 mt-0.5">{h.time}</span></div>
                       <div className={STAT}><span className="text-lg mb-1">🔺</span><span className="text-sm font-semibold text-deep-wood">{trail.elevation}</span><span className="text-xs text-deep-wood/40 mt-0.5">{h.elevation}</span></div>
-                      <div className={STAT}><span className="text-lg mb-1">📍</span><span className="text-xs font-semibold text-deep-wood text-center leading-tight">{(!isEl && trail.start_point_en) ? trail.start_point_en : trail.start_point}</span><span className="text-xs text-deep-wood/40 mt-0.5">{h.start}</span></div>
+                      <div className={STAT}><span className="text-lg mb-1">📍</span><span className="text-xs font-semibold text-deep-wood text-center leading-tight">{trailField(trail, 'start_point')}</span><span className="text-xs text-deep-wood/40 mt-0.5">{h.start}</span></div>
                     </div>
                     <a
                       href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(trail.start_point + ', Πήλιο, Ελλάδα')}`}

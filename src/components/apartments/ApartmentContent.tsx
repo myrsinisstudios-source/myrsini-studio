@@ -138,7 +138,7 @@ export default function ApartmentContent({ apartment: apt }: { apartment: Apartm
             {apt.amenities && apt.amenities.length > 0 && (
               <div>
                 <p className="text-xs uppercase tracking-widest text-deep-wood/40 mb-4 pb-2 border-b border-deep-wood/10">
-                  {isEl ? 'Παροχές' : lang === 'de' ? 'Ausstattung' : lang === 'fr' ? 'Équipements' : 'Amenities'}
+                  {lang === 'el' ? 'Παροχές' : lang === 'de' ? 'Ausstattung' : lang === 'fr' ? 'Équipements' : 'Amenities'}
                 </p>
                 <div className="flex flex-wrap gap-2">
                   {apt.amenities.map(key => (

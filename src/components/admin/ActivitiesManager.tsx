@@ -155,7 +155,7 @@ export default function ActivitiesManager() {
   const handleNameChange = (val: string) =>
     setForm(p => ({ ...p, name_el: val, slug: editId ? p.slug : slugify(val) }))
 
-  // Auto-save individual field on blur (only in edit mode)
+  // Auto-save individual field on blur (only in edit mode, only known DB columns)
   const autoSaveField = async (key: string, value: string | number) => {
     if (!editId) return
     fieldLastAttempt.current[key] = String(value)
@@ -172,17 +172,30 @@ export default function ActivitiesManager() {
     }
   }
 
+  const DB_COLS = new Set(['slug','name_el','name_en','name_de','name_fr','icon','image_url','images',
+    'description_el','description_en','description_de','description_fr',
+    'duration','distance','elevation','difficulty','category','sort_order'])
+
+  const toDbPayload = (f: ActivityForm): Record<string, unknown> => {
+    const payload: Record<string, unknown> = {}
+    for (const [k, v] of Object.entries(f)) {
+      if (DB_COLS.has(k)) payload[k] = v
+    }
+    return payload
+  }
+
   const handleSubmit = async () => {
     if (!form.name_el || !form.slug) return
     setLoading(true)
     setSaveStatus('idle')
     setSaveError('')
+    const payload = toDbPayload(form)
     if (editId) {
-      const { error: err } = await supabase.from('activities').update(form).eq('id', editId)
+      const { error: err } = await supabase.from('activities').update(payload).eq('id', editId)
       if (err) { setSaveStatus('error'); setSaveError(err.message) }
       else { setSaveStatus('saved'); setEditId(null); setForm(EMPTY); setShowForm(false); setTimeout(() => setSaveStatus('idle'), 2000) }
     } else {
-      const { error: err } = await supabase.from('activities').insert(form)
+      const { error: err } = await supabase.from('activities').insert(payload)
       if (err) { setSaveStatus('error'); setSaveError(err.message) }
       else { setSaveStatus('saved'); setForm(EMPTY); setShowForm(false); setTimeout(() => setSaveStatus('idle'), 2000) }
     }
