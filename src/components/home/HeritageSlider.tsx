@@ -1,5 +1,7 @@
-import { createClient } from '@/lib/supabase/server'
 import { cookies } from 'next/headers'
+
+const SB_URL = process.env.NEXT_PUBLIC_SUPABASE_URL
+const SB_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
 
 type SliderPhoto = {
   id: string; image_url: string
@@ -25,14 +27,18 @@ function getTitle(p: SliderPhoto, lang: string): string {
 export default async function HeritageSlider() {
   let photos: SliderPhoto[] = FALLBACK
 
-  try {
-    const supabase = await createClient()
-    const { data } = await supabase
-      .from('slider_photos')
-      .select('id,image_url,title,title_en,title_de,title_fr,sort_order')
-      .order('sort_order')
-    if (data && data.length > 0) photos = data as SliderPhoto[]
-  } catch {}
+  if (SB_URL && SB_KEY) {
+    try {
+      const res = await fetch(
+        `${SB_URL}/rest/v1/slider_photos?select=id,image_url,title,title_en,title_de,title_fr,sort_order&order=sort_order`,
+        { headers: { apikey: SB_KEY, Authorization: `Bearer ${SB_KEY}` }, cache: 'no-store' }
+      )
+      if (res.ok) {
+        const data: SliderPhoto[] = await res.json()
+        if (data.length > 0) photos = data
+      }
+    } catch {}
+  }
 
   const cookieStore = await cookies()
   const lang = (cookieStore.get('site_lang')?.value as string) || 'el'
@@ -40,7 +46,7 @@ export default async function HeritageSlider() {
 
   return (
     <section className="bg-[#2C1B0E] py-12 overflow-hidden">
-      <p className="text-center text-white/40 text-xs tracking-widest uppercase mb-8">Παλιές Αναμνήσεις</p>
+      <p className="text-center text-white/40 text-xs tracking-widest mb-8">Παλιές Αναμνήσεις</p>
       <div
         className="flex gap-6"
         style={{ animation: 'scroll 20s linear infinite', width: 'max-content' }}
@@ -49,11 +55,10 @@ export default async function HeritageSlider() {
           <div
             key={i}
             className="flex-shrink-0 w-64 h-40 border border-white/10 flex items-end p-4 overflow-hidden"
-            style={{
-              background: p.image_url
-                ? `url('${p.image_url}') center/cover no-repeat`
-                : '#4a5d4520',
-            }}
+            style={p.image_url
+              ? { backgroundImage: `url('${p.image_url}')`, backgroundSize: 'cover', backgroundPosition: 'center' }
+              : { background: '#4a5d4520' }
+            }
           >
             <span className="text-white/50 text-xs drop-shadow">{getTitle(p, lang)}</span>
           </div>

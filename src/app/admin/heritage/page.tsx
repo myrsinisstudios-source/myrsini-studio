@@ -95,6 +95,9 @@ export default function AdminHeritagePage() {
     try {
       const url = await uploadToCloudinary(file, pct => setUploadProgress(pct))
       setForm(p => ({ ...p, image_url: url }))
+      if (editId) {
+        await supabase.from('history_photos').update({ image_url: url }).eq('id', editId)
+      }
     } catch (e: unknown) {
       setUploadError(e instanceof Error ? e.message : 'Upload failed')
     } finally { setUploading(false) }
@@ -162,18 +165,35 @@ export default function AdminHeritagePage() {
               <label className="block text-[10px] uppercase tracking-wider mb-1.5 font-medium" style={{ color: '#8B7355' }}>Εικόνα</label>
 
               {form.image_url ? (
-                <div className="relative group mb-2">
-                  <img
-                    src={form.image_url}
-                    alt=""
-                    className="w-full h-32 object-cover border border-gray-200 rounded-lg"
-                    onError={e => { (e.currentTarget as HTMLImageElement).style.display = 'none' }}
-                  />
+                <div className="mb-2">
+                  <div className="relative group">
+                    <img
+                      src={form.image_url}
+                      alt=""
+                      className="w-full h-32 object-cover border border-gray-200 rounded-lg"
+                      onError={e => { (e.currentTarget as HTMLImageElement).style.display = 'none' }}
+                    />
+                    {uploading && (
+                      <div className="absolute inset-0 bg-black/50 rounded-lg flex flex-col items-center justify-center gap-1">
+                        <div className="w-24 h-1.5 bg-white/30 rounded-full overflow-hidden"><div className="h-full bg-white transition-all" style={{ width: `${uploadProgress}%` }} /></div>
+                        <p className="text-xs text-white">{uploadProgress}%</p>
+                      </div>
+                    )}
+                    <button
+                      type="button"
+                      onClick={() => setForm(p => ({ ...p, image_url: '' }))}
+                      className="absolute top-1 right-1 bg-black/60 hover:bg-black/80 text-white w-6 h-6 flex items-center justify-center text-sm leading-none opacity-0 group-hover:opacity-100 transition-opacity rounded"
+                    >×</button>
+                  </div>
                   <button
                     type="button"
-                    onClick={() => setForm(p => ({ ...p, image_url: '' }))}
-                    className="absolute top-1 right-1 bg-black/60 hover:bg-black/80 text-white w-6 h-6 flex items-center justify-center text-sm leading-none opacity-0 group-hover:opacity-100 transition-opacity rounded"
-                  >×</button>
+                    onClick={() => imgInputRef.current?.click()}
+                    disabled={uploading}
+                    className="mt-1.5 w-full text-xs py-1.5 rounded-lg transition-colors disabled:opacity-40"
+                    style={{ border: '1px solid #D5CCBB', color: '#8B7355' }}
+                  >
+                    📸 Αλλαγή εικόνας
+                  </button>
                 </div>
               ) : (
                 <div

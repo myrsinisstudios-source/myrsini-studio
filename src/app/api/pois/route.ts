@@ -1,14 +1,16 @@
 import { NextResponse } from 'next/server'
 
-// Tight bbox: Horto + South Pelion peninsula only
-const BBOX = '39.10,22.85,39.45,23.35'
+export const revalidate = 3600
+
+// bbox covers full South Pelion including Horto (lat 39.10, lon 23.37)
+const BBOX = '39.00,23.10,39.45,23.65'
 // Center of Horto
 const LAT = 39.1003
 const LON = 23.3731
 const RADIUS = 15000 // 15 km around Horto
 
 const QUERY = `
-[out:json][timeout:25][bbox:${BBOX}];
+[out:json][timeout:20][bbox:${BBOX}];
 (
   node[amenity=restaurant](around:${RADIUS},${LAT},${LON});
   node[amenity=cafe](around:${RADIUS},${LAT},${LON});
@@ -62,7 +64,7 @@ export async function GET() {
       method: 'POST',
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
       body: `data=${encodeURIComponent(QUERY)}`,
-      next: { revalidate: 3600 },
+      cache: 'no-store',
     })
 
     if (!res.ok) return NextResponse.json({ pois: [] })
