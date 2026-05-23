@@ -2,15 +2,13 @@ import { NextResponse } from 'next/server'
 
 export const revalidate = 3600
 
-// bbox covers full South Pelion including Horto (lat 39.10, lon 23.37)
-const BBOX = '39.00,23.10,39.45,23.65'
-// Center of Horto
+// Horto, South Pelion — no global bbox, around: is sufficient
 const LAT = 39.1003
 const LON = 23.3731
-const RADIUS = 15000 // 15 km around Horto
+const RADIUS = 15000
 
 const QUERY = `
-[out:json][timeout:20][bbox:${BBOX}];
+[out:json][timeout:20];
 (
   node[amenity=restaurant](around:${RADIUS},${LAT},${LON});
   node[amenity=cafe](around:${RADIUS},${LAT},${LON});
@@ -25,6 +23,11 @@ const QUERY = `
 );
 out center 80;
 `
+
+const OVERPASS_ENDPOINTS = [
+  'https://overpass-api.de/api/interpreter',
+  'https://overpass.kumi.systems/api/interpreter',
+]
 
 type OSMElement = {
   id: number
@@ -58,16 +61,25 @@ function getCategory(tags: Record<string, string>): POI['category'] | null {
   return null
 }
 
+async function fetchOverpass(): Promise<Response | null> {
+  for (const endpoint of OVERPASS_ENDPOINTS) {
+    try {
+      const res = await fetch(endpoint, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: `data=${encodeURIComponent(QUERY)}`,
+        cache: 'no-store',
+      })
+      if (res.ok) return res
+    } catch {}
+  }
+  return null
+}
+
 export async function GET() {
   try {
-    const res = await fetch('https://overpass-api.de/api/interpreter', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      body: `data=${encodeURIComponent(QUERY)}`,
-      cache: 'no-store',
-    })
-
-    if (!res.ok) return NextResponse.json({ pois: [] })
+    const res = await fetchOverpass()
+    if (!res) return NextResponse.json({ pois: [] })
 
     const data = await res.json()
     const elements: OSMElement[] = data.elements ?? []
