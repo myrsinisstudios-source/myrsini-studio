@@ -52,15 +52,17 @@ export default async function HeritageSlider() {
         style={{ animation: 'scroll 20s linear infinite', width: 'max-content' }}
       >
         {items.map((p, i) => (
-          <div
-            key={i}
-            className="flex-shrink-0 w-64 h-40 border border-white/10 flex items-end p-4 overflow-hidden"
-            style={p.image_url
-              ? { backgroundImage: `url('${p.image_url}')`, backgroundSize: 'cover', backgroundPosition: 'center' }
-              : { background: '#4a5d4520' }
-            }
-          >
-            <span className="text-white/50 text-xs drop-shadow">{getTitle(p, lang)}</span>
+          <div key={i} className="flex-shrink-0 w-64 overflow-hidden border border-white/10">
+            <div
+              className="h-36"
+              style={p.image_url
+                ? { backgroundImage: `url('${p.image_url}')`, backgroundSize: 'cover', backgroundPosition: 'center' }
+                : { background: '#4a5d4520' }
+              }
+            />
+            <div className="px-3 py-2 bg-[#1e0f07]">
+              <span className="text-white/50 text-xs">{getTitle(p, lang)}</span>
+            </div>
           </div>
         ))}
       </div>
