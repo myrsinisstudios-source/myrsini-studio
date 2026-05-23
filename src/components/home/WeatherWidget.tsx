@@ -60,7 +60,7 @@ function shortDay(dateStr: string, lang: string): string {
   return d.toLocaleDateString(
     lang === 'el' ? 'el-GR' : lang === 'de' ? 'de-DE' : lang === 'fr' ? 'fr-FR' : 'en-GB',
     { weekday: 'short' }
-  )
+  ).toUpperCase().replace('.', '')
 }
 
 function settingsToDistances(s: SiteSettings): Distances {
@@ -121,54 +121,64 @@ export default function WeatherWidget({ settings }: { settings?: SiteSettings | 
             {quote}
           </p>
 
-          {/* Today card */}
-          <div className="max-w-sm mx-auto backdrop-blur-sm bg-white/10 border border-white/20 rounded-2xl px-8 py-6 mb-6">
-            <div className="flex justify-around text-center">
+          {/* ── Today card: solid, 3-column ── */}
+          <div className="max-w-sm mx-auto mb-6">
+            <div className="bg-black/20 border border-white/10 rounded-xl overflow-hidden">
+              <div className="grid grid-cols-3 divide-x divide-white/10">
 
-              {/* Air temp + sea temp inline */}
-              <div>
-                <div className="flex items-end justify-center gap-2 mb-1">
-                  <p className="text-white/95 text-4xl font-light">
-                    {weather.ok ? `${weather.temp}°C` : '—'}
+                {/* Air temperature */}
+                <div className="text-center px-4 py-5">
+                  <p className="text-white text-3xl font-light leading-none mb-1">
+                    {weather.ok ? `${weather.temp}°` : '—'}
                   </p>
-                  {weather.seaTemp !== null && (
-                    <p className="text-white/60 text-sm mb-1.5">🌊 {weather.seaTemp}°C</p>
-                  )}
+                  <p className="text-white/50 text-xs mt-2">{w.temp}</p>
                 </div>
-                <p className="text-white/60 text-sm">{w.temp}</p>
+
+                {/* Sea temperature */}
+                <div className="text-center px-4 py-5">
+                  <p className="text-white text-3xl font-light leading-none mb-1">
+                    {weather.seaTemp !== null ? `${weather.seaTemp}°` : '—'}
+                  </p>
+                  <p className="text-white/50 text-xs mt-2">🌊 {w.sea}</p>
+                </div>
+
+                {/* Wind speed */}
+                <div className="text-center px-4 py-5">
+                  <p className="text-white text-3xl font-light leading-none mb-1">
+                    {weather.ok ? weather.wind : '—'}
+                    {weather.ok && <span className="text-lg"> km/h</span>}
+                  </p>
+                  <p className="text-white/50 text-xs mt-2">{w.wind}</p>
+                </div>
+
               </div>
 
-              {/* Divider */}
-              <div className="w-px bg-white/15 self-stretch" />
-
-              {/* Wind */}
-              <div>
-                <p className="text-white/95 text-4xl font-light mb-1">
-                  {weather.ok ? `${weather.wind}` : '—'}
-                  {weather.ok && <span className="text-white/60 text-lg"> km/h</span>}
-                </p>
-                <p className="text-white/60 text-sm">{w.wind}</p>
-              </div>
-
+              {/* Weather description strip */}
+              {(weather.ok && weather.description) && (
+                <div className="border-t border-white/10 px-4 py-2 text-center">
+                  <p className="text-white/50 text-xs capitalize">
+                    {weatherEmoji(weather.icon)} {weather.description}
+                  </p>
+                </div>
+              )}
             </div>
           </div>
 
-          {/* Weather description */}
-          {(weather.ok && weather.description) && (
-            <p className="text-center text-white/60 text-sm mt-2 capitalize">
-              {weatherEmoji(weather.icon)} {weather.description}
-            </p>
-          )}
-
-          {/* 5-day forecast */}
+          {/* ── Forecast strip: glassmorphism cards ── */}
           {weather.forecast.length > 0 && (
-            <div className="flex justify-center gap-4 mt-6 flex-wrap">
+            <div className="flex justify-center gap-2 sm:gap-3 flex-wrap">
               {weather.forecast.map(day => (
-                <div key={day.date} className="text-center">
-                  <p className="text-white/60 text-xs uppercase tracking-wide mb-1">{shortDay(day.date, lang)}</p>
-                  <p className="text-xl mb-1">{weatherEmoji(day.icon)}</p>
-                  <p className="text-white/95 text-xs font-medium">{day.temp_max}°</p>
-                  <p className="text-white/60 text-xs">{day.temp_min}°</p>
+                <div
+                  key={day.date}
+                  className="backdrop-blur-sm bg-white/10 border border-white/20 rounded-xl px-3 py-3 text-center"
+                  style={{ minWidth: 58 }}
+                >
+                  <p className="text-white/60 text-[10px] font-medium tracking-wide mb-2">
+                    {shortDay(day.date, lang)}
+                  </p>
+                  <p className="text-xl mb-2">{weatherEmoji(day.icon)}</p>
+                  <p className="text-white/95 text-xs font-semibold">{day.temp_max}°</p>
+                  <p className="text-white/40 text-xs">{day.temp_min}°</p>
                 </div>
               ))}
             </div>

@@ -123,7 +123,7 @@ export default function ActivityContent({ activity }: { activity: ActivityData }
         <div className="absolute top-6 left-4 sm:left-8 z-10">
           <Link
             href="/#activities"
-            className="inline-flex items-center gap-2 text-white/70 hover:text-white text-xs tracking-widest uppercase transition-colors bg-black/20 backdrop-blur-sm px-3 py-1.5 border border-white/15"
+            className="inline-flex items-center gap-2 text-white/70 hover:text-white text-xs tracking-widest transition-colors bg-black/20 backdrop-blur-sm px-3 py-1.5 border border-white/15"
           >
             ← {p.back.replace('← ', '')}
           </Link>
@@ -131,7 +131,7 @@ export default function ActivityContent({ activity }: { activity: ActivityData }
 
         <div className="absolute inset-x-0 bottom-0 pb-8 px-6 max-w-5xl mx-auto">
           {activity.category && (
-            <p className="text-white/50 text-xs tracking-widest uppercase mb-2">{activity.category}</p>
+            <p className="text-white/50 text-xs tracking-widest mb-2" style={{ textTransform: 'capitalize' }}>{activity.category}</p>
           )}
           <h1 className="font-serif text-4xl sm:text-5xl md:text-6xl text-white drop-shadow-lg mb-4 leading-tight">
             {activity.icon} {name}
@@ -172,7 +172,7 @@ export default function ActivityContent({ activity }: { activity: ActivityData }
             {/* Description */}
             {desc && (
               <div>
-                <p className="text-xs text-olive uppercase tracking-widest mb-4 pb-3 border-b border-deep-wood/10">
+                <p className="text-xs text-olive tracking-widest mb-4 pb-3 border-b border-deep-wood/10">
                   {lang === 'el' ? 'Περιγραφή' : lang === 'de' ? 'Beschreibung' : lang === 'fr' ? 'Description' : 'Description'}
                 </p>
                 <DescriptionBlock text={desc} />
@@ -182,7 +182,7 @@ export default function ActivityContent({ activity }: { activity: ActivityData }
             {/* Gallery */}
             {gallery.length > 0 && (
               <div>
-                <p className="text-xs text-deep-wood/40 uppercase tracking-widest mb-4 pb-3 border-b border-deep-wood/10">
+                <p className="text-xs text-deep-wood/40 tracking-widest mb-4 pb-3 border-b border-deep-wood/10">
                   Gallery
                 </p>
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
@@ -215,7 +215,7 @@ export default function ActivityContent({ activity }: { activity: ActivityData }
                     href={mapUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center gap-2 bg-deep-wood text-white text-xs tracking-widest uppercase px-5 py-2.5 hover:bg-olive transition-colors"
+                    className="inline-flex items-center gap-2 bg-deep-wood text-white text-xs tracking-widest px-5 py-2.5 hover:bg-olive transition-colors"
                   >
                     {p.mapBtn}
                   </a>
@@ -230,7 +230,7 @@ export default function ActivityContent({ activity }: { activity: ActivityData }
             {/* Info card */}
             {(durationDisplay || distanceDisplay || activity.elevation || activity.difficulty || activity.category) && (
               <div className="bg-white border border-deep-wood/8 shadow-sm p-5">
-                <p className="text-xs text-olive uppercase tracking-widest mb-5">
+                <p className="text-xs text-olive tracking-widest mb-5">
                   {lang === 'el' ? 'Πληροφορίες' : lang === 'de' ? 'Info' : 'Info'}
                 </p>
                 <div className="space-y-4">
@@ -285,14 +285,14 @@ export default function ActivityContent({ activity }: { activity: ActivityData }
 
             {/* Contact card */}
             <div className="bg-deep-wood text-white p-5">
-              <p className="text-xs uppercase tracking-widest text-white/40 mb-3">
+              <p className="text-xs tracking-widest text-white/40 mb-3">
                 {lang === 'el' ? 'Οργάνωση' : lang === 'de' ? 'Organisation' : lang === 'fr' ? 'Organisation' : 'Organise'}
               </p>
               <p className="font-serif text-lg mb-2">{p.help}</p>
               <p className="text-sm leading-relaxed text-white/70 mb-5">{p.helpDesc}</p>
               <Link
                 href="/#contact"
-                className="inline-flex items-center gap-2 text-xs tracking-widest uppercase text-olive hover:text-white transition-colors border border-olive/30 hover:border-olive/70 px-4 py-2.5"
+                className="inline-flex items-center gap-2 text-xs tracking-widest text-olive hover:text-white transition-colors border border-olive/30 hover:border-olive/70 px-4 py-2.5"
               >
                 {p.contact}
               </Link>

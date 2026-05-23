@@ -79,7 +79,7 @@ export default function EmergencyGrid({ phone }: { phone?: string }) {
     <section className="py-24 bg-deep-wood">
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
         <div className="text-center mb-14">
-          <p className="text-xs tracking-widest uppercase text-olive mb-3">{e.eyebrow}</p>
+          <p className="text-xs tracking-widest text-olive mb-3">{e.eyebrow}</p>
           <h2 className="font-serif text-4xl sm:text-5xl text-white mb-3">{e.title}</h2>
           <p className="text-white/40 text-sm">{e.desc}</p>
         </div>
@@ -91,7 +91,7 @@ export default function EmergencyGrid({ phone }: { phone?: string }) {
                 const heading = catKey ? el[catKey] : group.category
                 return (
                   <div key={group.category}>
-                    <h3 className="text-xs tracking-widest uppercase text-white/30 mb-4 pb-2 border-b border-white/10">
+                    <h3 className="text-xs tracking-widest text-white/30 mb-4 pb-2 border-b border-white/10">
                       {heading}
                     </h3>
                     <div className="space-y-3">

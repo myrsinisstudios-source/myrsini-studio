@@ -1,7 +1,32 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { createClient } from '@/lib/supabase/client'
+
+const CLOUD_NAME    = 'dusy3drw7'
+const UPLOAD_PRESET = 'myrsini_unsigned'
+
+function uploadToCloudinary(file: File, onProgress?: (pct: number) => void): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const fd = new FormData()
+    fd.append('file', file)
+    fd.append('upload_preset', UPLOAD_PRESET)
+    fd.append('folder', 'myrsini-studios/heritage')
+    const xhr = new XMLHttpRequest()
+    xhr.open('POST', `https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`)
+    xhr.upload.onprogress = e => { if (e.lengthComputable && onProgress) onProgress(Math.round(e.loaded / e.total * 100)) }
+    xhr.onload = () => {
+      const data = JSON.parse(xhr.responseText)
+      if (xhr.status >= 200 && xhr.status < 300) {
+        resolve((data.secure_url as string).replace('/upload/', '/upload/f_auto,q_auto,w_1200/'))
+      } else {
+        reject(new Error(data.error?.message || 'Upload failed'))
+      }
+    }
+    xhr.onerror = () => reject(new Error('Network error'))
+    xhr.send(fd)
+  })
+}
 
 type HistoryPhoto = {
   id: string
@@ -17,6 +42,34 @@ type HistoryPhoto = {
 const EMPTY = { image_url: '', caption: '', caption_en: '', caption_de: '', caption_fr: '', sort_order: 0, tall: false }
 type SaveState = 'idle' | 'saving' | 'saved' | 'error'
 
+function ImageWithCheck({ url, className, style }: { url: string; className?: string; style?: React.CSSProperties }) {
+  const [broken, setBroken] = useState(false)
+
+  useEffect(() => {
+    setBroken(false)
+    const img = new window.Image()
+    img.onload = () => setBroken(false)
+    img.onerror = () => setBroken(true)
+    img.src = url
+  }, [url])
+
+  if (broken) {
+    return (
+      <div className={`flex flex-col items-center justify-center bg-red-50 border-2 border-red-400 text-red-500 text-xs text-center p-2 ${className ?? ''}`} style={style}>
+        <span className="text-xl mb-1">⚠️</span>
+        Image not loading — please re-upload
+      </div>
+    )
+  }
+
+  return (
+    <div
+      className={className}
+      style={{ ...style, backgroundImage: `url('${url}')`, backgroundSize: 'cover', backgroundPosition: 'center' }}
+    />
+  )
+}
+
 export default function AdminHeritagePage() {
   const supabase = createClient()
   const [photos, setPhotos] = useState<HistoryPhoto[]>([])
@@ -25,12 +78,27 @@ export default function AdminHeritagePage() {
   const [state, setState] = useState<SaveState>('idle')
   const [deleting, setDeleting] = useState<string | null>(null)
   const [loaded, setLoaded] = useState(false)
+  const [uploading, setUploading] = useState(false)
+  const [uploadProgress, setUploadProgress] = useState(0)
+  const [uploadError, setUploadError] = useState('')
+  const imgInputRef = useRef<HTMLInputElement>(null)
 
   const load = () =>
     supabase.from('history_photos').select('*').order('sort_order')
       .then(({ data }) => { setPhotos((data as HistoryPhoto[]) ?? []); setLoaded(true) })
 
   useEffect(() => { load() }, [])
+
+  const handleImageFile = async (file: File) => {
+    if (!file.type.startsWith('image/')) { setUploadError('Μόνο αρχεία εικόνας'); return }
+    setUploadError(''); setUploading(true); setUploadProgress(0)
+    try {
+      const url = await uploadToCloudinary(file, pct => setUploadProgress(pct))
+      setForm(p => ({ ...p, image_url: url }))
+    } catch (e: unknown) {
+      setUploadError(e instanceof Error ? e.message : 'Upload failed')
+    } finally { setUploading(false) }
+  }
 
   const handleSubmit = async () => {
     setState('saving')
@@ -77,7 +145,7 @@ export default function AdminHeritagePage() {
   return (
     <div className="max-w-5xl space-y-6">
       <div>
-        <h1 className="font-serif text-2xl font-light" style={{ color: '#2C1B0E' }}>Heritage — Masonry Grid</h1>
+        <h1 className="font-serif text-2xl font-light" style={{ color: '#2C1B0E' }}>Κληρονομιά — Masonry Grid</h1>
         <p className="text-xs mt-1" style={{ color: '#8B7355' }}>Φωτογραφίες για το masonry grid της ενότητας Ιστορία / Κληρονομιά</p>
       </div>
 
@@ -89,21 +157,54 @@ export default function AdminHeritagePage() {
           </p>
 
           <div className="space-y-3">
+            {/* Image uploader */}
             <div>
-              <label className="block text-[10px] uppercase tracking-wider mb-1.5 font-medium" style={{ color: '#8B7355' }}>URL Εικόνας</label>
-              <input
-                value={form.image_url}
-                onChange={e => setForm(p => ({ ...p, image_url: e.target.value }))}
-                placeholder="https://... (Cloudinary)"
-                className="w-full px-3 py-2 text-sm focus:outline-none rounded-lg"
-                style={{ border: '1px solid #D5CCBB', background: '#FAFAF8', color: '#2C1B0E' }}
-              />
-              {form.image_url && (
-                <div className="mt-2 h-28 overflow-hidden rounded-lg border border-gray-100">
-                  <img src={form.image_url} alt="" className="w-full h-full object-cover"
-                    onError={e => (e.currentTarget.style.display = 'none')} />
+              <label className="block text-[10px] uppercase tracking-wider mb-1.5 font-medium" style={{ color: '#8B7355' }}>Εικόνα</label>
+
+              {form.image_url ? (
+                <div className="relative group mb-2">
+                  <img
+                    src={form.image_url}
+                    alt=""
+                    className="w-full h-32 object-cover border border-gray-200 rounded-lg"
+                    onError={e => { (e.currentTarget as HTMLImageElement).style.display = 'none' }}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setForm(p => ({ ...p, image_url: '' }))}
+                    className="absolute top-1 right-1 bg-black/60 hover:bg-black/80 text-white w-6 h-6 flex items-center justify-center text-sm leading-none opacity-0 group-hover:opacity-100 transition-opacity rounded"
+                  >×</button>
+                </div>
+              ) : (
+                <div
+                  onClick={() => imgInputRef.current?.click()}
+                  className="border-2 border-dashed cursor-pointer flex flex-col items-center justify-center h-24 gap-1 transition-colors border-gray-200 hover:border-olive/40 rounded-lg"
+                >
+                  {uploading
+                    ? <><div className="w-24 h-1.5 bg-gray-100 rounded-full overflow-hidden"><div className="h-full bg-olive transition-all" style={{ width: `${uploadProgress}%` }} /></div><p className="text-xs text-gray-400">{uploadProgress}%</p></>
+                    : <><span className="text-2xl">📸</span><p className="text-xs text-gray-400">Click για upload</p></>
+                  }
                 </div>
               )}
+              <input
+                ref={imgInputRef}
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={e => { const f = e.target.files?.[0]; if (f) handleImageFile(f); e.target.value = '' }}
+              />
+              {uploadError && <p className="text-[10px] text-red-500 mt-1">{uploadError}</p>}
+
+              {/* Manual URL fallback */}
+              <div className="mt-2">
+                <input
+                  value={form.image_url}
+                  onChange={e => setForm(p => ({ ...p, image_url: e.target.value }))}
+                  placeholder="ή paste Cloudinary URL"
+                  className="w-full px-3 py-2 text-xs focus:outline-none rounded-lg"
+                  style={{ border: '1px solid #D5CCBB', background: '#FAFAF8', color: '#2C1B0E' }}
+                />
+              </div>
             </div>
 
             {(['caption:ΕΛ', 'caption_en:EN', 'caption_de:DE', 'caption_fr:FR'] as const).map(entry => {
@@ -114,6 +215,10 @@ export default function AdminHeritagePage() {
                   <input
                     value={form[key] as string}
                     onChange={e => setForm(p => ({ ...p, [key]: e.target.value }))}
+                    onBlur={e => {
+                      if (!editId) return
+                      supabase.from('history_photos').update({ [key]: e.target.value }).eq('id', editId).then(() => {})
+                    }}
                     placeholder="π.χ. Η Αυλή"
                     className="w-full px-3 py-2 text-sm focus:outline-none rounded-lg"
                     style={{ border: '1px solid #D5CCBB', background: '#FAFAF8', color: '#2C1B0E' }}
@@ -128,6 +233,10 @@ export default function AdminHeritagePage() {
                 type="number"
                 value={form.sort_order}
                 onChange={e => setForm(p => ({ ...p, sort_order: Number(e.target.value) }))}
+                onBlur={e => {
+                  if (!editId) return
+                  supabase.from('history_photos').update({ sort_order: Number(e.target.value) }).eq('id', editId).then(() => {})
+                }}
                 className="w-full px-3 py-2 text-sm focus:outline-none rounded-lg"
                 style={{ border: '1px solid #D5CCBB', background: '#FAFAF8', color: '#2C1B0E' }}
               />
@@ -137,7 +246,11 @@ export default function AdminHeritagePage() {
               <input
                 type="checkbox"
                 checked={form.tall}
-                onChange={e => setForm(p => ({ ...p, tall: e.target.checked }))}
+                onChange={e => {
+                  const v = e.target.checked
+                  setForm(p => ({ ...p, tall: v }))
+                  if (editId) supabase.from('history_photos').update({ tall: v }).eq('id', editId).then(() => {})
+                }}
                 className="w-4 h-4 accent-olive"
               />
               <span className="text-xs" style={{ color: '#5A4A35' }}>Ψηλή κάρτα (tall)</span>
@@ -179,17 +292,16 @@ export default function AdminHeritagePage() {
                   className={`relative group overflow-hidden rounded-lg ${p.tall || idx % 3 === 0 ? 'row-span-2' : ''}`}
                   style={{ border: '1px solid #E8E0D0' }}
                 >
-                  <div
-                    className={`${p.tall || idx % 3 === 0 ? 'h-56' : 'h-32'} bg-[#F5F0E8]`}
-                    style={p.image_url
-                      ? { backgroundImage: `url('${p.image_url}')`, backgroundSize: 'cover', backgroundPosition: 'center' }
-                      : undefined
-                    }
-                  >
-                    {!p.image_url && (
-                      <div className="w-full h-full flex items-center justify-center text-xs" style={{ color: '#A09080' }}>Χωρίς εικόνα</div>
-                    )}
-                  </div>
+                  {p.image_url ? (
+                    <ImageWithCheck
+                      url={p.image_url}
+                      className={`${p.tall || idx % 3 === 0 ? 'h-56' : 'h-32'} bg-[#F5F0E8]`}
+                    />
+                  ) : (
+                    <div className={`${p.tall || idx % 3 === 0 ? 'h-56' : 'h-32'} bg-[#F5F0E8] flex items-center justify-center text-xs`} style={{ color: '#A09080' }}>
+                      Χωρίς εικόνα
+                    </div>
+                  )}
                   <div className="p-2 bg-white">
                     <p className="text-xs font-medium truncate" style={{ color: '#5A4A35' }}>{p.caption || '—'}</p>
                     <p className="text-[10px] mt-0.5" style={{ color: '#A09080' }}>#{p.sort_order}{p.tall ? ' · tall' : ''}</p>

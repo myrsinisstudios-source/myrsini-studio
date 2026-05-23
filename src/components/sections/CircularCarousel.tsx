@@ -4,6 +4,7 @@ import { useState, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import Link from 'next/link'
 import { useLanguage } from '@/lib/i18n/LanguageContext'
+import LocalGuide from '@/components/home/LocalGuide'
 
 export type Activity = {
   id: string | number
@@ -36,7 +37,7 @@ const SPRING = { type: 'spring' as const, damping: 24, stiffness: 200, mass: 0.8
 const RADIUS = 155
 const ANGLE = 34 * (Math.PI / 180)
 const MAX_VISIBLE = 2
-const ITEM_HALF = 28 // half of w-14 (56px) icon
+const ITEM_HALF = 28
 
 function getPos(offsetRaw: number, n: number) {
   let off = ((offsetRaw % n) + n) % n
@@ -53,11 +54,15 @@ function getPos(offsetRaw: number, n: number) {
   }
 }
 
+type Tab = 'activities' | 'guide'
+
 export default function CircularCarousel({ activities }: { activities?: Activity[] }) {
   const items = activities && activities.length > 0 ? activities : FALLBACK
   const N = items.length
   const [active, setActive] = useState(0)
+  const [tab, setTab] = useState<Tab>('activities')
   const { t, lang } = useLanguage()
+
   const getName = (item: Activity) => {
     if (lang === 'el') return item.name_el
     const langKey = `name_${lang}` as keyof Activity
@@ -99,102 +104,148 @@ export default function CircularCarousel({ activities }: { activities?: Activity
 
   const current = items[active]
 
+  const TAB_LABELS: Record<Tab, string> = {
+    activities: lang === 'el' ? 'Δραστηριότητες' : lang === 'de' ? 'Aktivitäten' : lang === 'fr' ? 'Activités' : 'Activities',
+    guide:      lang === 'el' ? 'Τοπικός Οδηγός' : lang === 'de' ? 'Lokaler Führer' : lang === 'fr' ? 'Guide Local' : 'Local Guide',
+  }
+
   return (
     <section id="activities" className="py-24 bg-white" style={{ overflowX: 'hidden' }}>
       <div className="max-w-4xl mx-auto px-4 sm:px-6">
         {/* Header */}
-        <div className="text-center mb-2">
-          <p className="text-xs tracking-widest uppercase text-olive mb-3">{t.acts.eyebrow}</p>
+        <div className="text-center mb-6">
+          <p className="text-xs tracking-widest text-olive mb-3">{t.acts.eyebrow}</p>
           <h2 className="font-serif text-4xl sm:text-5xl text-deep-wood">{t.acts.title}</h2>
         </div>
 
-        {/* Arc container */}
-        <div
-          className="relative h-52 mt-10 cursor-grab active:cursor-grabbing select-none"
-          onPointerDown={handlePointerDown}
-          onPointerMove={handlePointerMove}
-          onPointerUp={handlePointerUp}
-          onPointerLeave={() => { dragStart.current = null; isDragging.current = false }}
-          onPointerCancel={() => { dragStart.current = null; isDragging.current = false }}
-        >
-          {items.map((item, idx) => {
-            const pos = getPos(idx - active, N)
-            if (!pos.visible) return null
-
-            return (
-              <div
-                key={item.id}
-                className="absolute bottom-0"
-                style={{ left: '50%', marginLeft: -ITEM_HALF, zIndex: pos.z }}
+        {/* ── Tab switcher ── */}
+        <div className="flex justify-center mb-8">
+          <div className="inline-flex border border-deep-wood/12 rounded-full p-1 bg-cream/50">
+            {(['activities', 'guide'] as Tab[]).map(tabKey => (
+              <button
+                key={tabKey}
+                onClick={() => setTab(tabKey)}
+                className={`px-5 py-2 text-xs tracking-wide rounded-full transition-all duration-200 ${
+                  tab === tabKey
+                    ? 'bg-olive text-white shadow-sm'
+                    : 'text-deep-wood/60 hover:text-deep-wood'
+                }`}
               >
-                <motion.div
-                  animate={{ x: pos.x, y: pos.y, scale: pos.scale, opacity: pos.opacity }}
-                  initial={false}
-                  transition={SPRING}
-                  className="flex flex-col items-center gap-2"
-                >
-                  <button
-                    className="flex flex-col items-center gap-2 focus:outline-none"
-                    onClick={() => { if (!isDragging.current && !pos.isActive) goTo(idx) }}
-                    tabIndex={pos.isActive ? 0 : -1}
-                  >
-                    <div
-                      className={`w-14 h-14 flex items-center justify-center text-3xl rounded-full transition-colors duration-300 ${
-                        pos.isActive
-                          ? 'bg-olive text-white shadow-xl shadow-olive/40 ring-4 ring-olive/20'
-                          : 'bg-cream border border-deep-wood/12 hover:border-olive/30'
-                      }`}
-                    >
-                      {item.icon}
-                    </div>
-                    <p
-                      className={`text-[11px] text-center leading-tight w-16 ${
-                        pos.isActive ? 'text-olive font-semibold' : 'text-deep-wood/40'
-                      }`}
-                    >
-                      {getName(item)}
-                    </p>
-                  </button>
-                </motion.div>
-              </div>
-            )
-          })}
+                {TAB_LABELS[tabKey]}
+              </button>
+            ))}
+          </div>
         </div>
 
-        {/* Content panel */}
         <AnimatePresence mode="wait">
-          <motion.div
-            key={active}
-            initial={{ opacity: 0, y: 18 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -18 }}
-            transition={{ duration: 0.32, ease: 'easeOut' }}
-            className="max-w-xl mx-auto text-center mt-10"
-          >
-            <h3 className="font-serif text-2xl sm:text-3xl text-deep-wood mb-3">{getName(current)}</h3>
-            <p className="text-deep-wood/55 text-sm sm:text-base leading-relaxed mb-7">{getDesc(current)}</p>
-            <Link
-              href={`/activities/${current.slug}`}
-              className="inline-block bg-deep-wood text-white text-xs tracking-widest uppercase px-8 py-3.5 hover:bg-olive transition-colors duration-200"
+          {tab === 'activities' ? (
+            <motion.div
+              key="activities"
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -12 }}
+              transition={{ duration: 0.25 }}
             >
-              {t.acts.viewMore} →
-            </Link>
-          </motion.div>
-        </AnimatePresence>
+              {/* Arc container */}
+              <div
+                className="relative h-52 mt-4 cursor-grab active:cursor-grabbing select-none"
+                onPointerDown={handlePointerDown}
+                onPointerMove={handlePointerMove}
+                onPointerUp={handlePointerUp}
+                onPointerLeave={() => { dragStart.current = null; isDragging.current = false }}
+                onPointerCancel={() => { dragStart.current = null; isDragging.current = false }}
+              >
+                {items.map((item, idx) => {
+                  const pos = getPos(idx - active, N)
+                  if (!pos.visible) return null
 
-        {/* Dot navigation */}
-        <div className="flex justify-center gap-2 mt-10">
-          {items.map((_, i) => (
-            <button
-              key={i}
-              onClick={() => goTo(i)}
-              aria-label={`Item ${i + 1}`}
-              className={`rounded-full transition-all duration-300 ${
-                i === active ? 'bg-olive w-5 h-1.5' : 'bg-deep-wood/20 w-1.5 h-1.5'
-              }`}
-            />
-          ))}
-        </div>
+                  return (
+                    <div
+                      key={item.id}
+                      className="absolute bottom-0"
+                      style={{ left: '50%', marginLeft: -ITEM_HALF, zIndex: pos.z }}
+                    >
+                      <motion.div
+                        animate={{ x: pos.x, y: pos.y, scale: pos.scale, opacity: pos.opacity }}
+                        initial={false}
+                        transition={SPRING}
+                        className="flex flex-col items-center gap-2"
+                      >
+                        <button
+                          className="flex flex-col items-center gap-2 focus:outline-none"
+                          onClick={() => { if (!isDragging.current && !pos.isActive) goTo(idx) }}
+                          tabIndex={pos.isActive ? 0 : -1}
+                        >
+                          <div
+                            className={`w-14 h-14 flex items-center justify-center text-3xl rounded-full transition-colors duration-300 ${
+                              pos.isActive
+                                ? 'bg-olive text-white shadow-xl shadow-olive/40 ring-4 ring-olive/20'
+                                : 'bg-cream border border-deep-wood/12 hover:border-olive/30'
+                            }`}
+                          >
+                            {item.icon}
+                          </div>
+                          <p
+                            className={`text-[11px] text-center leading-tight w-16 ${
+                              pos.isActive ? 'text-olive font-semibold' : 'text-deep-wood/40'
+                            }`}
+                          >
+                            {getName(item)}
+                          </p>
+                        </button>
+                      </motion.div>
+                    </div>
+                  )
+                })}
+              </div>
+
+              {/* Content panel */}
+              <AnimatePresence mode="wait">
+                <motion.div
+                  key={active}
+                  initial={{ opacity: 0, y: 18 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -18 }}
+                  transition={{ duration: 0.32, ease: 'easeOut' }}
+                  className="max-w-xl mx-auto text-center mt-10"
+                >
+                  <h3 className="font-serif text-2xl sm:text-3xl text-deep-wood mb-3">{getName(current)}</h3>
+                  <p className="text-deep-wood/55 text-sm sm:text-base leading-relaxed mb-7">{getDesc(current)}</p>
+                  <Link
+                    href={`/activities/${current.slug}`}
+                    className="inline-block bg-deep-wood text-white text-xs tracking-widest px-8 py-3.5 hover:bg-olive transition-colors duration-200"
+                  >
+                    {t.acts.viewMore} →
+                  </Link>
+                </motion.div>
+              </AnimatePresence>
+
+              {/* Dot navigation */}
+              <div className="flex justify-center gap-2 mt-10">
+                {items.map((_, i) => (
+                  <button
+                    key={i}
+                    onClick={() => goTo(i)}
+                    aria-label={`Item ${i + 1}`}
+                    className={`rounded-full transition-all duration-300 ${
+                      i === active ? 'bg-olive w-5 h-1.5' : 'bg-deep-wood/20 w-1.5 h-1.5'
+                    }`}
+                  />
+                ))}
+              </div>
+            </motion.div>
+          ) : (
+            <motion.div
+              key="guide"
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -12 }}
+              transition={{ duration: 0.25 }}
+            >
+              <LocalGuide />
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
     </section>
   )

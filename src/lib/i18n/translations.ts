@@ -63,6 +63,7 @@ export interface Translations {
   footer: {
     tagline: string; contact: string; booking: string
     direct: string; apartments: string; hiking: string; activities: string; checkin: string
+    address: string
   }
   modal: {
     badge: string; title: string; members: string; direct: string
@@ -114,7 +115,7 @@ export const translations: Record<Lang, Translations> = {
       eyebrow: 'Πεζοπορία', title: 'Μονοπάτια Νότιου Πηλίου',
       desc: 'Εξερευνήστε τα ιστορικά μονοπάτια της χερσονήσου, από παράκτιες διαδρομές έως κορυφογραμμές με θέα δύο θαλασσών',
       distance: 'Απόσταση', time: 'Χρόνος', elevation: 'Υψόμ.', start: 'Εκκίνηση',
-      footer: 'Πάντα ρωτήστε στην υποδοχή για τελευταία ενημέρωση σχετικά με τις συνθήκες των μονοπατιών',
+      footer: 'Οι πληροφορίες παρέχονται για ενημερωτικούς σκοπούς. Η τελευταία ενημέρωση σχετικά με τις συνθήκες των μονοπατιών δεν είναι σε καμία περίπτωση αρμοδιότητά μας και δεν είμαστε σε θέση να πιστοποιήσουμε την εγκυρότητά τους. Οι πληροφορίες παρέχονται από τους «Φίλους των Μονοπατιών».',
     },
     emergency: {
       eyebrow: 'Χρήσιμες Πληροφορίες', title: 'Αριθμοί Έκτακτης Ανάγκης',
@@ -134,6 +135,7 @@ export const translations: Record<Lang, Translations> = {
       contact: 'Επικοινωνία', booking: 'Κράτηση', direct: 'Άμεση Κράτηση',
       apartments: 'Τα Καταλύματα', hiking: 'Πεζοπορία', activities: 'Δραστηριότητες',
       checkin: 'Check-in: 14:00 · Check-out: 11:00',
+      address: 'Χόρτο, Πήλιο 37006',
     },
     emergencyLabels: {
       national: 'Εθνική Ανάγκη', local: 'Τοπικά', useful: 'Χρήσιμα',
@@ -210,7 +212,7 @@ export const translations: Record<Lang, Translations> = {
       eyebrow: 'Hiking', title: 'Trails of South Pelion',
       desc: 'Explore the historic paths of the peninsula, from coastal routes to ridgelines with views of two seas',
       distance: 'Distance', time: 'Time', elevation: 'Elevation', start: 'Start',
-      footer: 'Always ask at reception for the latest update on trail conditions',
+      footer: 'Information is provided for informational purposes. We are not responsible for trail conditions and cannot verify their accuracy. Information is provided by the "Friends of the Trails".',
     },
     emergency: {
       eyebrow: 'Useful Information', title: 'Emergency Numbers',
@@ -230,6 +232,7 @@ export const translations: Record<Lang, Translations> = {
       contact: 'Contact', booking: 'Booking', direct: 'Direct Booking',
       apartments: 'Our Rooms', hiking: 'Hiking', activities: 'Activities',
       checkin: 'Check-in: 14:00 · Check-out: 11:00',
+      address: 'Horto, Pelion 37006',
     },
     emergencyLabels: {
       national: 'National Emergency', local: 'Local', useful: 'Useful',
@@ -306,7 +309,7 @@ export const translations: Record<Lang, Translations> = {
       eyebrow: 'Wandern', title: 'Wanderwege in Süd-Pelion',
       desc: 'Erkunden Sie die historischen Wege der Halbinsel, von Küstenrouten bis zu Bergrücken mit Blick auf zwei Meere',
       distance: 'Distanz', time: 'Zeit', elevation: 'Höhe', start: 'Start',
-      footer: 'Fragen Sie immer an der Rezeption nach den aktuellen Wegbedingungen',
+      footer: 'Die Informationen dienen nur zu Informationszwecken. Für die Wegbedingungen sind wir nicht verantwortlich und können deren Richtigkeit nicht bestätigen. Die Informationen werden von den „Freunden der Wege" bereitgestellt.',
     },
     emergency: {
       eyebrow: 'Nützliche Informationen', title: 'Notrufnummern',
@@ -326,6 +329,7 @@ export const translations: Record<Lang, Translations> = {
       contact: 'Kontakt', booking: 'Buchung', direct: 'Direktbuchung',
       apartments: 'Zimmer', hiking: 'Wandern', activities: 'Aktivitäten',
       checkin: 'Check-in: 14:00 · Check-out: 11:00',
+      address: 'Horto, Pelion 37006',
     },
     emergencyLabels: {
       national: 'Nationale Notfälle', local: 'Lokal', useful: 'Nützlich',
@@ -402,7 +406,7 @@ export const translations: Record<Lang, Translations> = {
       eyebrow: 'Randonnée', title: 'Sentiers du Pélion Sud',
       desc: 'Explorez les chemins historiques de la péninsule, des itinéraires côtiers aux crêtes avec vue sur deux mers',
       distance: 'Distance', time: 'Durée', elevation: 'Altitude', start: 'Départ',
-      footer: 'Demandez toujours à la réception la dernière mise à jour sur les conditions des sentiers',
+      footer: "Les informations sont fournies à titre informatif. Nous ne sommes pas responsables des conditions des sentiers et ne pouvons en vérifier l'exactitude. Les informations sont fournies par les « Amis des Sentiers ».",
     },
     emergency: {
       eyebrow: 'Informations utiles', title: "Numéros d'urgence",
@@ -422,6 +426,7 @@ export const translations: Record<Lang, Translations> = {
       contact: 'Contact', booking: 'Réservation', direct: 'Réservation directe',
       apartments: 'Logements', hiking: 'Randonnée', activities: 'Activités',
       checkin: 'Arrivée: 14h00 · Départ: 11h00',
+      address: 'Horto, Pélion 37006',
     },
     emergencyLabels: {
       national: 'Urgence Nationale', local: 'Local', useful: 'Utile',

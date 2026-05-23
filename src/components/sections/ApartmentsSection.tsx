@@ -81,7 +81,7 @@ export default function ApartmentsSection({ apartments }: { apartments: Apartmen
     <section id="apartments" className="py-24 bg-cream">
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
         <div className="text-center mb-16">
-          <p className="text-xs tracking-widest uppercase text-olive mb-3">{t.apts.eyebrow}</p>
+          <p className="text-xs tracking-widest text-olive mb-3">{t.apts.eyebrow}</p>
           <h2 className="font-serif text-4xl sm:text-5xl text-deep-wood mb-4">{t.apts.title}</h2>
           <p className="text-deep-wood/50 text-sm max-w-md mx-auto">{t.apts.desc}</p>
         </div>

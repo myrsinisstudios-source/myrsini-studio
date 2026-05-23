@@ -17,7 +17,7 @@ export default function Footer() {
 
   const phone   = settings?.phone         ?? '+30 694 457 1280'
   const email   = settings?.email         ?? 'myrsinisstudios@gmail.com'
-  const address = settings?.address       ?? 'Χόρτο, Πήλιο 37006'
+  const address = settings?.address       ?? t.footer.address
   const ciTime  = settings?.checkin_time  ?? '14:00'
   const coTime  = settings?.checkout_time ?? '11:00'
   const waPhone = phone.replace(/\D/g, '')
@@ -32,11 +32,11 @@ export default function Footer() {
             <p className="text-white/50 text-sm leading-relaxed max-w-xs">{t.footer.tagline}</p>
             <div className="flex items-center gap-3 mt-6">
               <a href={`https://wa.me/${waPhone}`} target="_blank" rel="noopener noreferrer"
-                className="flex items-center gap-2 bg-[#25D366] text-white px-4 py-2 text-xs tracking-wider hover:bg-[#1ebe5d] transition-colors min-h-[44px]">
+                className="inline-flex items-center gap-2 bg-[#25D366] text-white px-4 py-2 text-xs tracking-wider hover:bg-[#1ebe5d] transition-colors min-h-[44px]">
                 <span>WhatsApp</span>
               </a>
               <a href={`mailto:${email}`}
-                className="flex items-center gap-2 border border-white/20 text-white/70 px-4 py-2 text-xs tracking-wider hover:border-white/50 hover:text-white transition-colors min-h-[44px]">
+                className="inline-flex items-center gap-2 border border-white/20 text-white/70 px-4 py-2 text-xs tracking-wider hover:border-white/50 hover:text-white transition-colors min-h-[44px]">
                 Email
               </a>
             </div>
@@ -46,10 +46,11 @@ export default function Footer() {
           <div>
             <h4 className="text-white/50 text-xs tracking-widest uppercase mb-5">{t.footer.contact}</h4>
             <div className="space-y-3 text-sm text-white/60">
-              <a href={`tel:${phone.replace(/\s/g, '')}`} className="flex items-center gap-2 hover:text-white transition-colors">
+              <a href={`tel:${phone.replace(/\s/g, '')}`} className="inline-flex items-center gap-2 hover:text-white transition-colors">
                 <span>📞</span> {phone}
               </a>
-              <a href={`mailto:${email}`} className="flex items-center gap-2 hover:text-white transition-colors">
+              <br />
+              <a href={`mailto:${email}`} className="inline-flex items-center gap-2 hover:text-white transition-colors">
                 <span>✉️</span> {email}
               </a>
               <p className="flex items-center gap-2">
@@ -64,7 +65,7 @@ export default function Footer() {
 
         {/* Bottom bar */}
         <div className="pt-8 border-t border-white/10 text-white/30 text-xs">
-          <span>© {new Date().getFullYear()} Myrsini&apos;s Studios · Χόρτο Πηλίου, Ελλάδα</span>
+          <span>© {new Date().getFullYear()} Myrsini&apos;s Studios · {address}</span>
         </div>
       </div>
     </footer>

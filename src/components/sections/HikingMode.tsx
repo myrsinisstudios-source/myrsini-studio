@@ -9,6 +9,10 @@ type Trail = {
   start_point: string; start_point_en?: string; start_point_de?: string; start_point_fr?: string
   description: string; description_en?: string; description_de?: string; description_fr?: string
   tags: string[]; icon?: string
+  gpx_url?: string
+  start_lat?: number; start_lng?: number
+  end_lat?: number; end_lng?: number
+  elevation_gain?: number
 }
 
 const DIFFICULTY_STYLE: Record<string, string> = {
@@ -82,7 +86,7 @@ export default function HikingMode() {
     <section id="hiking" className="py-24 bg-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
         <div className="text-center mb-16">
-          <p className="text-xs tracking-widest uppercase text-olive mb-3">{h.eyebrow}</p>
+          <p className="text-xs tracking-widest text-olive mb-3">{h.eyebrow}</p>
           <h2 className="font-serif text-4xl sm:text-5xl text-deep-wood mb-4">{h.title}</h2>
           <p className="text-deep-wood/50 text-sm max-w-lg mx-auto">{h.desc}</p>
         </div>
@@ -120,21 +124,36 @@ export default function HikingMode() {
                       </div>
                     )}
 
-                    <div className="grid grid-cols-4 gap-2 mb-4">
+                    <div className={`grid gap-2 mb-4 ${trail.elevation_gain ? 'grid-cols-5' : 'grid-cols-4'}`}>
                       <div className={STAT}><span className="text-lg mb-1">📏</span><span className="text-sm font-semibold text-deep-wood">{trail.distance}</span><span className="text-xs text-deep-wood/40 mt-0.5">{h.distance}</span></div>
                       <div className={STAT}><span className="text-lg mb-1">⏱</span><span className="text-sm font-semibold text-deep-wood">{trail.duration}</span><span className="text-xs text-deep-wood/40 mt-0.5">{h.time}</span></div>
                       <div className={STAT}><span className="text-lg mb-1">🔺</span><span className="text-sm font-semibold text-deep-wood">{trail.elevation}</span><span className="text-xs text-deep-wood/40 mt-0.5">{h.elevation}</span></div>
+                      {trail.elevation_gain && (
+                        <div className={STAT}><span className="text-lg mb-1">⬆️</span><span className="text-sm font-semibold text-deep-wood">+{trail.elevation_gain}m</span><span className="text-xs text-deep-wood/40 mt-0.5">Κέρδος</span></div>
+                      )}
                       <div className={STAT}><span className="text-lg mb-1">📍</span><span className="text-xs font-semibold text-deep-wood text-center leading-tight">{trailField(trail, 'start_point')}</span><span className="text-xs text-deep-wood/40 mt-0.5">{h.start}</span></div>
                     </div>
-                    <a
-                      href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(trail.start_point + ', Πήλιο, Ελλάδα')}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center gap-2 text-xs text-olive border border-olive/40 px-4 py-2 hover:bg-olive hover:text-white transition-colors"
-                    >
-                      <span>📍</span>
-                      <span>{h.start} — Google Maps</span>
-                    </a>
+                    <div className="flex flex-wrap gap-2">
+                      <a
+                        href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(trail.start_point + ', Πήλιο, Ελλάδα')}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-2 text-xs text-olive border border-olive/40 px-4 py-2 hover:bg-olive hover:text-white transition-colors"
+                      >
+                        <span>📍</span>
+                        <span>{h.start} — Google Maps</span>
+                      </a>
+                      {trail.gpx_url && (
+                        <a
+                          href={trail.gpx_url}
+                          download
+                          className="inline-flex items-center gap-2 text-xs text-deep-wood/60 border border-deep-wood/20 px-4 py-2 hover:bg-deep-wood hover:text-white transition-colors"
+                        >
+                          <span>📎</span>
+                          <span>GPX</span>
+                        </a>
+                      )}
+                    </div>
                   </div>
                 </div>
               </div>

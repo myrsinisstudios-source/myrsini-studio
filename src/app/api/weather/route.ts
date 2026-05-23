@@ -50,7 +50,10 @@ async function fetchSeaTemp(): Promise<number | null> {
 
 export async function GET() {
   const key = process.env.OPENWEATHER_API_KEY
-  if (!key) return NextResponse.json(FALLBACK)
+  if (!key) {
+    const seaTemp = await fetchSeaTemp()
+    return NextResponse.json({ ...FALLBACK, seaTemp })
+  }
 
   try {
     const base   = `https://api.openweathermap.org/data/2.5`
