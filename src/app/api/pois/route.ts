@@ -76,10 +76,25 @@ async function fetchOverpass(): Promise<Response | null> {
   return null
 }
 
+// Static fallback — known venues in Horto / South Pelion
+const STATIC_POIS: POI[] = [
+  { id: 's-1', name: 'Ταβέρνα Κύμα', category: 'restaurant', lat: 39.1010, lon: 23.3735, opening_hours: 'Mo-Su 12:00-24:00' },
+  { id: 's-2', name: 'Καφενείο Χόρτου', category: 'cafe', lat: 39.1005, lon: 23.3728 },
+  { id: 's-3', name: 'Ταβέρνα Η Αυλή', category: 'restaurant', lat: 39.0950, lon: 23.3620 },
+  { id: 's-4', name: 'Café Μηλίνα', category: 'cafe', lat: 39.0905, lon: 23.3520 },
+  { id: 's-5', name: 'Παραλία Χόρτου', category: 'beach', lat: 39.1015, lon: 23.3740 },
+  { id: 's-6', name: 'Παραλία Μαραθιάς', category: 'beach', lat: 39.0870, lon: 23.3490 },
+  { id: 's-7', name: 'Παραλία Μηλίνας', category: 'beach', lat: 39.0900, lon: 23.3510 },
+  { id: 's-8', name: 'Σούπερ Μάρκετ Χόρτο', category: 'supermarket', lat: 39.1008, lon: 23.3722 },
+  { id: 's-9', name: 'Θέα Παγασητικού', category: 'viewpoint', lat: 39.1050, lon: 23.3680 },
+  { id: 's-10', name: 'Ταβέρνα Αργαλαστή', category: 'restaurant', lat: 39.1540, lon: 23.2150 },
+  { id: 's-11', name: 'Bar Horto', category: 'bar', lat: 39.1012, lon: 23.3730 },
+]
+
 export async function GET() {
   try {
     const res = await fetchOverpass()
-    if (!res) return NextResponse.json({ pois: [] })
+    if (!res) return NextResponse.json({ pois: STATIC_POIS })
 
     const data = await res.json()
     const elements: OSMElement[] = data.elements ?? []
@@ -106,8 +121,8 @@ export async function GET() {
       })
       .filter(Boolean) as POI[]
 
-    return NextResponse.json({ pois })
+    return NextResponse.json({ pois: pois.length > 0 ? pois : STATIC_POIS })
   } catch {
-    return NextResponse.json({ pois: [] })
+    return NextResponse.json({ pois: STATIC_POIS })
   }
 }
