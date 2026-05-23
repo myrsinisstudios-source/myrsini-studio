@@ -94,9 +94,9 @@ export default function AdminMemoriesPage() {
     const payload = {
       image_url: form.image_url,
       title: form.title.trim(),
-      title_en: form.title_en.trim() || null,
-      title_de: form.title_de.trim() || null,
-      title_fr: form.title_fr.trim() || null,
+      title_en: form.title_en.trim(),
+      title_de: form.title_de.trim(),
+      title_fr: form.title_fr.trim(),
       sort_order: form.sort_order || photos.length + 1,
     }
     console.log('[MEMORIES SAVE] payload', payload)
