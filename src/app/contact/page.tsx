@@ -104,11 +104,11 @@ export default function ContactPage() {
               <span>💬</span> WhatsApp
             </a>
 
-            {/* Map embed placeholder */}
+            {/* Map embed */}
             <div className="aspect-video bg-deep-wood/5 border border-deep-wood/10 overflow-hidden">
               <iframe
                 title="Myrsini Studios location"
-                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3101.0!2d23.2678!3d39.1511!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMznCsDA5JzA0LjAiTiAyM8KwMTYnMDQuMCJF!5e0!3m2!1sel!2sgr!4v1"
+                src="https://www.google.com/maps?q=39.1908056,23.2164952&z=16&output=embed"
                 width="100%"
                 height="100%"
                 style={{ border: 0 }}
@@ -116,6 +116,14 @@ export default function ContactPage() {
                 referrerPolicy="no-referrer-when-downgrade"
               />
             </div>
+            <a
+              href="https://maps.app.goo.gl/n1f28Dj7Gxjy4tdP9"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 text-sm text-deep-wood/60 hover:text-deep-wood transition-colors"
+            >
+              <span>🗺️</span> {c.mapBtn}
+            </a>
           </div>
 
           {/* ── Form ── */}

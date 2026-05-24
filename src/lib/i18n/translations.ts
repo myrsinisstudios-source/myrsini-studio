@@ -11,6 +11,7 @@ export interface Translations {
     infoTitle: string; phone: string; emailLabel: string; address: string
     miniTitle: string; miniPlaceholder: string; miniBtn: string
     inquiryTitle: string; inquiryBtn: string
+    mapBtn: string
   }
   hero: {
     badge: string; title1: string; title2: string
@@ -96,6 +97,7 @@ export const translations: Record<Lang, Translations> = {
       phone: 'Τηλέφωνο', emailLabel: 'Email', address: 'Διεύθυνση',
       miniTitle: 'Γρήγορο Μήνυμα', miniPlaceholder: 'Γράψτε μήνυμα...', miniBtn: 'Αποστολή',
       inquiryTitle: 'Ερώτηση για αυτό το κατάλυμα', inquiryBtn: 'Στείλτε Ερώτηση',
+      mapBtn: 'Άνοιγμα στο Google Maps',
     },
     hero: {
       badge: '🌿 Χόρτο · Νότιο Πήλιο · Ελλάδα', title1: "Myrsini's", title2: 'Studios',
@@ -206,6 +208,7 @@ export const translations: Record<Lang, Translations> = {
       phone: 'Phone', emailLabel: 'Email', address: 'Address',
       miniTitle: 'Quick Message', miniPlaceholder: 'Write a message...', miniBtn: 'Send',
       inquiryTitle: 'Enquire about this accommodation', inquiryBtn: 'Send Enquiry',
+      mapBtn: 'Open in Google Maps',
     },
     hero: {
       badge: '🌿 Horto · South Pelion · Greece', title1: "Myrsini's", title2: 'Studios',
@@ -314,6 +317,7 @@ export const translations: Record<Lang, Translations> = {
       phone: 'Telefon', emailLabel: 'E-Mail', address: 'Adresse',
       miniTitle: 'Schnelle Nachricht', miniPlaceholder: 'Nachricht schreiben...', miniBtn: 'Senden',
       inquiryTitle: 'Anfrage zu dieser Unterkunft', inquiryBtn: 'Anfrage senden',
+      mapBtn: 'In Google Maps öffnen',
     },
     hero: {
       badge: '🌿 Chorto · Süd-Pelion · Griechenland', title1: "Myrsini's", title2: 'Studios',
@@ -422,6 +426,7 @@ export const translations: Record<Lang, Translations> = {
       phone: 'Téléphone', emailLabel: 'E-mail', address: 'Adresse',
       miniTitle: 'Message rapide', miniPlaceholder: 'Écrire un message...', miniBtn: 'Envoyer',
       inquiryTitle: 'Renseignements sur cet hébergement', inquiryBtn: 'Envoyer la demande',
+      mapBtn: 'Ouvrir dans Google Maps',
     },
     hero: {
       badge: '🌿 Horto · Pelion Sud · Grèce', title1: "Myrsini's", title2: 'Studios',

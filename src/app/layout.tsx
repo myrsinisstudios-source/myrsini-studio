@@ -53,7 +53,7 @@ const jsonLd = {
     postalCode: '37010',
     addressCountry: 'GR',
   },
-  geo: { '@type': 'GeoCoordinates', latitude: 39.1511, longitude: 23.2678 },
+  geo: { '@type': 'GeoCoordinates', latitude: 39.1908056, longitude: 23.2164952 },
   priceRange: '€€',
   checkinTime: '14:00',
   checkoutTime: '11:00',
