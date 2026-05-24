@@ -25,13 +25,38 @@ type DayForecast = {
 type WeatherData = {
   ok: boolean
   temp: number; humidity: number; wind: number; description: string; icon: string
+  main: string
   forecast: DayForecast[]
   seaTemp: number | null
 }
 
 const INITIAL_WEATHER: WeatherData = {
   ok: false, temp: 0, humidity: 0, wind: 0, description: '', icon: '01d',
+  main: '',
   forecast: [], seaTemp: null,
+}
+
+// OpenWeather `weather[0].main` values (always English) → multilingual labels
+const CONDITION_MAP: Record<string, Record<string, string>> = {
+  Clear:        { el: 'Αίθριος',          en: 'Clear Sky',        de: 'Klarer Himmel',      fr: 'Ciel dégagé'         },
+  Clouds:       { el: 'Συννεφιά',         en: 'Cloudy',           de: 'Bewölkt',            fr: 'Nuageux'             },
+  Rain:         { el: 'Βροχή',            en: 'Rain',             de: 'Regen',              fr: 'Pluie'               },
+  Drizzle:      { el: 'Ψιλόβροχο',        en: 'Drizzle',          de: 'Nieselregen',        fr: 'Bruine'              },
+  Thunderstorm: { el: 'Καταιγίδα',        en: 'Thunderstorm',     de: 'Gewitter',           fr: 'Orage'               },
+  Snow:         { el: 'Χιονόπτωση',       en: 'Snow',             de: 'Schnee',             fr: 'Neige'               },
+  Mist:         { el: 'Ομίχλη',           en: 'Mist',             de: 'Nebel',              fr: 'Brume'               },
+  Fog:          { el: 'Πυκνή Ομίχλη',     en: 'Fog',              de: 'Dichter Nebel',      fr: 'Brouillard'          },
+  Haze:         { el: 'Αχλύς',            en: 'Haze',             de: 'Dunst',              fr: 'Brume sèche'         },
+  Smoke:        { el: 'Καπνός',           en: 'Smoke',            de: 'Rauch',              fr: 'Fumée'               },
+  Dust:         { el: 'Σκόνη',            en: 'Dust',             de: 'Staub',              fr: 'Poussière'           },
+  Sand:         { el: 'Άμμος',            en: 'Sand',             de: 'Sand',               fr: 'Sable'               },
+  Ash:          { el: 'Τέφρα',            en: 'Volcanic Ash',     de: 'Vulkanasche',        fr: 'Cendres volcaniques' },
+  Squall:       { el: 'Ανεμοθύελλα',      en: 'Squall',           de: 'Böe',                fr: 'Grain'               },
+  Tornado:      { el: 'Ανεμοστρόβιλος',   en: 'Tornado',          de: 'Tornado',            fr: 'Tornade'             },
+}
+
+function getCondition(main: string, lang: string): string {
+  return CONDITION_MAP[main]?.[lang] ?? CONDITION_MAP[main]?.['el'] ?? main
 }
 
 const TRAVEL_BASE = [
@@ -131,7 +156,7 @@ export default function WeatherWidget({ settings }: { settings?: SiteSettings | 
                   <p className="text-white text-3xl font-light leading-none mb-1">
                     {weather.ok ? `${weather.temp}°` : '—'}
                   </p>
-                  <p className="text-white/50 text-xs mt-2">{w.temp}</p>
+                  <p className="text-white/50 text-xs mt-2">🌡️ {w.temp}</p>
                 </div>
 
                 {/* Sea temperature */}
@@ -148,16 +173,16 @@ export default function WeatherWidget({ settings }: { settings?: SiteSettings | 
                     {weather.ok ? weather.wind : '—'}
                     {weather.ok && <span className="text-lg"> km/h</span>}
                   </p>
-                  <p className="text-white/50 text-xs mt-2">{w.wind}</p>
+                  <p className="text-white/50 text-xs mt-2">💨 {w.wind}</p>
                 </div>
 
               </div>
 
-              {/* Weather description strip */}
-              {(weather.ok && weather.description) && (
+              {/* Weather description strip — translated via CONDITION_MAP */}
+              {weather.ok && weather.main && (
                 <div className="border-t border-white/10 px-4 py-2 text-center">
-                  <p className="text-white/50 text-xs capitalize">
-                    {weatherEmoji(weather.icon)} {weather.description}
+                  <p className="text-white/50 text-xs">
+                    {weatherEmoji(weather.icon)} {getCondition(weather.main, lang)}
                   </p>
                 </div>
               )}

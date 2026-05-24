@@ -100,6 +100,7 @@ export async function GET() {
       humidity: current.main.humidity as number,
       wind: Math.round((current.wind.speed as number) * 3.6),
       description: current.weather[0].description as string,
+      main: current.weather[0].main as string,
       icon: current.weather[0].icon as string,
       forecast: days,
       seaTemp,
