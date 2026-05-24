@@ -150,7 +150,7 @@ export default function AdminHikingPage() {
       <label className="block text-xs text-gray-500 uppercase tracking-wider mb-1.5">{label}</label>
       <input
         type={type}
-        value={(form as Record<string, string>)[fkey] ?? ''}
+        value={String((form as unknown as Record<string, unknown>)[fkey] ?? '')}
         onChange={e => setForm(p => ({ ...p, [fkey]: e.target.value }))}
         placeholder={placeholder}
         className="w-full border border-gray-300 px-3 py-2.5 text-sm placeholder-gray-400 focus:outline-none focus:border-olive"
@@ -270,7 +270,7 @@ export default function AdminHikingPage() {
           ].map(f => (
             <div key={f.key}>
               <label className="block text-xs text-gray-500 uppercase tracking-wider mb-1.5">{f.label}</label>
-              <textarea value={(form as Record<string, string>)[f.key]}
+              <textarea value={String((form as unknown as Record<string, unknown>)[f.key] ?? '')}
                 onChange={e => setForm(p => ({ ...p, [f.key]: e.target.value }))}
                 rows={3} placeholder="Λεπτομερής περιγραφή..."
                 className="w-full border border-gray-300 px-3 py-2.5 text-sm placeholder-gray-400 focus:outline-none focus:border-olive resize-none" />
