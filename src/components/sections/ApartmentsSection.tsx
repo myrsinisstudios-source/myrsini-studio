@@ -1,8 +1,12 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import Image from 'next/image'
 import { useLanguage } from '@/lib/i18n/LanguageContext'
+import { Swiper, SwiperSlide } from 'swiper/react'
+import { EffectFade, Pagination } from 'swiper/modules'
+import 'swiper/css'
+import 'swiper/css/effect-fade'
+import 'swiper/css/pagination'
 
 interface Apartment {
   id: string
@@ -98,9 +102,6 @@ export default function ApartmentsSection({ apartments }: { apartments: Apartmen
             const desc = firstPara.length > 140 ? firstPara.slice(0, 140) + '…' : firstPara
             const bookingPrice = Math.round(apt.price_per_night * 1.151)
             const sqm = apt.sqm ?? apt.area_sqm ?? 45
-            const mainImage = apt.image_url || apt.images?.[0] || apt.gallery?.[0]
-            const gallery = (apt.gallery ?? []).filter(Boolean) as string[]
-            const hasGallery = gallery.length > 0
             const features = [
               { icon: '👥', label: t.apts.guests,   value: `${apt.max_guests ?? 2}` },
               { icon: '📐', label: t.apts.sqm,       value: `${sqm}m²` },
@@ -108,25 +109,64 @@ export default function ApartmentsSection({ apartments }: { apartments: Apartmen
               { icon: '🚿', label: t.apts.bathrooms, value: `${apt.bathrooms ?? 1}` },
             ]
 
+            // Deduplicated image list: image_url + gallery
+            const rawImages = [
+              apt.image_url,
+              ...(apt.gallery ?? []),
+            ].filter((u): u is string => Boolean(u))
+            const allImages = Array.from(new Set(rawImages))
+
             return (
               <div key={apt.id} className="bg-white shadow-sm hover:shadow-lg transition-shadow duration-300 group">
-                {/* Cover image */}
-                <div className={`${hasGallery ? 'h-44' : 'h-56'} relative overflow-hidden${!mainImage ? ` bg-gradient-to-br ${GRADIENT_BG[i % GRADIENT_BG.length]}` : ''}`}>
-                  {mainImage && (
-                    <Image
-                      src={mainImage}
-                      alt={name}
-                      fill
-                      className="object-cover group-hover:scale-105 transition-transform duration-700"
-                      sizes="(max-width: 768px) 100vw, 50vw"
-                    />
+
+                {/* Swiper gallery with fade effect */}
+                <div className="relative h-56 overflow-hidden">
+                  {allImages.length > 0 ? (
+                    <Swiper
+                      modules={[EffectFade, Pagination]}
+                      effect="fade"
+                      fadeEffect={{ crossFade: true }}
+                      loop={allImages.length > 1}
+                      pagination={allImages.length > 1 ? { clickable: true } : false}
+                      className="h-full w-full"
+                      style={{
+                        '--swiper-pagination-color': 'rgba(255,255,255,0.95)',
+                        '--swiper-pagination-bullet-inactive-color': 'rgba(255,255,255,0.45)',
+                        '--swiper-pagination-bullet-inactive-opacity': '1',
+                        '--swiper-pagination-bottom': '10px',
+                      } as React.CSSProperties}
+                    >
+                      {allImages.map((url, idx) => (
+                        <SwiperSlide key={idx} className="h-full">
+                          <div
+                            className="relative h-full w-full cursor-zoom-in"
+                            onClick={() => setLightbox({ images: allImages, idx })}
+                          >
+                            {/* eslint-disable-next-line @next/next/no-img-element */}
+                            <img
+                              src={url}
+                              alt={name}
+                              className="absolute inset-0 w-full h-full object-cover"
+                              loading={idx === 0 ? 'eager' : 'lazy'}
+                            />
+                            <div className="absolute inset-0 bg-black/30" />
+                          </div>
+                        </SwiperSlide>
+                      ))}
+                    </Swiper>
+                  ) : (
+                    <div className={`h-full w-full bg-gradient-to-br ${GRADIENT_BG[i % GRADIENT_BG.length]}`} />
                   )}
-                  <div className="absolute inset-0 bg-black/30" />
-                  <div className="absolute inset-0 flex items-end p-6">
+
+                  {/* Name overlay — z-20 over Swiper */}
+                  <div className="absolute inset-0 z-20 flex items-end p-6 pointer-events-none">
                     <div>
                       <p className="text-white/60 text-xs tracking-widest mb-1">Myrsini&apos;s Studios</p>
                       {apt.slug ? (
-                        <a href={`/apartments/${apt.slug}`} className="font-serif text-white text-2xl drop-shadow hover:text-white/80 transition-colors">
+                        <a
+                          href={`/apartments/${apt.slug}`}
+                          className="font-serif text-white text-2xl drop-shadow hover:text-white/80 transition-colors pointer-events-auto"
+                        >
                           {name}
                         </a>
                       ) : (
@@ -134,27 +174,13 @@ export default function ApartmentsSection({ apartments }: { apartments: Apartmen
                       )}
                     </div>
                   </div>
-                  <div className="absolute top-4 right-4 bg-white/95 px-3 py-2 text-right shadow-sm">
+
+                  {/* Price badge — z-20 */}
+                  <div className="absolute top-4 right-4 z-20 bg-white/95 px-3 py-2 text-right shadow-sm">
                     <div className="text-olive font-bold text-base">€{apt.price_per_night}<span className="text-xs font-normal">{t.apts.perNight}</span></div>
                     <div className="text-gray-400 text-xs line-through">€{bookingPrice} {t.apts.bookingLabel}</div>
                   </div>
                 </div>
-
-                {/* Gallery thumbnail strip */}
-                {hasGallery && (
-                  <div className="flex gap-1 px-2 py-2 bg-deep-wood/5 border-b border-deep-wood/8 overflow-x-auto">
-                    {gallery.map((url, gi) => (
-                      <button
-                        key={gi}
-                        type="button"
-                        onClick={() => setLightbox({ images: gallery, idx: gi })}
-                        className="shrink-0 w-16 h-11 overflow-hidden opacity-75 hover:opacity-100 transition-opacity border border-deep-wood/10 hover:border-olive/40"
-                      >
-                        <img src={url} alt="" className="w-full h-full object-cover" loading="lazy" />
-                      </button>
-                    ))}
-                  </div>
-                )}
 
                 <div className="p-6">
                   {desc && (

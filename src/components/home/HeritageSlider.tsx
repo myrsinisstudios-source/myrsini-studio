@@ -1,4 +1,5 @@
 import { cookies } from 'next/headers'
+import HeritageSliderClient from './HeritageSliderClient'
 
 const SB_URL = process.env.NEXT_PUBLIC_SUPABASE_URL
 const SB_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
@@ -42,33 +43,12 @@ export default async function HeritageSlider() {
 
   const cookieStore = await cookies()
   const lang = (cookieStore.get('site_lang')?.value as string) || 'el'
-  const items = [...photos, ...photos]
 
-  return (
-    <section className="bg-[#2C1B0E] py-12 overflow-hidden">
-      <p className="text-center text-white/40 text-xs tracking-widest mb-8">Παλιές Αναμνήσεις</p>
-      <div
-        className="flex gap-6"
-        style={{ animation: 'scroll 20s linear infinite', width: 'max-content' }}
-      >
-        {items.map((p, i) => (
-          <div key={i} className="flex-shrink-0 w-56 overflow-hidden border border-white/10">
-            {p.image_url
-              ? <img src={p.image_url} alt={getTitle(p, lang)} className="w-56 h-36 object-cover block" loading="lazy" />
-              : <div className="w-56 h-36 bg-[#3a2a18]" />
-            }
-            <div className="px-3 py-2 bg-[#1e0f07]">
-              <span className="text-white/50 text-xs">{getTitle(p, lang)}</span>
-            </div>
-          </div>
-        ))}
-      </div>
-      <style>{`
-        @keyframes scroll {
-          0%   { transform: translateX(0); }
-          100% { transform: translateX(-50%); }
-        }
-      `}</style>
-    </section>
-  )
+  const clientPhotos = photos.map(p => ({
+    id: p.id,
+    image_url: p.image_url,
+    title: getTitle(p, lang),
+  }))
+
+  return <HeritageSliderClient photos={clientPhotos} />
 }
