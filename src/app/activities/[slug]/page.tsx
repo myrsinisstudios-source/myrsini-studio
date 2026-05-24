@@ -53,7 +53,7 @@ export default async function ActivityPage({ params }: { params: Promise<{ slug:
   if (SB_URL && SB_KEY) {
     try {
       const res = await fetch(
-        `${SB_URL}/rest/v1/activities?select=id,slug,name_el,name_en,name_de,name_fr,icon,image_url,images,description_el,description_en,description_de,description_fr,elevation,difficulty,category,duration,distance,duration_min,distance_km,map_url&slug=eq.${encodeURIComponent(slug)}&limit=1`,
+        `${SB_URL}/rest/v1/activities?select=id,slug,name_el,name_en,name_de,name_fr,icon,image_url,images,description_el,description_en,description_de,description_fr,elevation,difficulty,category,duration,distance,duration_min,distance_km,map_url,gpx_url,wikiloc_url,start_lat,start_lng,end_lat,end_lng&slug=eq.${encodeURIComponent(slug)}&limit=1`,
         { headers: { apikey: SB_KEY, Authorization: `Bearer ${SB_KEY}` }, cache: 'no-store' }
       )
       if (res.ok) {

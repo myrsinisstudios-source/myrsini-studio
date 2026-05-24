@@ -28,6 +28,24 @@ function uploadToCloudinary(file: File, folder: string, onProgress?: (pct: numbe
   })
 }
 
+function uploadGpxFile(file: File, folder: string): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const fd = new FormData()
+    fd.append('file', file)
+    fd.append('upload_preset', UPLOAD_PRESET)
+    fd.append('folder', folder)
+    const xhr = new XMLHttpRequest()
+    xhr.open('POST', `https://api.cloudinary.com/v1_1/${CLOUD_NAME}/raw/upload`)
+    xhr.onload = () => {
+      const data = JSON.parse(xhr.responseText)
+      if (xhr.status >= 200 && xhr.status < 300) resolve(data.secure_url as string)
+      else reject(new Error(data.error?.message || 'Upload failed'))
+    }
+    xhr.onerror = () => reject(new Error('Network error'))
+    xhr.send(fd)
+  })
+}
+
 type Activity = {
   id: string
   slug: string
@@ -47,9 +65,20 @@ type Activity = {
   difficulty: string
   category: string
   sort_order: number
+  gpx_url?: string
+  wikiloc_url?: string
+  start_lat?: number | null
+  start_lng?: number | null
+  end_lat?: number | null
+  end_lng?: number | null
 }
 
-type ActivityForm = Omit<Activity, 'id'>
+type ActivityForm = Omit<Activity, 'id' | 'start_lat' | 'start_lng' | 'end_lat' | 'end_lng'> & {
+  start_lat: string
+  start_lng: string
+  end_lat: string
+  end_lng: string
+}
 
 type SaveStatus = 'idle' | 'saving' | 'saved' | 'error'
 
@@ -57,6 +86,8 @@ const EMPTY: ActivityForm = {
   slug: '', name_el: '', name_en: '', name_de: '', name_fr: '', icon: '🏖️', image_url: '',
   description_el: '', description_en: '', description_de: '', description_fr: '',
   duration: '', distance: '', elevation: '', difficulty: '', category: '', sort_order: 0,
+  gpx_url: '', wikiloc_url: '',
+  start_lat: '39.295', start_lng: '23.124', end_lat: '', end_lng: '',
 }
 
 const slugify = (s: string) =>
@@ -141,6 +172,9 @@ export default function ActivitiesManager() {
   const [uploadProgress, setUploadProgress] = useState(0)
   const [uploadError, setUploadError] = useState('')
   const imgInputRef = useRef<HTMLInputElement>(null)
+  const [gpxUploading, setGpxUploading] = useState(false)
+  const [gpxError, setGpxError] = useState('')
+  const gpxInputRef = useRef<HTMLInputElement>(null)
 
   const load = async () => {
     const { data } = await supabase.from('activities').select('*').order('sort_order')
@@ -156,9 +190,9 @@ export default function ActivitiesManager() {
     setForm(p => ({ ...p, name_el: val, slug: editId ? p.slug : slugify(val) }))
 
   // Auto-save individual field on blur (only in edit mode, only known DB columns)
-  const autoSaveField = async (key: string, value: string | number) => {
+  const autoSaveField = async (key: string, value: string | number | null) => {
     if (!editId) return
-    fieldLastAttempt.current[key] = String(value)
+    fieldLastAttempt.current[key] = value != null ? String(value) : ''
     setFieldStatus(prev => ({ ...prev, [key]: 'saving' }))
     setFieldErrors(prev => ({ ...prev, [key]: '' }))
     const { error: err } = await supabase.from('activities').update({ [key]: value }).eq('id', editId)
@@ -174,12 +208,19 @@ export default function ActivitiesManager() {
 
   const DB_COLS = new Set(['slug','name_el','name_en','name_de','name_fr','icon','image_url','images',
     'description_el','description_en','description_de','description_fr',
-    'duration','distance','elevation','difficulty','category','sort_order'])
+    'duration','distance','elevation','difficulty','category','sort_order',
+    'gpx_url','wikiloc_url','start_lat','start_lng','end_lat','end_lng'])
 
   const toDbPayload = (f: ActivityForm): Record<string, unknown> => {
     const payload: Record<string, unknown> = {}
+    const coordKeys = new Set(['start_lat','start_lng','end_lat','end_lng'])
     for (const [k, v] of Object.entries(f)) {
-      if (DB_COLS.has(k)) payload[k] = v
+      if (!DB_COLS.has(k)) continue
+      if (coordKeys.has(k)) {
+        payload[k] = v !== '' ? parseFloat(v as string) : null
+      } else {
+        payload[k] = v
+      }
     }
     return payload
   }
@@ -212,6 +253,11 @@ export default function ActivitiesManager() {
       description_de: a.description_de ?? '', description_fr: a.description_fr ?? '',
       duration: a.duration ?? '', distance: a.distance ?? '', elevation: a.elevation ?? '',
       difficulty: a.difficulty ?? '', category: a.category ?? '', sort_order: a.sort_order ?? 0,
+      gpx_url: a.gpx_url ?? '', wikiloc_url: a.wikiloc_url ?? '',
+      start_lat: a.start_lat != null ? String(a.start_lat) : '39.295',
+      start_lng: a.start_lng != null ? String(a.start_lng) : '23.124',
+      end_lat: a.end_lat != null ? String(a.end_lat) : '',
+      end_lng: a.end_lng != null ? String(a.end_lng) : '',
     })
     setFieldStatus({}); setFieldErrors({}); setSaveStatus('idle'); setSaveError('')
     setShowForm(true)
@@ -243,6 +289,19 @@ export default function ActivitiesManager() {
     } catch (e: unknown) {
       setUploadError(e instanceof Error ? e.message : 'Upload failed')
     } finally { setUploading(false) }
+  }
+
+  const handleGpxFile = async (file: File) => {
+    if (!file.name.endsWith('.gpx') && !file.name.endsWith('.kml')) { setGpxError('Μόνο .gpx/.kml αρχεία'); return }
+    setGpxError(''); setGpxUploading(true)
+    try {
+      const folder = `myrsini-studios/activities/${form.slug || 'activity'}/gpx`
+      const url = await uploadGpxFile(file, folder)
+      setField('gpx_url', url)
+      if (editId) await autoSaveField('gpx_url', url)
+    } catch (e: unknown) {
+      setGpxError(e instanceof Error ? e.message : 'Upload failed')
+    } finally { setGpxUploading(false) }
   }
 
   // Field input with auto-save on blur
@@ -395,6 +454,79 @@ export default function ActivitiesManager() {
             <TextArea fkey="description_en" label="Description (EN)" placeholder="Description..." rows={3} />
             <TextArea fkey="description_de" label="Beschreibung (DE)" placeholder="Beschreibung..." rows={3} />
             <TextArea fkey="description_fr" label="Description (FR)" placeholder="Description..." rows={3} />
+
+            {/* ── Χάρτης & Διαδρομή — only for hiking ── */}
+            {form.category === 'hiking' && (
+              <div className="border-t pt-4 space-y-3" style={{ borderColor: '#E8E0D0' }}>
+                <p className="text-xs font-semibold uppercase tracking-wider" style={{ color: '#8B7355' }}>
+                  🗺️ Χάρτης & Διαδρομή
+                </p>
+
+                {/* GPX upload */}
+                <div>
+                  <label className="block text-[10px] uppercase tracking-wider mb-1.5 font-medium" style={{ color: '#8B7355' }}>GPX / KML Αρχείο</label>
+                  {form.gpx_url ? (
+                    <div className="flex items-center gap-2 p-2 bg-green-50 border border-green-200 text-xs text-green-700 rounded-lg">
+                      <span>✓</span>
+                      <span className="flex-1 truncate">{(form.gpx_url as string).split('/').pop()}</span>
+                      <button type="button" onClick={() => { setField('gpx_url', ''); if (editId) autoSaveField('gpx_url', '') }} className="text-red-400 hover:text-red-600">✕</button>
+                    </div>
+                  ) : (
+                    <div onClick={() => gpxInputRef.current?.click()}
+                      className="border-2 border-dashed cursor-pointer flex flex-col items-center justify-center h-14 gap-1 border-gray-200 hover:border-olive/40 rounded-lg transition-colors">
+                      {gpxUploading
+                        ? <p className="text-xs text-gray-400">Uploading...</p>
+                        : <><span className="text-lg">📍</span><p className="text-xs text-gray-400">Upload .gpx / .kml</p></>
+                      }
+                    </div>
+                  )}
+                  <input ref={gpxInputRef} type="file" accept=".gpx,.kml" className="hidden"
+                    onChange={e => { const f = e.target.files?.[0]; if (f) handleGpxFile(f); e.target.value = '' }} />
+                  <input value={form.gpx_url as string}
+                    onChange={e => setField('gpx_url', e.target.value)}
+                    onBlur={e => autoSaveField('gpx_url', e.target.value)}
+                    placeholder="ή paste URL"
+                    className="w-full mt-1 px-3 py-1.5 text-xs focus:outline-none rounded-lg"
+                    style={{ border: '1px solid #D5CCBB', background: '#FAFAF8', color: '#2C1B0E' }} />
+                  {gpxError && <p className="text-[10px] text-red-500 mt-0.5">{gpxError}</p>}
+                </div>
+
+                {/* Wikiloc */}
+                <Field fkey="wikiloc_url" label="Wikiloc URL" placeholder="https://www.wikiloc.com/..." />
+
+                {/* Start coords */}
+                <div>
+                  <p className="text-[10px] uppercase tracking-wider mb-1.5 font-medium" style={{ color: '#8B7355' }}>Συντεταγμένες Εκκίνησης</p>
+                  <div className="grid grid-cols-2 gap-2">
+                    {(['start_lat','start_lng'] as const).map((k, i) => (
+                      <input key={k} type="number" step="any"
+                        value={form[k] as string}
+                        placeholder={i === 0 ? 'Lat 39.295' : 'Lng 23.124'}
+                        onChange={e => setForm(p => ({ ...p, [k]: e.target.value }))}
+                        onBlur={e => autoSaveField(k, e.target.value ? parseFloat(e.target.value) : null)}
+                        className="w-full px-3 py-2 text-sm focus:outline-none rounded-lg"
+                        style={{ border: '1px solid #D5CCBB', background: '#FAFAF8', color: '#2C1B0E' }} />
+                    ))}
+                  </div>
+                </div>
+
+                {/* End coords */}
+                <div>
+                  <p className="text-[10px] uppercase tracking-wider mb-1.5 font-medium" style={{ color: '#8B7355' }}>Συντεταγμένες Τέλους</p>
+                  <div className="grid grid-cols-2 gap-2">
+                    {(['end_lat','end_lng'] as const).map((k, i) => (
+                      <input key={k} type="number" step="any"
+                        value={form[k] as string}
+                        placeholder={i === 0 ? 'Lat' : 'Lng'}
+                        onChange={e => setForm(p => ({ ...p, [k]: e.target.value }))}
+                        onBlur={e => autoSaveField(k, e.target.value ? parseFloat(e.target.value) : null)}
+                        className="w-full px-3 py-2 text-sm focus:outline-none rounded-lg"
+                        style={{ border: '1px solid #D5CCBB', background: '#FAFAF8', color: '#2C1B0E' }} />
+                    ))}
+                  </div>
+                </div>
+              </div>
+            )}
 
             {saveError && (
               <div className="p-2 bg-red-50 border border-red-200 text-xs text-red-600">

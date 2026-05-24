@@ -1,10 +1,13 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import dynamic from 'next/dynamic'
 import Link from 'next/link'
 import Image from 'next/image'
 import ReactMarkdown from 'react-markdown'
 import { useLanguage } from '@/lib/i18n/LanguageContext'
+
+const TrailMap = dynamic(() => import('@/components/ui/TrailMap'), { ssr: false })
 
 export type ActivityData = {
   id: string
@@ -28,6 +31,12 @@ export type ActivityData = {
   map_url?: string | null
   duration_min?: number | null
   distance_km?: number | null
+  gpx_url?: string | null
+  wikiloc_url?: string | null
+  start_lat?: number | null
+  start_lng?: number | null
+  end_lat?: number | null
+  end_lng?: number | null
 }
 
 type Lightbox = { images: string[]; idx: number }
@@ -176,6 +185,29 @@ export default function ActivityContent({ activity }: { activity: ActivityData }
                   {lang === 'el' ? 'Περιγραφή' : lang === 'de' ? 'Beschreibung' : lang === 'fr' ? 'Description' : 'Description'}
                 </p>
                 <DescriptionBlock text={desc} />
+              </div>
+            )}
+
+            {/* Trail map — hiking activities */}
+            {(activity.gpx_url || (activity.start_lat && activity.start_lng)) && (
+              <div id="trail-map">
+                <p className="text-xs text-olive tracking-widest mb-4 pb-3 border-b border-deep-wood/10">
+                  {lang === 'el' ? 'Χάρτης Διαδρομής' : lang === 'de' ? 'Streckenkarte' : lang === 'fr' ? 'Carte du Parcours' : 'Trail Map'}
+                </p>
+                <TrailMap
+                  gpxUrl={activity.gpx_url ?? undefined}
+                  startLat={activity.start_lat ?? undefined}
+                  startLng={activity.start_lng ?? undefined}
+                  endLat={activity.end_lat ?? undefined}
+                  endLng={activity.end_lng ?? undefined}
+                  height={300}
+                />
+                {activity.wikiloc_url && (
+                  <a href={activity.wikiloc_url} target="_blank" rel="noopener noreferrer"
+                    className="mt-3 inline-flex items-center gap-2 text-xs text-deep-wood/50 border border-deep-wood/20 px-4 py-2 hover:bg-deep-wood hover:text-white transition-colors">
+                    <span>🌐</span> Wikiloc
+                  </a>
+                )}
               </div>
             )}
 

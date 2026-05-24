@@ -1,7 +1,10 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import dynamic from 'next/dynamic'
 import { useLanguage } from '@/lib/i18n/LanguageContext'
+
+const TrailMap = dynamic(() => import('@/components/ui/TrailMap'), { ssr: false })
 
 type Trail = {
   id: string; name: string; name_en?: string; name_de?: string; name_fr?: string
@@ -10,6 +13,7 @@ type Trail = {
   description: string; description_en?: string; description_de?: string; description_fr?: string
   tags: string[]; icon?: string
   gpx_url?: string
+  wikiloc_url?: string
   start_lat?: number; start_lng?: number
   end_lat?: number; end_lng?: number
   elevation_gain?: number
@@ -62,6 +66,7 @@ export default function HikingMode() {
   const h = t.hiking
   const d = t.difficulty
   const [trails, setTrails] = useState<Trail[]>(FALLBACK)
+  const [openMapId, setOpenMapId] = useState<string | null>(null)
 
   function trailField(trail: Trail, base: 'name' | 'description' | 'start_point'): string {
     if (lang === 'el') return (trail[base] as string) ?? ''
@@ -143,6 +148,19 @@ export default function HikingMode() {
                         <span>📍</span>
                         <span>{h.start} — Google Maps</span>
                       </a>
+                      {(trail.gpx_url || (trail.start_lat && trail.start_lng)) && (
+                        <button
+                          onClick={() => setOpenMapId(openMapId === trail.id ? null : trail.id)}
+                          className={`inline-flex items-center gap-2 text-xs border px-4 py-2 transition-colors ${
+                            openMapId === trail.id
+                              ? 'bg-olive text-white border-olive'
+                              : 'text-olive border-olive/40 hover:bg-olive hover:text-white'
+                          }`}
+                        >
+                          <span>🗺️</span>
+                          <span>Δες χάρτη</span>
+                        </button>
+                      )}
                       {trail.gpx_url && (
                         <a
                           href={trail.gpx_url}
@@ -153,7 +171,30 @@ export default function HikingMode() {
                           <span>GPX</span>
                         </a>
                       )}
+                      {trail.wikiloc_url && (
+                        <a
+                          href={trail.wikiloc_url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-2 text-xs text-deep-wood/60 border border-deep-wood/20 px-4 py-2 hover:bg-deep-wood hover:text-white transition-colors"
+                        >
+                          <span>🌐</span>
+                          <span>Wikiloc</span>
+                        </a>
+                      )}
                     </div>
+
+                    {openMapId === trail.id && (
+                      <div className="mt-4">
+                        <TrailMap
+                          gpxUrl={trail.gpx_url}
+                          startLat={trail.start_lat}
+                          startLng={trail.start_lng}
+                          endLat={trail.end_lat}
+                          endLng={trail.end_lng}
+                        />
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>

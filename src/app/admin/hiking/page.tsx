@@ -37,6 +37,7 @@ type TrailForm = {
   description: string; description_en: string; description_de: string; description_fr: string
   start_point: string; start_point_en: string; tags: string | string[]; icon: string
   gpx_url: string
+  wikiloc_url: string
   start_lat: string; start_lng: string
   end_lat: string; end_lng: string
   elevation_gain: string
@@ -47,7 +48,8 @@ const EMPTY: TrailForm = {
   distance: '', duration: '', elevation: '', difficulty: 'Εύκολη',
   description: '', description_en: '', description_de: '', description_fr: '',
   start_point: '', start_point_en: '', tags: '', icon: '🥾',
-  gpx_url: '', start_lat: '', start_lng: '', end_lat: '', end_lng: '', elevation_gain: '',
+  gpx_url: '', wikiloc_url: '',
+  start_lat: '39.295', start_lng: '23.124', end_lat: '', end_lng: '', elevation_gain: '',
 }
 
 const DIFFICULTIES = ['Εύκολη', 'Μέτρια', 'Δύσκολη']
@@ -88,6 +90,7 @@ export default function AdminHikingPage() {
       tags: typeof form.tags === 'string'
         ? form.tags.split(',').map((t: string) => t.trim()).filter(Boolean)
         : form.tags,
+      wikiloc_url: form.wikiloc_url || '',
       start_lat: form.start_lat ? parseFloat(form.start_lat) : null,
       start_lng: form.start_lng ? parseFloat(form.start_lng) : null,
       end_lat: form.end_lat ? parseFloat(form.end_lat) : null,
@@ -117,7 +120,8 @@ export default function AdminHikingPage() {
       tags: Array.isArray(t.tags) ? t.tags.join(', ') : t.tags ?? '',
       icon: t.icon ?? '🥾',
       gpx_url: t.gpx_url ?? '',
-      start_lat: t.start_lat?.toString() ?? '',
+      wikiloc_url: (t as Trail & { wikiloc_url?: string }).wikiloc_url ?? '',
+      start_lat: t.start_lat?.toString() ?? '39.295',
       start_lng: t.start_lng?.toString() ?? '',
       end_lat: t.end_lat?.toString() ?? '',
       end_lng: t.end_lng?.toString() ?? '',
@@ -227,6 +231,8 @@ export default function AdminHikingPage() {
             <input value={form.gpx_url} onChange={e => setForm(p => ({ ...p, gpx_url: e.target.value }))}
               placeholder="ή paste URL" className="w-full border border-gray-300 px-3 py-1.5 text-xs placeholder-gray-400 focus:outline-none focus:border-olive mt-2" />
           </div>
+
+          <LabelInput fkey="wikiloc_url" label="Wikiloc URL" placeholder="https://www.wikiloc.com/..." />
 
           <div>
             <label className="block text-xs text-gray-500 uppercase tracking-wider mb-1.5">Ετικέτες (κόμμα)</label>
