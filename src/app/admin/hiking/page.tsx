@@ -167,12 +167,12 @@ export default function AdminHikingPage() {
         <div className="bg-white shadow-sm p-6 space-y-4">
           <h2 className="font-medium text-deep-wood">{editId ? 'Επεξεργασία' : 'Νέο Μονοπάτι'}</h2>
 
-          <LabelInput fkey="name_el"         label="Όνομα (EL)"             placeholder="π.χ. Χόρτο – Λαμπινού" />
-          <LabelInput fkey="name_en"        label="Name (EN)"              placeholder="Horto – Lambinou" />
-          <LabelInput fkey="name_de"        label="Name (DE)"              placeholder="Horto – Lambinou" />
-          <LabelInput fkey="name_fr"        label="Nom (FR)"               placeholder="Horto – Lambinou" />
-          <LabelInput fkey="start_point"    label="Εκκίνηση (EL)"         placeholder="π.χ. Χόρτο, παραλία" />
-          <LabelInput fkey="start_point_en" label="Start Point (EN)"       placeholder="Horto, beach" />
+          <LabelInput fkey="name_el"         label="Όνομα (EL)"   placeholder="π.χ. Χόρτο – Λαμπινού" />
+          <LabelInput fkey="name_en"         label="Όνομα (EN)"   placeholder="Horto – Lambinou" />
+          <LabelInput fkey="name_de"         label="Όνομα (DE)"   placeholder="Horto – Lambinou" />
+          <LabelInput fkey="name_fr"         label="Όνομα (FR)"   placeholder="Horto – Lambinou" />
+          <LabelInput fkey="start_point"     label="Εκκίνηση"     placeholder="π.χ. Χόρτο, παραλία" />
+          <LabelInput fkey="start_point_en"  label="Εκκίνηση (EN)" placeholder="Horto, beach" />
           <LabelInput fkey="end_point"      label="Τέλος διαδρομής"        placeholder="π.χ. Λαμπινού, πλατεία" />
           <LabelInput fkey="slug"           label="Slug (URL)"             placeholder="horto-lambinou" />
           <div className="grid grid-cols-2 gap-3">
@@ -264,9 +264,9 @@ export default function AdminHikingPage() {
 
           {[
             { key: 'description_el', label: 'Περιγραφή (EL)' },
-            { key: 'description_en', label: 'Description (EN)' },
-            { key: 'description_de', label: 'Beschreibung (DE)' },
-            { key: 'description_fr', label: 'Description (FR)' },
+            { key: 'description_en', label: 'Περιγραφή (EN)' },
+            { key: 'description_de', label: 'Περιγραφή (DE)' },
+            { key: 'description_fr', label: 'Περιγραφή (FR)' },
           ].map(f => (
             <div key={f.key}>
               <label className="block text-xs text-gray-500 uppercase tracking-wider mb-1.5">{f.label}</label>

@@ -63,12 +63,19 @@ const IcoPOI = () => (
     <circle cx="12" cy="10" r="3"/>
   </svg>
 )
+const IcoHiking = () => (
+  <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M3 17l4-8 4 4 3-6 4 10"/>
+    <path d="M3 20h18"/>
+  </svg>
+)
 
 const NAV = [
   { href: '/admin',            Icon: IcoDashboard,   label: 'Dashboard',      sub: 'Active',           exact: true },
   { href: '/admin/bookings',   Icon: IcoBookings,    label: 'Κρατήσεις',      sub: 'Bookings' },
   { href: '/admin/finances',   Icon: IcoFinance,     label: 'Οικονομικά',     sub: 'Finance' },
   { href: '/admin/activities', Icon: IcoActivities,  label: 'Δραστηριότητες', sub: 'Activities CMS' },
+  { href: '/admin/hiking',     Icon: IcoHiking,      label: 'Μονοπάτια',      sub: 'Hiking Trails' },
   { href: '/admin/soul',       Icon: IcoSoul,        label: 'Ψυχή Πηλίου',   sub: 'Soul Section' },
   { href: '/admin/heritage',   Icon: IcoHeritage,    label: 'Κληρονομιά',          sub: 'Heritage Photos' },
   { href: '/admin/memories',   Icon: IcoMemories,    label: 'Παλιές Αναμνήσεις',  sub: 'Slider Photos' },

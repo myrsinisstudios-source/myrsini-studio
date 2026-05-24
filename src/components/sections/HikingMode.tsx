@@ -41,6 +41,7 @@ export default function HikingMode() {
   const d = t.difficulty
   const [trails, setTrails] = useState<Trail[]>([])
   const [openMapId, setOpenMapId] = useState<string | null>(null)
+  const [openWikiloc, setOpenWikiloc] = useState<string | null>(null)
 
   function trailField(trail: Trail, base: 'name' | 'description' | 'start_point'): string {
     const elKey = base === 'name' ? 'name_el' : base === 'description' ? 'description_el' : 'start_point'
@@ -147,17 +148,28 @@ export default function HikingMode() {
                           <span>GPX</span>
                         </a>
                       )}
-                      {trail.wikiloc_url && (
-                        <a
-                          href={trail.wikiloc_url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="inline-flex items-center gap-2 text-xs text-deep-wood/60 border border-deep-wood/20 px-4 py-2 hover:bg-deep-wood hover:text-white transition-colors"
-                        >
-                          <span>🌐</span>
-                          <span>Wikiloc</span>
-                        </a>
-                      )}
+                      {trail.wikiloc_url && (() => {
+                        const wid = trail.wikiloc_url!.match(/-(\d+)$/)?.[1]
+                        if (wid) return (
+                          <button
+                            onClick={() => setOpenWikiloc(openWikiloc === trail.id ? null : trail.id)}
+                            className={`inline-flex items-center gap-2 text-xs border px-4 py-2 transition-colors ${
+                              openWikiloc === trail.id
+                                ? 'bg-deep-wood text-white border-deep-wood'
+                                : 'text-deep-wood/60 border-deep-wood/20 hover:bg-deep-wood hover:text-white'
+                            }`}
+                          >
+                            <span>🌐</span>
+                            <span>Wikiloc</span>
+                          </button>
+                        )
+                        return (
+                          <a href={trail.wikiloc_url} target="_blank" rel="noopener noreferrer"
+                            className="inline-flex items-center gap-2 text-xs text-deep-wood/60 border border-deep-wood/20 px-4 py-2 hover:bg-deep-wood hover:text-white transition-colors">
+                            <span>🌐</span><span>Wikiloc</span>
+                          </a>
+                        )
+                      })()}
                     </div>
 
                     {openMapId === trail.id && (
@@ -171,6 +183,22 @@ export default function HikingMode() {
                         />
                       </div>
                     )}
+
+                    {openWikiloc === trail.id && (() => {
+                      const wid = trail.wikiloc_url!.match(/-(\d+)$/)?.[1]
+                      if (!wid) return null
+                      return (
+                        <div className="mt-4 overflow-hidden transition-all" style={{ borderRadius: 8 }}>
+                          <iframe
+                            src={`https://www.wikiloc.com/wikiloc/embed.do?id=${wid}`}
+                            className="w-full sm:h-[400px] h-[300px] border-0"
+                            style={{ borderRadius: 8 }}
+                            loading="lazy"
+                            allowFullScreen
+                          />
+                        </div>
+                      )
+                    })()}
                   </div>
                 </div>
               </div>
