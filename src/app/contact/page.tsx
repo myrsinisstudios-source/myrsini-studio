@@ -2,11 +2,18 @@
 
 import { useState, useRef } from 'react'
 import { useLanguage } from '@/lib/i18n/LanguageContext'
+import type { Lang } from '@/lib/i18n/translations'
 import type { SiteSettings } from '@/components/home/WeatherWidget'
 import { useEffect } from 'react'
 
+const CONTACT_VM = {
+  name:    { el: 'Απαιτείται ονοματεπώνυμο (≥2 χαρακτήρες)', en: 'Full name required (min 2 chars)', de: 'Name erforderlich (mind. 2 Zeichen)', fr: 'Nom requis (min 2 caractères)' },
+  email:   { el: 'Εισάγετε έγκυρη διεύθυνση email', en: 'Enter a valid email address', de: 'Gültige E-Mail-Adresse erforderlich', fr: 'Adresse e-mail valide requise' },
+  message: { el: 'Παρακαλώ εισάγετε μήνυμα', en: 'Please enter a message', de: 'Bitte Nachricht eingeben', fr: 'Veuillez saisir un message' },
+} as const
+
 export default function ContactPage() {
-  const { t } = useLanguage()
+  const { t, lang } = useLanguage()
   const c = t.contact
   const renderTimeRef = useRef(Date.now())
 
@@ -16,6 +23,7 @@ export default function ContactPage() {
   const [message, setMessage] = useState('')
   const [hp, setHp]           = useState('')
   const [status, setStatus]   = useState<'idle' | 'sending' | 'success' | 'error'>('idle')
+  const [errors, setErrors]   = useState<Partial<Record<'name'|'email'|'message', string>>>({})
 
   const [settings, setSettings] = useState<SiteSettings | null>(null)
   useEffect(() => {
@@ -27,8 +35,19 @@ export default function ContactPage() {
   const address = settings?.address ?? 'Χόρτο, Πήλιο 37006'
   const waPhone = phone.replace(/\D/g, '')
 
+  const validate = () => {
+    const errs: Partial<Record<'name'|'email'|'message', string>> = {}
+    const l = (lang as Lang) in CONTACT_VM.name ? (lang as Lang) : 'el'
+    if (name.trim().length < 2)                                     errs.name    = CONTACT_VM.name[l]
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim()))          errs.email   = CONTACT_VM.email[l]
+    if (message.trim().length === 0)                                errs.message = CONTACT_VM.message[l]
+    setErrors(errs)
+    return Object.keys(errs).length === 0
+  }
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    if (!validate()) return
     setStatus('sending')
     try {
       const res = await fetch('/api/send-email', {
@@ -38,7 +57,7 @@ export default function ContactPage() {
       })
       if (res.ok) {
         setStatus('success')
-        setName(''); setEmail(''); setSubject(''); setMessage('')
+        setName(''); setEmail(''); setSubject(''); setMessage(''); setErrors({})
       } else {
         setStatus('error')
       }
@@ -147,21 +166,21 @@ export default function ContactPage() {
                   <label className="block text-[10px] uppercase tracking-wider text-deep-wood/50 mb-1.5">{c.name} *</label>
                   <input
                     type="text"
-                    required
                     value={name}
-                    onChange={e => setName(e.target.value)}
-                    className="w-full px-4 py-3 bg-white border border-deep-wood/15 text-deep-wood text-sm focus:outline-none focus:border-olive transition-colors"
+                    onChange={e => { setName(e.target.value); setErrors(er => ({ ...er, name: undefined })) }}
+                    className={`w-full px-4 py-3 bg-white border text-deep-wood text-sm focus:outline-none transition-colors ${errors.name ? 'border-red-400 focus:border-red-400' : 'border-deep-wood/15 focus:border-olive'}`}
                   />
+                  {errors.name && <p className="text-xs text-red-600 mt-1">{errors.name}</p>}
                 </div>
                 <div>
                   <label className="block text-[10px] uppercase tracking-wider text-deep-wood/50 mb-1.5">{c.email} *</label>
                   <input
-                    type="email"
-                    required
+                    type="text"
                     value={email}
-                    onChange={e => setEmail(e.target.value)}
-                    className="w-full px-4 py-3 bg-white border border-deep-wood/15 text-deep-wood text-sm focus:outline-none focus:border-olive transition-colors"
+                    onChange={e => { setEmail(e.target.value); setErrors(er => ({ ...er, email: undefined })) }}
+                    className={`w-full px-4 py-3 bg-white border text-deep-wood text-sm focus:outline-none transition-colors ${errors.email ? 'border-red-400 focus:border-red-400' : 'border-deep-wood/15 focus:border-olive'}`}
                   />
+                  {errors.email && <p className="text-xs text-red-600 mt-1">{errors.email}</p>}
                 </div>
               </div>
 
@@ -178,12 +197,12 @@ export default function ContactPage() {
               <div>
                 <label className="block text-[10px] uppercase tracking-wider text-deep-wood/50 mb-1.5">{c.message} *</label>
                 <textarea
-                  required
                   rows={6}
                   value={message}
-                  onChange={e => setMessage(e.target.value)}
-                  className="w-full px-4 py-3 bg-white border border-deep-wood/15 text-deep-wood text-sm focus:outline-none focus:border-olive transition-colors resize-none"
+                  onChange={e => { setMessage(e.target.value); setErrors(er => ({ ...er, message: undefined })) }}
+                  className={`w-full px-4 py-3 bg-white border text-deep-wood text-sm focus:outline-none transition-colors resize-none ${errors.message ? 'border-red-400 focus:border-red-400' : 'border-deep-wood/15 focus:border-olive'}`}
                 />
+                {errors.message && <p className="text-xs text-red-600 mt-1">{errors.message}</p>}
               </div>
 
               {status === 'success' && (

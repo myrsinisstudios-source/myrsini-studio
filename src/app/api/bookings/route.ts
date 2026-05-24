@@ -5,6 +5,9 @@ const APT_NAMES: Record<string, string> = {
   thalassino: 'Το Θαλασσινό',
 }
 
+const SB_URL = process.env.NEXT_PUBLIC_SUPABASE_URL
+const SB_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+
 export async function POST(request: Request) {
   try {
     const body = await request.json()
@@ -29,32 +32,83 @@ export async function POST(request: Request) {
     const nights = Math.ceil(
       (new Date(check_out).getTime() - new Date(check_in).getTime()) / 86400000,
     )
-
-    /* ── Save to Supabase ── */
-    try {
-      const { createClient } = await import('@/lib/supabase/server')
-      const supabase = await createClient()
-      await supabase.from('bookings').insert({
-        apartment_id,
-        guest_name,
-        guest_phone,
-        check_in,
-        check_out,
-        num_guests: num_guests ?? 2,
-        nights,
-        price_per_night: price_per_night ?? 0,
-        total_amount: total_amount ?? price_per_night * nights,
-        channel,
-        status: 'confirmed',
-        language,
-      })
-    } catch {
-      /* Supabase not configured — continue anyway */
-    }
-
-    /* ── Send WhatsApp via Twilio ── */
+    const finalTotal = total_amount ?? (price_per_night ?? 0) * nights
     const apartmentName = APT_NAMES[apartment_id] ?? apartment_id
 
+    let bookingSaved = false
+
+    /* ── 1. Save to Supabase bookings table ── */
+    if (SB_URL && SB_KEY) {
+      try {
+        const { createClient } = await import('@/lib/supabase/server')
+        const supabase = await createClient()
+
+        // Resolve apartment slug → UUID (FK constraint)
+        let resolved_apt_id: string = apartment_id
+        try {
+          const { data: aptRow } = await supabase
+            .from('apartments')
+            .select('id')
+            .eq('slug', apartment_id)
+            .single()
+          if (aptRow?.id) resolved_apt_id = aptRow.id
+        } catch {}
+
+        const { error: insertError } = await supabase.from('bookings').insert({
+          apartment_id: resolved_apt_id,
+          guest_name,
+          guest_phone,
+          check_in,
+          check_out,
+          num_guests: num_guests ?? 2,
+          nights,
+          price_per_night: price_per_night ?? 0,
+          total_amount: finalTotal,
+          channel,
+          status: 'confirmed',
+          language,
+        })
+
+        if (!insertError) bookingSaved = true
+      } catch {
+        /* Supabase not configured */
+      }
+    }
+
+    /* ── 2. Dual-write to contact_messages (admin inbox visibility) ── */
+    if (SB_URL && SB_KEY) {
+      try {
+        const msgBody = [
+          `📅 Άφιξη: ${check_in} · Αναχώρηση: ${check_out}`,
+          `👥 Άτομα: ${num_guests ?? 2} · Νύχτες: ${nights}`,
+          `💰 Σύνολο: €${finalTotal}`,
+          `📞 Τηλ: ${guest_phone}`,
+          `🌐 Γλώσσα: ${String(language).toUpperCase()} · Κανάλι: ${channel}`,
+        ].join('\n')
+
+        await fetch(`${SB_URL}/rest/v1/contact_messages`, {
+          method: 'POST',
+          headers: {
+            apikey: SB_KEY,
+            Authorization: `Bearer ${SB_KEY}`,
+            'Content-Type': 'application/json',
+            Prefer: 'return=minimal',
+          },
+          body: JSON.stringify({
+            name: guest_name,
+            email: `booking_${Date.now()}@myrsini-direct.local`,
+            subject: `🏨 Κράτηση: ${apartmentName} (${check_in} → ${check_out})`,
+            message: msgBody,
+            apartment_slug: apartment_id,
+          }),
+        })
+        bookingSaved = true
+      } catch {
+        /* contact_messages may not exist yet */
+      }
+    }
+
+    /* ── 3. WhatsApp notification (Twilio) ── */
     await sendWhatsApp({
       type: 'confirmation',
       language,
@@ -66,10 +120,16 @@ export async function POST(request: Request) {
         check_out,
         num_guests: num_guests ?? 2,
         nights,
-        total_amount: total_amount ?? 0,
+        total_amount: finalTotal,
         owner_phone: process.env.TWILIO_OWNER_PHONE ?? '',
       },
     })
+
+    if (!bookingSaved) {
+      // Neither Supabase nor contact_messages succeeded — still return ok
+      // (Twilio may have worked; we don't want to block the UX)
+      console.warn('Booking notification: Supabase not available, booking may not be persisted.')
+    }
 
     return NextResponse.json({ success: true })
   } catch (error) {

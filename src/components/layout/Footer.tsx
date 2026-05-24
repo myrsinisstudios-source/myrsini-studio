@@ -3,10 +3,17 @@
 import { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
 import { useLanguage } from '@/lib/i18n/LanguageContext'
+import type { Lang } from '@/lib/i18n/translations'
 import type { SiteSettings } from '@/components/home/WeatherWidget'
 
+const MINI_VM = {
+  name:    { el: 'Απαιτείται ονοματεπώνυμο (≥2 χαρακτήρες)', en: 'Full name required (min 2 chars)', de: 'Name erforderlich (mind. 2 Zeichen)', fr: 'Nom requis (min 2 caractères)' },
+  email:   { el: 'Εισάγετε έγκυρη διεύθυνση email', en: 'Enter a valid email address', de: 'Gültige E-Mail-Adresse erforderlich', fr: 'Adresse e-mail valide requise' },
+  message: { el: 'Παρακαλώ εισάγετε μήνυμα', en: 'Please enter a message', de: 'Bitte Nachricht eingeben', fr: 'Veuillez saisir un message' },
+} as const
+
 function MiniContactForm() {
-  const { t } = useLanguage()
+  const { t, lang } = useLanguage()
   const c = t.contact
   const renderTimeRef = useRef(Date.now())
   const [name, setName]     = useState('')
@@ -14,9 +21,21 @@ function MiniContactForm() {
   const [msg, setMsg]       = useState('')
   const [hp, setHp]         = useState('')
   const [status, setStatus] = useState<'idle' | 'sending' | 'success' | 'error'>('idle')
+  const [errors, setErrors] = useState<Partial<Record<'name'|'email'|'message', string>>>({})
+
+  const validate = () => {
+    const errs: Partial<Record<'name'|'email'|'message', string>> = {}
+    const l = (lang as Lang) in MINI_VM.name ? (lang as Lang) : 'el'
+    if (name.trim().length < 2)                                   errs.name    = MINI_VM.name[l]
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim()))        errs.email   = MINI_VM.email[l]
+    if (msg.trim().length === 0)                                  errs.message = MINI_VM.message[l]
+    setErrors(errs)
+    return Object.keys(errs).length === 0
+  }
 
   const send = async (e: React.FormEvent) => {
     e.preventDefault()
+    if (!validate()) return
     setStatus('sending')
     try {
       const res = await fetch('/api/send-email', {
@@ -25,6 +44,7 @@ function MiniContactForm() {
         body: JSON.stringify({ name, email, message: msg, _hp: hp, _t: renderTimeRef.current }),
       })
       setStatus(res.ok ? 'success' : 'error')
+      if (res.ok) { setName(''); setEmail(''); setMsg(''); setErrors({}) }
     } catch {
       setStatus('error')
     }
@@ -49,30 +69,36 @@ function MiniContactForm() {
         style={{ position: 'absolute', left: '-9999px', opacity: 0, pointerEvents: 'none' }}
         autoComplete="off"
       />
-      <input
-        type="text"
-        required
-        placeholder={c.name}
-        value={name}
-        onChange={e => setName(e.target.value)}
-        className="w-full bg-white/8 border border-white/15 text-white/80 placeholder-white/30 text-xs px-3 py-2.5 focus:outline-none focus:border-white/40 transition-colors"
-      />
-      <input
-        type="email"
-        required
-        placeholder={c.email}
-        value={email}
-        onChange={e => setEmail(e.target.value)}
-        className="w-full bg-white/8 border border-white/15 text-white/80 placeholder-white/30 text-xs px-3 py-2.5 focus:outline-none focus:border-white/40 transition-colors"
-      />
-      <textarea
-        required
-        rows={3}
-        placeholder={c.miniPlaceholder}
-        value={msg}
-        onChange={e => setMsg(e.target.value)}
-        className="w-full bg-white/8 border border-white/15 text-white/80 placeholder-white/30 text-xs px-3 py-2.5 focus:outline-none focus:border-white/40 transition-colors resize-none"
-      />
+      <div>
+        <input
+          type="text"
+          placeholder={c.name}
+          value={name}
+          onChange={e => { setName(e.target.value); setErrors(er => ({ ...er, name: undefined })) }}
+          className={`w-full bg-white/8 border text-white/80 placeholder-white/30 text-xs px-3 py-2.5 focus:outline-none transition-colors ${errors.name ? 'border-red-400' : 'border-white/15 focus:border-white/40'}`}
+        />
+        {errors.name && <p className="text-red-400 text-[10px] mt-1">{errors.name}</p>}
+      </div>
+      <div>
+        <input
+          type="text"
+          placeholder={c.email}
+          value={email}
+          onChange={e => { setEmail(e.target.value); setErrors(er => ({ ...er, email: undefined })) }}
+          className={`w-full bg-white/8 border text-white/80 placeholder-white/30 text-xs px-3 py-2.5 focus:outline-none transition-colors ${errors.email ? 'border-red-400' : 'border-white/15 focus:border-white/40'}`}
+        />
+        {errors.email && <p className="text-red-400 text-[10px] mt-1">{errors.email}</p>}
+      </div>
+      <div>
+        <textarea
+          rows={3}
+          placeholder={c.miniPlaceholder}
+          value={msg}
+          onChange={e => { setMsg(e.target.value); setErrors(er => ({ ...er, message: undefined })) }}
+          className={`w-full bg-white/8 border text-white/80 placeholder-white/30 text-xs px-3 py-2.5 focus:outline-none transition-colors resize-none ${errors.message ? 'border-red-400' : 'border-white/15 focus:border-white/40'}`}
+        />
+        {errors.message && <p className="text-red-400 text-[10px] mt-1">{errors.message}</p>}
+      </div>
       {status === 'error' && (
         <p className="text-red-400 text-xs">{c.error}</p>
       )}

@@ -4,7 +4,14 @@ import { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
 import ReactMarkdown from 'react-markdown'
 import { useLanguage } from '@/lib/i18n/LanguageContext'
+import type { Lang } from '@/lib/i18n/translations'
 import type { ApartmentData } from '@/app/apartments/[slug]/page'
+
+const INQUIRY_VM = {
+  name:    { el: 'Απαιτείται ονοματεπώνυμο (≥2 χαρακτήρες)', en: 'Full name required (min 2 chars)', de: 'Name erforderlich (mind. 2 Zeichen)', fr: 'Nom requis (min 2 caractères)' },
+  email:   { el: 'Εισάγετε έγκυρη διεύθυνση email', en: 'Enter a valid email address', de: 'Gültige E-Mail-Adresse erforderlich', fr: 'Adresse e-mail valide requise' },
+  message: { el: 'Παρακαλώ εισάγετε μήνυμα', en: 'Please enter a message', de: 'Bitte Nachricht eingeben', fr: 'Veuillez saisir un message' },
+} as const
 
 function DescriptionBlock({ text }: { text: string }) {
   const hasMarkdown = /#{1,3} |^\s*[-*] |\*\*|\n\n/m.test(text)
@@ -62,7 +69,7 @@ function getLocalized(apt: ApartmentData, base: 'name' | 'description', lang: st
 }
 
 function BookingInquiry({ apartmentName, apartmentSlug }: { apartmentName: string; apartmentSlug: string }) {
-  const { t } = useLanguage()
+  const { t, lang } = useLanguage()
   const c = t.contact
   const renderTimeRef = useRef(Date.now())
   const [name, setName]     = useState('')
@@ -70,9 +77,21 @@ function BookingInquiry({ apartmentName, apartmentSlug }: { apartmentName: strin
   const [msg, setMsg]       = useState('')
   const [hp, setHp]         = useState('')
   const [status, setStatus] = useState<'idle' | 'sending' | 'success' | 'error'>('idle')
+  const [errors, setErrors] = useState<Partial<Record<'name'|'email'|'message', string>>>({})
+
+  const validate = () => {
+    const errs: Partial<Record<'name'|'email'|'message', string>> = {}
+    const l = (lang as Lang) in INQUIRY_VM.name ? (lang as Lang) : 'el'
+    if (name.trim().length < 2)                                   errs.name    = INQUIRY_VM.name[l]
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim()))        errs.email   = INQUIRY_VM.email[l]
+    if (msg.trim().length === 0)                                  errs.message = INQUIRY_VM.message[l]
+    setErrors(errs)
+    return Object.keys(errs).length === 0
+  }
 
   const send = async (e: React.FormEvent) => {
     e.preventDefault()
+    if (!validate()) return
     setStatus('sending')
     try {
       const res = await fetch('/api/send-email', {
@@ -88,7 +107,7 @@ function BookingInquiry({ apartmentName, apartmentSlug }: { apartmentName: strin
         }),
       })
       setStatus(res.ok ? 'success' : 'error')
-      if (res.ok) { setName(''); setEmail(''); setMsg('') }
+      if (res.ok) { setName(''); setEmail(''); setMsg(''); setErrors({}) }
     } catch {
       setStatus('error')
     }
@@ -119,32 +138,32 @@ function BookingInquiry({ apartmentName, apartmentSlug }: { apartmentName: strin
                 <label className="block text-[10px] uppercase tracking-wider text-deep-wood/50 mb-1.5">{c.name} *</label>
                 <input
                   type="text"
-                  required
                   value={name}
-                  onChange={e => setName(e.target.value)}
-                  className="w-full px-3 py-2.5 border border-deep-wood/15 text-deep-wood text-sm focus:outline-none focus:border-olive bg-cream transition-colors"
+                  onChange={e => { setName(e.target.value); setErrors(er => ({ ...er, name: undefined })) }}
+                  className={`w-full px-3 py-2.5 border text-deep-wood text-sm focus:outline-none bg-cream transition-colors ${errors.name ? 'border-red-400 focus:border-red-400' : 'border-deep-wood/15 focus:border-olive'}`}
                 />
+                {errors.name && <p className="text-xs text-red-600 mt-1">{errors.name}</p>}
               </div>
               <div>
                 <label className="block text-[10px] uppercase tracking-wider text-deep-wood/50 mb-1.5">{c.email} *</label>
                 <input
-                  type="email"
-                  required
+                  type="text"
                   value={email}
-                  onChange={e => setEmail(e.target.value)}
-                  className="w-full px-3 py-2.5 border border-deep-wood/15 text-deep-wood text-sm focus:outline-none focus:border-olive bg-cream transition-colors"
+                  onChange={e => { setEmail(e.target.value); setErrors(er => ({ ...er, email: undefined })) }}
+                  className={`w-full px-3 py-2.5 border text-deep-wood text-sm focus:outline-none bg-cream transition-colors ${errors.email ? 'border-red-400 focus:border-red-400' : 'border-deep-wood/15 focus:border-olive'}`}
                 />
+                {errors.email && <p className="text-xs text-red-600 mt-1">{errors.email}</p>}
               </div>
             </div>
             <div>
               <label className="block text-[10px] uppercase tracking-wider text-deep-wood/50 mb-1.5">{c.message} *</label>
               <textarea
-                required
                 rows={4}
                 value={msg}
-                onChange={e => setMsg(e.target.value)}
-                className="w-full px-3 py-2.5 border border-deep-wood/15 text-deep-wood text-sm focus:outline-none focus:border-olive bg-cream transition-colors resize-none"
+                onChange={e => { setMsg(e.target.value); setErrors(er => ({ ...er, message: undefined })) }}
+                className={`w-full px-3 py-2.5 border text-deep-wood text-sm focus:outline-none bg-cream transition-colors resize-none ${errors.message ? 'border-red-400 focus:border-red-400' : 'border-deep-wood/15 focus:border-olive'}`}
               />
+              {errors.message && <p className="text-xs text-red-600 mt-1">{errors.message}</p>}
             </div>
             {status === 'error' && (
               <p className="text-xs text-red-600 bg-red-50 border border-red-200 px-3 py-2">{c.error}</p>
