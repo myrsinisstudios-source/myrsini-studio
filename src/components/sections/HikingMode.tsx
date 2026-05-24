@@ -7,13 +7,13 @@ import { useLanguage } from '@/lib/i18n/LanguageContext'
 const TrailMap = dynamic(() => import('@/components/ui/TrailMap'), { ssr: false })
 
 type Trail = {
-  id: string; name: string; name_en?: string; name_de?: string; name_fr?: string
+  id: string; name_el: string; name_en?: string; name_de?: string; name_fr?: string
   difficulty: string; distance: string; duration: string; elevation: string
   start_point: string; start_point_en?: string; start_point_de?: string; start_point_fr?: string
-  description: string; description_en?: string; description_de?: string; description_fr?: string
-  tags: string[]; icon?: string
-  gpx_url?: string
-  wikiloc_url?: string
+  description_el: string; description_en?: string; description_de?: string; description_fr?: string
+  tags: string[]; icon?: string; slug?: string; end_point?: string
+  sort_order?: number; is_active?: boolean
+  gpx_url?: string; wikiloc_url?: string
   start_lat?: number; start_lng?: number
   end_lat?: number; end_lng?: number
   elevation_gain?: number
@@ -32,32 +32,6 @@ function getDifficultyLabel(raw: string, d: { easy: string; medium: string; hard
   return raw
 }
 
-const FALLBACK: Trail[] = [
-  {
-    id: '1', name: 'Χόρτο – Λαμπινού', name_en: 'Horto – Lambinou', difficulty: 'Μέτρια',
-    distance: '8.2 km', duration: '3ω 30λ', elevation: '+420 m',
-    start_point: 'Χόρτο, παραλία', start_point_en: 'Horto, beach',
-    description: 'Κλασικό πηλιορείτικο μονοπάτι που ανεβαίνει μέσα από ελαιώνες και δάση πουρναριών. Περνά από ερημικές εκκλησίτσες και αρχαία καλντερίμια προς τον ορεινό οικισμό Λαμπινού. Πανοραμική θέα προς Αιγαίο και Παγασητικό.',
-    description_en: 'A classic Pelion trail climbing through olive groves and kermes oak forests, passing deserted chapels and ancient cobblestone paths towards the mountain village of Lambinou. Panoramic views over the Aegean and Pagasitikos Gulf.',
-    tags: ['Ελαιώνες', 'Ιστορικά Μονοπάτια', 'Θέα'], icon: '⛰️',
-  },
-  {
-    id: '2', name: 'Χόρτο – Παραλία Μηλίνας', name_en: 'Horto – Milina Beach', difficulty: 'Εύκολη',
-    distance: '4.8 km', duration: '2ω 00λ', elevation: '+180 m',
-    start_point: 'Χόρτο, λιμάνι', start_point_en: 'Horto, harbour',
-    description: 'Εύκολη παράκτια διαδρομή κατάλληλη για όλες τις ηλικίες. Ακολουθεί την ακτογραμμή, περνά από μικρές κρυφές παραλίες και καταλήγει στο γραφικό λιμανάκι της Μηλίνας.',
-    description_en: 'An easy coastal walk suitable for all ages. It follows the shoreline past hidden coves and small secluded beaches, ending at the charming little harbour of Milina.',
-    tags: ['Παραλίες', 'Εύκολη', 'Κατάλληλο για παιδιά'], icon: '🌊',
-  },
-  {
-    id: '3', name: 'Κορυφογραμμή Νότιου Πηλίου', name_en: 'South Pelion Ridge', difficulty: 'Δύσκολη',
-    distance: '14.5 km', duration: '6ω 00λ', elevation: '+850 m',
-    start_point: 'Αργαλαστή, πλατεία', start_point_en: 'Argalasti, main square',
-    description: 'Απαιτητική ορεινή πεζοπορία για έμπειρους πεζοπόρους. Η κορυφογραμμή προσφέρει εκπληκτική θέα και στις δύο πλευρές — Παγασητικός και Αιγαίο — με φόντο τη Σκιάθο και τη Σκόπελο.',
-    description_en: 'A demanding mountain hike for experienced walkers. The ridge offers breathtaking views on both sides — the Pagasitikos Gulf and the Aegean — with Skiathos and Skopelos on the horizon.',
-    tags: ['Ορεινή', 'Πανοραμική Θέα', 'Έμπειροι'], icon: '🏔️',
-  },
-]
 
 const STAT = 'flex flex-col items-center p-3 bg-cream/70 border border-deep-wood/8 rounded-sm'
 
@@ -65,14 +39,15 @@ export default function HikingMode() {
   const { t, lang } = useLanguage()
   const h = t.hiking
   const d = t.difficulty
-  const [trails, setTrails] = useState<Trail[]>(FALLBACK)
+  const [trails, setTrails] = useState<Trail[]>([])
   const [openMapId, setOpenMapId] = useState<string | null>(null)
 
   function trailField(trail: Trail, base: 'name' | 'description' | 'start_point'): string {
-    if (lang === 'el') return (trail[base] as string) ?? ''
+    const elKey = base === 'name' ? 'name_el' : base === 'description' ? 'description_el' : 'start_point'
+    if (lang === 'el') return (trail[elKey as keyof Trail] as string) ?? ''
     const key = `${base}_${lang}` as keyof Trail
     const v = trail[key] as string | null | undefined
-    return v || (trail[`${base}_en` as keyof Trail] as string) || (trail[base] as string) || ''
+    return v || (trail[`${base}_en` as keyof Trail] as string) || (trail[elKey as keyof Trail] as string) || ''
   }
 
   useEffect(() => {
@@ -80,9 +55,10 @@ export default function HikingMode() {
       createClient()
         .from('hiking_trails')
         .select('*')
-        .order('id')
+        .eq('is_active', true)
+        .order('sort_order')
         .then(({ data }) => {
-          if (data && data.length > 0) setTrails(data as Trail[])
+          if (data) setTrails(data as Trail[])
         })
     })
   }, [])
