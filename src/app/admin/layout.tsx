@@ -69,6 +69,12 @@ const IcoHiking = () => (
     <path d="M3 20h18"/>
   </svg>
 )
+const IcoEmail = () => (
+  <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+    <rect x="2" y="4" width="20" height="16" rx="2"/>
+    <path d="M22 7l-10 7L2 7"/>
+  </svg>
+)
 
 const NAV = [
   { href: '/admin',            Icon: IcoDashboard,   label: 'Dashboard',      sub: 'Active',           exact: true },
@@ -81,6 +87,7 @@ const NAV = [
   { href: '/admin/memories',   Icon: IcoMemories,    label: 'Παλιές Αναμνήσεις',  sub: 'Slider Photos' },
   { href: '/admin/pois',       Icon: IcoPOI,         label: 'Τοπικός Οδηγός',     sub: 'Local Guide' },
   { href: '/admin/cms',        Icon: IcoMaintenance, label: 'Συντήρηση',           sub: 'Maintenance Log' },
+  { href: '/admin/email-settings', Icon: IcoEmail,    label: 'Μηνύματα',       sub: 'Contact Form' },
   { href: '/admin/settings',   Icon: IcoSettings,    label: 'Ρυθμίσεις',      sub: 'Settings' },
 ]
 

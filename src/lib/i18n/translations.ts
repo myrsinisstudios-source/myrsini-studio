@@ -2,7 +2,15 @@ export type Lang = 'el' | 'en' | 'de' | 'fr'
 
 export interface Translations {
   nav: {
-    apartments: string; activities: string; history: string; hiking: string; book: string
+    apartments: string; activities: string; history: string; hiking: string; book: string; contact: string
+  }
+  contact: {
+    title: string; subtitle: string; send: string; sending: string
+    name: string; email: string; subject: string; message: string
+    success: string; error: string
+    infoTitle: string; phone: string; emailLabel: string; address: string
+    miniTitle: string; miniPlaceholder: string; miniBtn: string
+    inquiryTitle: string; inquiryBtn: string
   }
   hero: {
     badge: string; title1: string; title2: string
@@ -76,7 +84,18 @@ export const translations: Record<Lang, Translations> = {
   el: {
     nav: {
       apartments: 'Καταλύματα', activities: 'Δραστηριότητες',
-      history: 'Ιστορία', hiking: 'Πεζοπορία', book: 'Κράτηση',
+      history: 'Ιστορία', hiking: 'Πεζοπορία', book: 'Κράτηση', contact: 'Επικοινωνία',
+    },
+    contact: {
+      title: 'Επικοινωνήστε μαζί μας', subtitle: 'Είμαστε εδώ για κάθε ερώτηση ή αίτημα',
+      send: 'Αποστολή Μηνύματος', sending: 'Αποστολή...',
+      name: 'Ονοματεπώνυμο', email: 'Email', subject: 'Θέμα', message: 'Μήνυμα',
+      success: '✅ Το μήνυμά σας στάλθηκε! Θα επικοινωνήσουμε σύντομα.',
+      error: '❌ Κάτι πήγε στραβά. Δοκιμάστε ξανά ή επικοινωνήστε τηλεφωνικά.',
+      infoTitle: 'Στοιχεία Επικοινωνίας',
+      phone: 'Τηλέφωνο', emailLabel: 'Email', address: 'Διεύθυνση',
+      miniTitle: 'Γρήγορο Μήνυμα', miniPlaceholder: 'Γράψτε μήνυμα...', miniBtn: 'Αποστολή',
+      inquiryTitle: 'Ερώτηση για αυτό το κατάλυμα', inquiryBtn: 'Στείλτε Ερώτηση',
     },
     hero: {
       badge: '🌿 Χόρτο · Νότιο Πήλιο · Ελλάδα', title1: "Myrsini's", title2: 'Studios',
@@ -175,7 +194,18 @@ export const translations: Record<Lang, Translations> = {
   en: {
     nav: {
       apartments: 'Rooms', activities: 'Activities',
-      history: 'History', hiking: 'Hiking', book: 'Book Now',
+      history: 'History', hiking: 'Hiking', book: 'Book Now', contact: 'Contact',
+    },
+    contact: {
+      title: 'Get in Touch', subtitle: 'We are here for any question or request',
+      send: 'Send Message', sending: 'Sending...',
+      name: 'Full Name', email: 'Email', subject: 'Subject', message: 'Message',
+      success: '✅ Your message has been sent! We will get back to you shortly.',
+      error: '❌ Something went wrong. Please try again or contact us by phone.',
+      infoTitle: 'Contact Information',
+      phone: 'Phone', emailLabel: 'Email', address: 'Address',
+      miniTitle: 'Quick Message', miniPlaceholder: 'Write a message...', miniBtn: 'Send',
+      inquiryTitle: 'Enquire about this accommodation', inquiryBtn: 'Send Enquiry',
     },
     hero: {
       badge: '🌿 Horto · South Pelion · Greece', title1: "Myrsini's", title2: 'Studios',
@@ -272,7 +302,18 @@ export const translations: Record<Lang, Translations> = {
   de: {
     nav: {
       apartments: 'Zimmer', activities: 'Aktivitäten',
-      history: 'Geschichte', hiking: 'Wandern', book: 'Buchen',
+      history: 'Geschichte', hiking: 'Wandern', book: 'Buchen', contact: 'Kontakt',
+    },
+    contact: {
+      title: 'Kontaktieren Sie uns', subtitle: 'Wir sind für jede Frage oder Anfrage da',
+      send: 'Nachricht senden', sending: 'Senden...',
+      name: 'Vollständiger Name', email: 'E-Mail', subject: 'Betreff', message: 'Nachricht',
+      success: '✅ Ihre Nachricht wurde gesendet! Wir melden uns in Kürze.',
+      error: '❌ Etwas ist schiefgelaufen. Bitte versuchen Sie es erneut.',
+      infoTitle: 'Kontaktdaten',
+      phone: 'Telefon', emailLabel: 'E-Mail', address: 'Adresse',
+      miniTitle: 'Schnelle Nachricht', miniPlaceholder: 'Nachricht schreiben...', miniBtn: 'Senden',
+      inquiryTitle: 'Anfrage zu dieser Unterkunft', inquiryBtn: 'Anfrage senden',
     },
     hero: {
       badge: '🌿 Chorto · Süd-Pelion · Griechenland', title1: "Myrsini's", title2: 'Studios',
@@ -369,7 +410,18 @@ export const translations: Record<Lang, Translations> = {
   fr: {
     nav: {
       apartments: 'Logements', activities: 'Activités',
-      history: 'Histoire', hiking: 'Randonnée', book: 'Réserver',
+      history: 'Histoire', hiking: 'Randonnée', book: 'Réserver', contact: 'Contact',
+    },
+    contact: {
+      title: 'Contactez-nous', subtitle: 'Nous sommes disponibles pour toute question',
+      send: 'Envoyer le message', sending: 'Envoi...',
+      name: 'Nom complet', email: 'E-mail', subject: 'Sujet', message: 'Message',
+      success: '✅ Votre message a été envoyé ! Nous vous répondrons bientôt.',
+      error: '❌ Une erreur est survenue. Veuillez réessayer.',
+      infoTitle: 'Coordonnées',
+      phone: 'Téléphone', emailLabel: 'E-mail', address: 'Adresse',
+      miniTitle: 'Message rapide', miniPlaceholder: 'Écrire un message...', miniBtn: 'Envoyer',
+      inquiryTitle: 'Renseignements sur cet hébergement', inquiryBtn: 'Envoyer la demande',
     },
     hero: {
       badge: '🌿 Horto · Pelion Sud · Grèce', title1: "Myrsini's", title2: 'Studios',

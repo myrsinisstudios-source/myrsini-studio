@@ -24,6 +24,7 @@ export default function Navbar() {
     { href: '/#activities', label: t.nav.activities },
     { href: '/#history',    label: t.nav.history },
     { href: '/#hiking',     label: t.nav.hiking },
+    { href: '/contact',     label: t.nav.contact },
   ]
 
   return (

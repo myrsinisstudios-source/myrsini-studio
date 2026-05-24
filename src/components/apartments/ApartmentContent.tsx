@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
 import ReactMarkdown from 'react-markdown'
 import { useLanguage } from '@/lib/i18n/LanguageContext'
@@ -59,6 +59,108 @@ function getLocalized(apt: ApartmentData, base: 'name' | 'description', lang: st
   if (lang === 'el') return (apt[`${base}_el` as keyof ApartmentData] as string) ?? ''
   const v = apt[`${base}_${lang}` as keyof ApartmentData] as string | null | undefined
   return v || (apt[`${base}_en` as keyof ApartmentData] as string) || (apt[`${base}_el` as keyof ApartmentData] as string) || ''
+}
+
+function BookingInquiry({ apartmentName, apartmentSlug }: { apartmentName: string; apartmentSlug: string }) {
+  const { t } = useLanguage()
+  const c = t.contact
+  const renderTimeRef = useRef(Date.now())
+  const [name, setName]     = useState('')
+  const [email, setEmail]   = useState('')
+  const [msg, setMsg]       = useState('')
+  const [hp, setHp]         = useState('')
+  const [status, setStatus] = useState<'idle' | 'sending' | 'success' | 'error'>('idle')
+
+  const send = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setStatus('sending')
+    try {
+      const res = await fetch('/api/send-email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name, email,
+          subject: `Inquiry: ${apartmentName}`,
+          message: msg,
+          apartment: apartmentSlug,
+          _hp: hp,
+          _t: renderTimeRef.current,
+        }),
+      })
+      setStatus(res.ok ? 'success' : 'error')
+      if (res.ok) { setName(''); setEmail(''); setMsg('') }
+    } catch {
+      setStatus('error')
+    }
+  }
+
+  return (
+    <div className="max-w-5xl mx-auto px-4 sm:px-6 pb-14">
+      <div className="bg-white border border-deep-wood/10 p-6 sm:p-8">
+        <h2 className="font-serif text-xl text-deep-wood mb-1">{c.inquiryTitle}</h2>
+        <p className="text-sm text-deep-wood/50 mb-6">{apartmentName}</p>
+
+        {status === 'success' ? (
+          <p className="text-sm text-olive bg-olive/5 border border-olive/20 px-4 py-3">{c.success}</p>
+        ) : (
+          <form onSubmit={send} className="space-y-4">
+            {/* Honeypot */}
+            <input
+              type="text"
+              value={hp}
+              onChange={e => setHp(e.target.value)}
+              tabIndex={-1}
+              aria-hidden="true"
+              style={{ position: 'absolute', left: '-9999px', opacity: 0, pointerEvents: 'none' }}
+              autoComplete="off"
+            />
+            <div className="grid sm:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-[10px] uppercase tracking-wider text-deep-wood/50 mb-1.5">{c.name} *</label>
+                <input
+                  type="text"
+                  required
+                  value={name}
+                  onChange={e => setName(e.target.value)}
+                  className="w-full px-3 py-2.5 border border-deep-wood/15 text-deep-wood text-sm focus:outline-none focus:border-olive bg-cream transition-colors"
+                />
+              </div>
+              <div>
+                <label className="block text-[10px] uppercase tracking-wider text-deep-wood/50 mb-1.5">{c.email} *</label>
+                <input
+                  type="email"
+                  required
+                  value={email}
+                  onChange={e => setEmail(e.target.value)}
+                  className="w-full px-3 py-2.5 border border-deep-wood/15 text-deep-wood text-sm focus:outline-none focus:border-olive bg-cream transition-colors"
+                />
+              </div>
+            </div>
+            <div>
+              <label className="block text-[10px] uppercase tracking-wider text-deep-wood/50 mb-1.5">{c.message} *</label>
+              <textarea
+                required
+                rows={4}
+                value={msg}
+                onChange={e => setMsg(e.target.value)}
+                className="w-full px-3 py-2.5 border border-deep-wood/15 text-deep-wood text-sm focus:outline-none focus:border-olive bg-cream transition-colors resize-none"
+              />
+            </div>
+            {status === 'error' && (
+              <p className="text-xs text-red-600 bg-red-50 border border-red-200 px-3 py-2">{c.error}</p>
+            )}
+            <button
+              type="submit"
+              disabled={status === 'sending'}
+              className="bg-deep-wood text-white px-6 py-3 text-sm tracking-wide hover:bg-olive transition-colors disabled:opacity-60"
+            >
+              {status === 'sending' ? c.sending : c.inquiryBtn}
+            </button>
+          </form>
+        )}
+      </div>
+    </div>
+  )
 }
 
 export default function ApartmentContent({ apartment: apt }: { apartment: ApartmentData }) {
@@ -204,6 +306,9 @@ export default function ApartmentContent({ apartment: apt }: { apartment: Apartm
           </div>
         </div>
       )}
+
+      {/* Booking inquiry */}
+      <BookingInquiry apartmentName={name} apartmentSlug={apt.slug} />
 
       {/* Lightbox */}
       {lightbox && (
